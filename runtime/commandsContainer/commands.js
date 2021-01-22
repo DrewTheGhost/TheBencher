@@ -50,7 +50,7 @@ Commands.bench = {
         let imageBuffer
         let foundDomers = await client.guilds.get(message.guildID).members.filter(m => m.roles.indexOf(domers) !== -1) 
         let domerName = foundDomers[(Math.floor(Math.random() * (foundDomers.length+1)))]
-        let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${domerName.username}`)        
+        let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${domerName.mention}`)        
         const options = {
             url: domerName.avatarURL,
             dest: './runtime/commandsContainer/domerImage.jpg'
