@@ -6,3 +6,11 @@ config.json
 
 # Don't need to upload my startup batch file
 *.bat
+
+# No images or videos!!
+*.png
+*.jpg
+*.jpeg
+*.bmp
+*.mp4
+*.mp3

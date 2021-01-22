@@ -1,0 +1,27 @@
+{
+  "name": "teambot",
+  "version": "1.0.0",
+  "description": "Does a bunch of stuff for the homies",
+  "main": "main.js",
+  "dependencies": {
+    "eris": "^0.14.0",
+    "image-downloader": "^4.0.2",
+    "image-js": "^0.31.4",
+    "require-directory": "^2.1.1",
+    "sharp": "^0.27.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DrewTheGhost/TheBencher.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DrewTheGhost/TheBencher/issues"
+  },
+  "homepage": "https://github.com/DrewTheGhost/TheBencher#readme"
+}
