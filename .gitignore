@@ -1,0 +1,8 @@
+# We do not want to upload every module into the repo
+/node_modules/
+
+# Also don't want to expose my config, which contains my token
+config.json
+
+# Don't need to upload my startup batch file
+*.bat
