@@ -148,9 +148,19 @@ Commands.assemble = {
         // Iterate through the array of nonWaiters and push all their mentions to an array for shaming later
         // Iterate through the array of waiters and move them to the penthouse
 
-        nonWaiters = nonWaiters.join(", ")
+        nonWaiters = nonWaiters.join(", ") 
+        // This will take the array of mentions for people who didn't wait and join them into one string delimited by commas
+        // Ex: ["<@160960464719708161>", "<@197114859316314112>", "<@161014852368859137>"] -> "<@160960464719708161>, <@197114859316314112>, <@161014852368859137>"
+
+        if(waiters.length <= 0) {
+            return message.channel.createMessage("Hey, dumbass. There's no one waiting.")
+        }
+
         message.channel.createMessage("Avengers! Assemble at The Penthouse!")
-        message.channel.createMessage(`Honorable mention: ${nonWaiters}. Bitches that didn't wait for the Captain.`)
+
+        if(nonWaiters.length > 0) {
+            message.channel.createMessage(`Honorable mention: ${nonWaiters}. Bitches that didn't wait for the Captain.`)
+        }
     }
 }
 
