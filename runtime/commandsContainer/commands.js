@@ -2,9 +2,9 @@ const Commands = []                                // Array of all commands whic
 const util = require("util")                       // For inspecting my evals or debugging other things
 const domers = "779446753606238258"                // This is the ID of the domer role
 const lines = require("./benchRandoms.json").lines // This is the entire array of random one-liners for the bench command
-const image = require("image-js")                  // Image editor
+const image = require("image-js")                  // Image editor (grayscaling)
 const download = require("image-downloader")       // Yeah.. downloads images because I don't want to write HTTP requests to do it myself
-const sharp = require("sharp")                     // This is for combining and grayscaling images
+const sharp = require("sharp")                     // This is for combining images
 sharp.cache({files: 1})                            // Set cache to 1 file otherwise it never creates a new file after the first
 const susVideos = require("./hesstonFiles/videoController.json").names // List of all videos for hesston's command
 const fs = require("fs")                                               // Used for mp4 -> buffer to upload files
