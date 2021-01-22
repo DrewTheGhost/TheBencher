@@ -43,7 +43,6 @@ Commands.ping = {
 
 Commands.bench = {
     fn: async function(message, client) {
-
         message.channel.createMessage("I'm spinnin the wheel! Some unlucky fucker is sittin' out this domin' round!")
         // foundDomers filters through everyone with the domer role and returns an array with member objects of everyone with the role
         let foundDomers = await client.guilds.get(message.guildID).members.filter(m => m.roles.indexOf(domers) !== -1)
@@ -55,6 +54,21 @@ Commands.bench = {
         message.channel.createMessage(chosenLine)
     },
     private: false
+}
+
+Commands.assemble = {
+    fn: function(message, client) {
+        if(message.author.id !== "466767464902950922") {
+            return message.channel.createMessage("This is a Caelan only command, retard!")
+        }
+        let waiters = client.guilds.get(message.guildID).voiceStates.filter(m => m.channelID == "784537245616439296")
+        // Filter through all voiceStates and return an array of all states where the person is in the waiting room
+        waiters.forEach(waiter => {
+            client.guilds.get(message.guildID).members.find(m => m.id == waiter.id).edit({channelID: "773245943218307082"})
+        }) // Iterate through the array of waiters and move them to the penthouse
+        
+        message.channel.createMessage("Avengers! Assemble at The Penthouse!")
+    }
 }
 
 // Exports the entire Commands array to be accessible outside the commands file

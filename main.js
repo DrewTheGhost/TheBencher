@@ -21,7 +21,7 @@ client.on("messageCreate", message => {
         // cmd is everything after the prefix but still attached to the prefix, the command name
         suffix = message.content.substr(prefix.length).split(' ')
         suffix = suffix.slice(1, suffix.length).join(' ')
-        // Suffix is everything after the command name, this is for commands that can take user input (none as of writing this)
+        // Suffix is everything after the command name, this is for commands that can take user input (only eval as of writing this)
     }
     if(cmd) {
         // If a cmd is found attached to a prefix
