@@ -140,7 +140,7 @@ Commands.assemble = {
         let nonWaiters = []
         
         nonWaitersVoiceStates.forEach(nonwaiter => {
-            nonWaiters.push(client.guilds.get(message.guildID).members.find(m => m.id == nonwaiter.id).mention)
+            nonWaiters.push(client.guilds.get(message.guildID).members.find(m => m.id == nonwaiter.id && m.id !== "466767464902950922").mention)
         })
         waiters.forEach(waiter => {
             client.guilds.get(message.guildID).members.find(m => m.id == waiter.id).edit({channelID: "773245943218307082"})
