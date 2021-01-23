@@ -49,7 +49,7 @@ Commands.bench = {
     fn: async function(message, client) {
         let imageBuffer
         let foundDomers = await client.guilds.get(message.guildID).members.filter(m => m.roles.indexOf(domers) !== -1) 
-        let domerName = foundDomers[(Math.floor(Math.random() * (foundDomers.length+1)))]
+        let domerName = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]
         let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${domerName.mention}`)        
         const options = {
             url: domerName.avatarURL,
@@ -62,18 +62,16 @@ Commands.bench = {
         // options saves the options for downloading the chosen person's avatar
         message.channel.createMessage("I'm spinnin the wheel! Some unlucky fucker is sittin' out this domin' round!")
         
-        await download.image(options)
-        .then(() => {
-        })
+        await download.image(options).then()
         .catch(e => {
             console.error("Saving file failed:", e)
         })
+
         let domerImage = await image.Image.load("./runtime/commandsContainer/domerImage.jpg")
         domerImage = domerImage.grey()
         await domerImage.save("./runtime/commandsContainer/domerImage.jpg")
         
-        // Sends the random one-liner with who is sitting out
-        message.channel.createMessage(chosenLine)
+        message.channel.createMessage(chosenLine)                   // Sends the random one-liner with who is sitting out
 
         sharp("./runtime/commandsContainer/jailbars.png")           // Opens jailbars for use
             .resize({                                               // Sharp is funky with varying image sizes, resize everything to 128
@@ -167,7 +165,7 @@ Commands.assemble = {
 Commands.sussy = {
     fn: function(message, client) {
         if(message.author.id !== "160960464719708161") {
-            return message.channel.createMessage("Ayo do you think you're hesston or something stupid?")
+            return message.channel.createMessage("Ayo do you think you're hesston or something, stupid?")
         }
         let chosenVideo = susVideos[Math.floor(Math.random() * (susVideos.length-1))]              // Selects a random video from videoController.json
         message.channel.createMessage("Lemme pull up somethin' sussy for ya..")                    // Lets the person know to wait for something coming, video uploads can be slow
