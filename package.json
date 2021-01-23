@@ -4,6 +4,7 @@
   "description": "Does a bunch of stuff for the homies",
   "main": "main.js",
   "dependencies": {
+    "chalk": "^4.1.0",
     "eris": "^0.14.0",
     "image-downloader": "^4.0.2",
     "image-js": "^0.31.4",

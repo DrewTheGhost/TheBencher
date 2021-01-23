@@ -8,6 +8,9 @@ const sharp = require("sharp")                     // This is for combining imag
 sharp.cache({files: 1})                            // Set cache to 1 file otherwise it never creates a new file after the first
 const susVideos = require("./hesstonFiles/videoController.json").names // List of all videos for hesston's command
 const fs = require("fs")                                               // Used for mp4 -> buffer to upload files
+const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`          // Colored logs for errors
+const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`      // Colored logs for warnings
+const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`            // Colored logs for general logs
 
 // All commands must contain an `fn:` value and a `private:` value.
 // fn: must be a function that can use message, client, and suffix in that order, but does not have to use everything. I.E., you can just use message.
@@ -63,8 +66,8 @@ Commands.bench = {
         message.channel.createMessage("I'm spinnin the wheel! Some unlucky fucker is sittin' out this domin' round!")
         
         await download.image(options).then()
-        .catch(e => {
-            console.error("Saving file failed:", e)
+        .catch(err => {
+            console.log(`${error} ${err}`)
         })
 
         let domerImage = await image.Image.load("./runtime/commandsContainer/domerImage.jpg")
@@ -89,7 +92,7 @@ Commands.bench = {
                 })
             })
             .catch(err => {
-                console.error("Error2: ", err)
+                console.log(`${error} ${err}`)
         })
 
         setTimeout(() => {                                         // If we start this too fast, it will grab the last person's avatar rather than the new one created
@@ -98,8 +101,8 @@ Commands.bench = {
             .then(data => {                                        // We save the mashed image buffer data into imageBuffer for uploading later
                 imageBuffer = data
             })
-            .catch(e => {
-                console.error("Error buffering gaybabyjail", e)
+            .catch(err => {
+                console.log(`${error} ${err}`)
             })
         }, 300)
 
@@ -116,8 +119,8 @@ Commands.bench = {
             message.channel.createMessage(embed, {
                 file: imageBuffer,
                 name: "gaybabyjail.png"
-            }).catch(e => {
-                console.error("Error uploading gaybabyjail", e)
+            }).catch(err => {
+                console.log(`${error} ${err}`)
             })
         }, 1000)
     },
@@ -173,9 +176,9 @@ Commands.sussy = {
             message.channel.createMessage("", {
                 file: buffer,
                 name: `${chosenVideo}`
-            }).catch(e => {
+            }).catch(err => {
                 message.channel.createMessage("Ayo, Drew's coding kinda sussy. Tell him he fucked up.")
-                console.error("Sussy video failed to send", e)
+                console.log(`${error} ${err}`)
             })
         })
     }

@@ -4,11 +4,15 @@ const runtime = require("./runtime/runtime.js")                                 
 const commands = runtime.commandsContainer.commands.Commands                           // All commands found through my runtime
 const client = new Eris(config.token, {getAllUsers: true})                             // my client constructor 
 const prefix = config.prefix || `${client.user.mention} ` || `<@!801939642261307393> ` // Prefix for the bot to respond to (user mentions currently not working, I'm bad at programming.)
+const chalk = require("chalk")
+const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`
+const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`
+const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`
 
 client.on("ready", () => {
     // Ready event sent when Eris is ready
-    console.log("Eris ready!")
-    console.log(`Current Prefix: ${prefix}`)
+    console.log(`${log} Eris ready!`)
+    console.log(`${log} Current Prefix: ${prefix}`)
 })
 
 client.on("messageCreate", message => {
@@ -41,18 +45,18 @@ client.on("messageCreate", message => {
             } catch(e) {
                 // If an error is caught when executing the command
                 client.createMessage(message.channel.id, "Error when executing command. Details logged to console.")
-                console.error(e)
+                console.log(`${error} ${e}`)
             }
         }
     }
 })
 
 client.on("error", err => {
-    console.log(`\nError:\n${err}\n`)
+    console.log(`${error} ${err}`)
 })
 
 client.on("warn", err => {
-    console.log(`\nWarning:\n${err}\n`)
+    console.log(`${warning} ${err}`)
 })
 
 client.connect()
