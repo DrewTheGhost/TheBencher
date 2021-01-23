@@ -12,10 +12,13 @@ const chalk = require("chalk")                                         // Colore
 const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`          // Colored logs for errors
 const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`      // Colored logs for warnings
 const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`            // Colored logs for general logs
+var lastBenched                                                        // The last person benched who will be excluded next run
 
-// All commands must contain an `fn:` value and a `private:` value.
+// All commands must contain `fn: function()`, `private: boolean`, `help: string, and `usage: string`
 // fn: must be a function that can use message, client, and suffix in that order, but does not have to use everything. I.E., you can just use message.
 // private: is a boolean value that determines if only the bot owner can run the command. If set to true, the command will reject everyone but the person with the owner ID in the config.
+// help: is a string that contains information about the command, this is automatically grabbed by the help command.
+// usage: a string that contains usage information such as what values a command accepts.
 
 Commands.eval = {
     fn: function(message, client, suffix) {
@@ -39,32 +42,40 @@ Commands.eval = {
             message.channel.createMessage("Error Caught```js\n" + e + "\n```")
         }
     },
-    private: true
+    private: true,
+    help: "Evaluates JavaScript code. (Drew Only)",
+    usage: "!eval (code)"
 }
 
 Commands.ping = {
     fn: function(message, client) {
-        // Just grabs the latency value of the first and only shard
         console.log(`${log} Ping command executed`)
         message.channel.createMessage(`Shard latency: ${client.shards.get(0).latency}ms`)
     },
-    private: false
+    private: false,
+    help: "Grabs the latency value of the first - and only - shard.",
+    usage: "!ping"
 }
 
 Commands.bench = {
     fn: async function(message, client) {
+        // This command looks like hell I am so sorry I have no idea how to make it look better
         console.log(`${log} Bench command executed`)
         let imageBuffer
-        let foundDomers = await client.guilds.get(message.guildID).members.filter(m => m.roles.indexOf(domers) !== -1) 
-        let domerName = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]
-        let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${domerName.mention}`)        
+        let foundDomers = await client.guilds.get(message.guildID).members.filter(m => m.roles.indexOf(domers) !== -1)
+        if(lastBenched) {
+            foundDomers.splice(foundDomers.indexOf(lastBenched), 1)
+        }
+        let chosenDomer = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]
+        lastBenched = chosenDomer
+        let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${chosenDomer.username}`)        
         const options = {
-            url: domerName.avatarURL,
+            url: chosenDomer.avatarURL,
             dest: './runtime/commandsContainer/domerImage.jpg'
         }
         // imageBuffer saves the buffer data from images created later
         // foundDomers filters through everyone with the domer role and returns an array with member objects of everyone with the role
-        // domerName picks a random index from the list as the person who will sit out and grabs their mention
+        // chosenDomer picks a random index from the foundDomer array as the person who will sit out, this is their entire member object
         // chosenLine picks a random line response from benchRandoms.json and inserts their name into it
         // options saves the options for downloading the chosen person's avatar
         message.channel.createMessage("I'm spinnin the wheel! Some unlucky fucker is sittin' out this domin' round!")
@@ -128,7 +139,9 @@ Commands.bench = {
             })
         }, 1000)
     },
-    private: false
+    private: false,
+    help: "Grabs a random person to bench for the next 5-man match. Automatically excludes the previous bench from being chosen next.",
+    usage: "!bench"
 }
 
 Commands.assemble = {
@@ -167,7 +180,10 @@ Commands.assemble = {
         if(nonWaiters.length > 0) {
             message.channel.createMessage(`Honorable mention: ${nonWaiters}. Bitches that didn't wait for the Captain.`)
         }
-    }
+    },
+    private: false,
+    help: "Moves everyone from the waiting room to the penthouse and shames those who didn't wait for the captain.",
+    usage: "!assemble"
 }
 
 Commands.sussy = {
@@ -187,7 +203,30 @@ Commands.sussy = {
                 console.log(`${error} ${err}`)
             })
         })
-    }
+    },
+    private: false,
+    help: "Grabs a random sussy video and sends it.",
+    usage: "!sussy"
+}
+
+Commands.restart = {
+    fn: function(message, client) {
+        console.log(`${warning} Restart command executed.`)
+        message.channel.createMessage("Restart executed, beginning restart process now.")
+        setTimeout(() => {
+            eval("process.exit()")
+        }, 200)
+    },
+    private: true,
+    help: "Restarts the bot. (Drew Only)",
+    usage: "!restart"
+}
+
+Commands.help = {
+    fn: function() {},
+    private: false,
+    help: "Provides information about a command or grabs the entire list of commands.",
+    usage: "!help [commandName]"
 }
 
 // Exports the entire Commands array to be accessible outside the commands file

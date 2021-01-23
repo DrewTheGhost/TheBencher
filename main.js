@@ -1,9 +1,9 @@
-const config = require("./config.json")                                                // My config file
-const Eris = require("eris")                                                           // My discord js library
-const runtime = require("./runtime/runtime.js")                                        // The hashmap creator
-const commands = runtime.commandsContainer.commands.Commands                           // All commands found through my runtime
-const client = new Eris(config.token, {getAllUsers: true})                             // my client constructor 
-const prefix = config.prefix || `${client.user.mention} ` || `<@!801939642261307393> ` // Prefix for the bot to respond to (user mentions currently not working, I'm bad at programming.)
+const config = require("./config.json")                             // My config file
+const Eris = require("eris")                                        // My discord js library
+const runtime = require("./runtime/runtime.js")                     // The hashmap creator
+const commands = runtime.commandsContainer.commands.Commands        // All commands found through my runtime
+const client = new Eris(config.token, {getAllUsers: true})          // my client constructor 
+const prefix = config.prefix                                        // Prefix for the bot to respond to (user mentions currently not working, I'm bad at programming.)
 const chalk = require("chalk")
 const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`
 const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`
@@ -13,6 +13,7 @@ client.on("ready", () => {
     // Ready event sent when Eris is ready
     console.log(`${log} Eris ready!`)
     console.log(`${log} Current Prefix: ${prefix}`)
+    client.editStatus({name: "Type !help for a list of commands or !help commandname to get command info."})
 })
 
 client.on("messageCreate", message => {
@@ -29,6 +30,57 @@ client.on("messageCreate", message => {
     }
     if(cmd) {
         // If a cmd is found attached to a prefix
+        if(cmd == "help") {
+            // okay this is gonna be really hacky but it's the only viable way to do the help command by iterating through the commands object
+            let embed = {}
+            let fields = []
+            if (!suffix) {
+                for(let command of Object.keys(commands)) {
+                    fields.push({
+                        name: `${command}`,
+                        value: `${commands[command].help}`
+                    })
+                }
+                embed = {
+                    embed: {
+                        footer: {
+                            text: "Help Command | Parentheses signify required values, brackets signify optional values"
+                        },
+                        color: 45568,
+                        fields: fields
+                    }
+                }
+            } else {
+                if (commands[suffix]) {
+                    fields = [
+                        {
+                            name: `${suffix}`,
+                            value: `${commands[suffix].help}`
+                        },
+                        {
+                            name: `Usage`,
+                            value: `${commands[suffix].usage}`
+                        }
+                    ]
+                    embed = {
+                        embed: {
+                            footer: {
+                                text: "Help Command | Parentheses signify required values, brackets signify optional values"
+                            },
+                            color: 45568,
+                            fields: fields
+                        }
+                    }
+                } else {
+                    return message.channel.createMessage("There's no command with that name, dumbass. Try running `!help` by itself instead.")
+                }
+    
+            }
+            return message.channel.createMessage(embed).catch(err => {
+                message.channel.createMessage("Help command errored.")
+                console.log(`${error} ${err}`)
+            })
+        }
         if(commands[cmd]) {
             // If the command is an actual command
             if(typeof commands[cmd] !== "object") {
