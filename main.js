@@ -8,11 +8,14 @@ const chalk = require("chalk")
 const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`
 const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`
 const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`
+var readyCount = 0
 
 client.on("ready", () => {
     // Ready event sent when Eris is ready
+    readycount++
     console.log(`${log} Eris ready!`)
     console.log(`${log} Current Prefix: ${prefix}`)
+    console.log(`${warning} ${readyCount} ready events without restart.`)
     client.editStatus({name: "Type !help for a list of commands or !help commandname to get command info."})
 })
 
