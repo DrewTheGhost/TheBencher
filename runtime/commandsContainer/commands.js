@@ -1,4 +1,5 @@
 const Commands = []                                // Array of all commands which I will append objects to
+const config = require("../../config.json")
 const util = require("util")                       // For inspecting my evals or debugging other things
 const domers = "779446753606238258"                // This is the ID of the domer role
 const lines = require("./benchRandoms.json").lines // This is the entire array of random one-liners for the bench command
@@ -13,6 +14,13 @@ const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`          // Colore
 const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`      // Colored logs for warnings
 const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`            // Colored logs for general logs
 var lastBenched                                                        // The last person benched who will be excluded next run
+const Snoowrap = require("snoowrap")
+const reddit = new Snoowrap({
+    userAgent: config.reddit.userAgent,
+    clientId: config.reddit.clientID,
+    clientSecret: config.reddit.clientSecret,
+    refreshToken: config.reddit.refreshToken
+})
 
 // All commands must contain `fn: function()`, `private: boolean`, `help: string, and `usage: string`
 // fn: must be a function that can use message, client, and suffix in that order, but does not have to use everything. I.E., you can just use message.
@@ -223,10 +231,22 @@ Commands.restart = {
 }
 
 Commands.help = {
-    fn: function() {},
+    fn: function() {}, // In theory, this should never ever be run because the command handler returns if the command is "help", but I'm keeping it just in case
     private: false,
     help: "Provides information about a command or grabs the entire list of commands.",
     usage: "!help [commandName]"
+}
+
+Commands.reddit = {
+    fn: function(message) {
+        reddit.getSubreddit("ChickashaHighSchool").getNew().then(m => {
+            let messageDetails = `Latest post by **${m[0].author.name}**\n**Title:** ${m[0].title}\n${m[0].url}`
+            message.channel.createMessage(messageDetails)
+        })
+    },
+    private: false,
+    help: "Grabs the latest reddit post from ChickashaHighSchool.",
+    usage: "!reddit"
 }
 
 // Exports the entire Commands array to be accessible outside the commands file
