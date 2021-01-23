@@ -8,6 +8,7 @@ const sharp = require("sharp")                     // This is for combining imag
 sharp.cache({files: 1})                            // Set cache to 1 file otherwise it never creates a new file after the first
 const susVideos = require("./hesstonFiles/videoController.json").names // List of all videos for hesston's command
 const fs = require("fs")                                               // Used for mp4 -> buffer to upload files
+const chalk = require("chalk")                                         // Colored logging module
 const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`          // Colored logs for errors
 const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`      // Colored logs for warnings
 const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`            // Colored logs for general logs
