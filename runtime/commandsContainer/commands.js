@@ -19,6 +19,7 @@ const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`            // Colore
 
 Commands.eval = {
     fn: function(message, client, suffix) {
+        console.log(`${log} Eval command executed`)
         try {
             let evaled = eval(suffix)       // Save the evaluation to a variable
             evaled = util.inspect(evaled, { // Inspect the result with a depth of 1 so you don't get those annoying [object Object] responses.
@@ -44,6 +45,7 @@ Commands.eval = {
 Commands.ping = {
     fn: function(message, client) {
         // Just grabs the latency value of the first and only shard
+        console.log(`${log} Ping command executed`)
         message.channel.createMessage(`Shard latency: ${client.shards.get(0).latency}ms`)
     },
     private: false
@@ -51,6 +53,7 @@ Commands.ping = {
 
 Commands.bench = {
     fn: async function(message, client) {
+        console.log(`${log} Bench command executed`)
         let imageBuffer
         let foundDomers = await client.guilds.get(message.guildID).members.filter(m => m.roles.indexOf(domers) !== -1) 
         let domerName = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]
@@ -130,6 +133,7 @@ Commands.bench = {
 
 Commands.assemble = {
     fn: function(message, client) {
+        console.log(`${log} Assemble command executed`)
         if(message.author.id !== "466767464902950922") {
             return message.channel.createMessage("This is a Caelan only command, retard!")
         }
@@ -168,6 +172,7 @@ Commands.assemble = {
 
 Commands.sussy = {
     fn: function(message, client) {
+        console.log(`${log} Sussy command executed`)
         if(message.author.id !== "160960464719708161") {
             return message.channel.createMessage("Ayo do you think you're hesston or something, stupid?")
         }
