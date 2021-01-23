@@ -1,8 +1,8 @@
-const config = require("./config.json") // My config file
-const Eris = require("eris") // My discord js library
-const runtime = require("./runtime/runtime.js") // The hashmap creator
-const commands = runtime.commandsContainer.commands.Commands // All commands found through my runtime
-const client = new Eris(config.token, {getAllUsers: true}) // my client constructor 
+const config = require("./config.json")                                                // My config file
+const Eris = require("eris")                                                           // My discord js library
+const runtime = require("./runtime/runtime.js")                                        // The hashmap creator
+const commands = runtime.commandsContainer.commands.Commands                           // All commands found through my runtime
+const client = new Eris(config.token, {getAllUsers: true})                             // my client constructor 
 const prefix = config.prefix || `${client.user.mention} ` || `<@!801939642261307393> ` // Prefix for the bot to respond to (user mentions currently not working, I'm bad at programming.)
 
 client.on("ready", () => {
