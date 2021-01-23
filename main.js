@@ -12,7 +12,7 @@ var readyCount = 0
 
 client.on("ready", () => {
     // Ready event sent when Eris is ready
-    readycount++
+    readyCount++
     console.log(`${log} Eris ready!`)
     console.log(`${log} Current Prefix: ${prefix}`)
     console.log(`${warning} ${readyCount} ready events without restart.`)
