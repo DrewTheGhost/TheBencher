@@ -14,13 +14,14 @@ const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`          // Colore
 const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`      // Colored logs for warnings
 const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`            // Colored logs for general logs
 var lastBenched                                                        // The last person benched who will be excluded next run
-const Snoowrap = require("snoowrap")
-const reddit = new Snoowrap({
+const Snoowrap = require("snoowrap")                                   // Reddit API Library
+const reddit = new Snoowrap({                                          // Login using reddit bot credentials
     userAgent: config.reddit.userAgent,
     clientId: config.reddit.clientID,
     clientSecret: config.reddit.clientSecret,
     refreshToken: config.reddit.refreshToken
 })
+const dripVideos = require("./dripList/videoController.json").names    // Drip videos
 
 // All commands must contain `fn: function()`, `private: boolean`, `help: string, and `usage: string`
 // fn: must be a function that can use message, client, and suffix in that order, but does not have to use everything. I.E., you can just use message.
@@ -58,7 +59,7 @@ Commands.eval = {
 Commands.ping = {
     fn: function(message, client) {
         console.log(`${log} Ping command executed`)
-        message.channel.createMessage(`Shard latency: ${client.shards.get(0).latency}ms`)
+        message.channel.createMessage(`Dome latency: ${client.shards.get(0).latency}ms`)
     },
     private: false,
     help: "Grabs the latency value of the first - and only - shard.",
@@ -200,7 +201,7 @@ Commands.sussy = {
         if(message.author.id !== "160960464719708161") {
             return message.channel.createMessage("Ayo do you think you're hesston or something, stupid?")
         }
-        let chosenVideo = susVideos[Math.floor(Math.random() * (susVideos.length-1))]              // Selects a random video from videoController.json
+        let chosenVideo = susVideos[Math.floor(Math.random() * susVideos.length)]                  // Selects a random video from videoController.json
         message.channel.createMessage("Lemme pull up somethin' sussy for ya..")                    // Lets the person know to wait for something coming, video uploads can be slow
         fs.readFile(`./runtime/commandsContainer/hesstonFiles/${chosenVideo}`, (err, buffer) => {  // get the file chosen and send the buffer data to createMessage so we can upload the video
             message.channel.createMessage("", {
@@ -237,16 +238,29 @@ Commands.help = {
     usage: "!help [commandName]"
 }
 
-Commands.reddit = {
+/* Commands.reddit = {
     fn: function(message) {
         reddit.getSubreddit("ChickashaHighSchool").getNew().then(m => {
+            let embed = {
+                embed: {
+                }
+            }
             let messageDetails = `Latest post by **${m[0].author.name}**\n**Title:** ${m[0].title}\n${m[0].url}`
-            message.channel.createMessage(messageDetails)
+            message.channel.createMessage(embed)
         })
     },
     private: false,
     help: "Grabs the latest reddit post from ChickashaHighSchool.",
     usage: "!reddit"
+}
+*/
+
+Commands.drip = {
+    fn: function(message) {
+    },
+    private: false,
+    help: "Sends a video with some phat drip for domers.",
+    usage: "!drip"
 }
 
 // Exports the entire Commands array to be accessible outside the commands file
