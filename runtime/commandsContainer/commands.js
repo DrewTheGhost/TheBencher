@@ -8,6 +8,7 @@ const download = require("image-downloader")       // Yeah.. downloads images be
 const sharp = require("sharp")                     // This is for combining images
 sharp.cache({files: 1})                            // Set cache to 1 file otherwise it never creates a new file after the first
 const susVideos = require("./hesstonFiles/videoController.json").names // List of all videos for hesston's command
+const dripVideos = require("./dripList/videoController.json").names    // Drip videos
 const fs = require("fs")                                               // Used for mp4 -> buffer to upload files
 const chalk = require("chalk")                                         // Colored logging module
 const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`          // Colored logs for errors
@@ -21,7 +22,6 @@ const reddit = new Snoowrap({                                          // Login 
     clientSecret: config.reddit.clientSecret,
     refreshToken: config.reddit.refreshToken
 })
-const dripVideos = require("./dripList/videoController.json").names    // Drip videos
 
 // All commands must contain `fn: function()`, `private: boolean`, `help: string, and `usage: string`
 // fn: must be a function that can use message, client, and suffix in that order, but does not have to use everything. I.E., you can just use message.
@@ -201,17 +201,8 @@ Commands.sussy = {
         if(message.author.id !== "160960464719708161") {
             return message.channel.createMessage("Ayo do you think you're hesston or something, stupid?")
         }
-        let chosenVideo = susVideos[Math.floor(Math.random() * susVideos.length)]                  // Selects a random video from videoController.json
-        message.channel.createMessage("Lemme pull up somethin' sussy for ya..")                    // Lets the person know to wait for something coming, video uploads can be slow
-        fs.readFile(`./runtime/commandsContainer/hesstonFiles/${chosenVideo}`, (err, buffer) => {  // get the file chosen and send the buffer data to createMessage so we can upload the video
-            message.channel.createMessage("", {
-                file: buffer,
-                name: `${chosenVideo}`
-            }).catch(err => {
-                message.channel.createMessage("Ayo, Drew's coding kinda sussy. Tell him he fucked up.")
-                console.log(`${error} ${err}`)
-            })
-        })
+        let chosenVideo = susVideos[Math.floor(Math.random() * (susVideos.length-1))]                  // Selects a random video from videoController.json
+        message.channel.createMessage(`Lemme pull up somethin' sussy for ya..\n${chosenVideo}`)        // Lets the person know to wait for something coming, video uploads can be slow
     },
     private: false,
     help: "Grabs a random sussy video and sends it.",
@@ -238,14 +229,34 @@ Commands.help = {
     usage: "!help [commandName]"
 }
 
-/* Commands.reddit = {
+/* 
+Commands.reddit = {
     fn: function(message) {
         reddit.getSubreddit("ChickashaHighSchool").getNew().then(m => {
             let embed = {
                 embed: {
+                    color: 16711680,
+                    title: "New post on /r/ChickashaHighSchool",
+                    type: "rich",
+
                 }
             }
-            let messageDetails = `Latest post by **${m[0].author.name}**\n**Title:** ${m[0].title}\n${m[0].url}`
+            {
+                embed: {
+                    color:16711680, 
+                    title:"New post on /r/ChickashaHighSchool",
+                    type:"rich", 
+                    thumbnail: {
+                        url: {{ImageURL}}
+                    },
+                    fields: {
+                        [
+                            "name": "Post Author", 
+                            "value": {{Author}}
+                        ]
+                    }
+                }
+                {"username":"The Bencher Bot", "content":"", "embeds": [{"title" : "{{PostURL}}","author": {"name": "'{{Title}}' by {{Author}}"}, "description" : "{{PostedAt}}","url" : "{{PostURL}}","color": 16711680,"thumbnail": {url: "{{ImageURL}}"}}]}
             message.channel.createMessage(embed)
         })
     },
@@ -257,6 +268,9 @@ Commands.help = {
 
 Commands.drip = {
     fn: function(message) {
+        console.log(`${log} Drip command executed.`)
+        let chosenVideo = dripVideos[Math.floor(Math.random() * (susVideos.length-1))]                  // Selects a random video from videoController.json
+        message.channel.createMessage(`Lemme pull up some fat drip for ya..\n${chosenVideo}`)           // Lets the person know to wait for something coming, video uploads can be slow
     },
     private: false,
     help: "Sends a video with some phat drip for domers.",
