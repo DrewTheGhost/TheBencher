@@ -77,7 +77,7 @@ Commands.bench = {
         }
         let chosenDomer = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]
         lastBenched = chosenDomer
-        let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${chosenDomer.username}`)        
+        let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${chosenDomer.mention}`)        
         const options = {
             url: chosenDomer.avatarURL,
             dest: './runtime/commandsContainer/domerImage.jpg'
@@ -121,13 +121,13 @@ Commands.bench = {
 
         setTimeout(() => {                                         // If we start this too fast, it will grab the last person's avatar rather than the new one created
             sharp("./runtime/commandsContainer/gaybabyjail.png")   // Load up the mashed image
-            .toBuffer()                                            // Turn it into a useable buffer
-            .then(data => {                                        // We save the mashed image buffer data into imageBuffer for uploading later
-                imageBuffer = data
-            })
-            .catch(err => {
-                console.log(`${error} ${err}`)
-            })
+                .toBuffer()                                        // Turn it into a useable buffer
+                .then(data => {                                    // We save the mashed image buffer data into imageBuffer for uploading later
+                    imageBuffer = data
+                })
+                .catch(err => {
+                    console.log(`${error} ${err}`)
+                })
         }, 300)
 
         let embed = {
@@ -269,8 +269,8 @@ Commands.reddit = {
 Commands.drip = {
     fn: function(message) {
         console.log(`${log} Drip command executed.`)
-        let chosenVideo = dripVideos[Math.floor(Math.random() * (susVideos.length-1))]                  // Selects a random video from videoController.json
-        message.channel.createMessage(`Lemme pull up some fat drip for ya..\n${chosenVideo}`)           // Lets the person know to wait for something coming, video uploads can be slow
+        let chosenVideo = dripVideos[Math.floor(Math.random() * (susVideos.length-1))]         // Selects a random video from videoController.json
+        message.channel.createMessage(`Lemme pull up some fat drip for ya..\n${chosenVideo}`)  // Lets the person know to wait for something coming, video uploads can be slow
     },
     private: false,
     help: "Sends a video with some phat drip for domers.",
