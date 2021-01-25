@@ -1,9 +1,10 @@
-const Commands = []                                // Array of all commands which I will append objects to
-const util = require("util")                       // For inspecting my evals or debugging other things
-const domers = "779446753606238258"                // This is the ID of the domer role
-const sharp = require("sharp")                                         // This is for combining images
-sharp.cache({files: 1})                                                // Set cache to 1 file otherwise it never creates a new file after the first
-var lastBenched                                                        // The last person benched who will be excluded next run
+const Commands = []                   // Array of all commands which I will append objects to
+const util = require("util")          // For inspecting my evals or debugging other things
+const domers = "779446753606238258"   // This is the ID of the domer role
+const sharp = require("sharp")        // This is for combining images
+sharp.cache({files: 1})               // Set cache to 1 file otherwise it never creates a new file after the first
+var lastBenched                       // The last person benched who will be excluded next run
+const mainController = require("./mainController.json")
 
 
 // All commands must contain `fn: function()`, `private: boolean`, `help: string, and `usage: string`
@@ -179,14 +180,14 @@ Commands.assemble = {
 }
 
 Commands.sussy = {
-    fn: function(message, client) {
-        const susVideos = require("./susController.json").names                         // List of all videos for hesston's command
+    fn: function(message) {
+        const susVideos = mainController.susNames   // List of all videos for hesston's command
         console.log(`Sussy command executed`)
         if(message.author.id !== "160960464719708161") {
             return message.channel.createMessage("Ayo do you think you're hesston or something, stupid?")
         }
-        let chosenVideo = susVideos[Math.floor(Math.random() * susVideos.length)]                  // Selects a random video from videoController.json
-        message.channel.createMessage(`Lemme pull up somethin' sussy for ya..\n${chosenVideo}`)        // Lets the person know to wait for something coming, video uploads can be slow
+        let chosenVideo = susVideos[Math.floor(Math.random() * susVideos.length)]                // Selects a random video from videoController.json
+        message.channel.createMessage(`Lemme pull up somethin' sussy for ya..\n${chosenVideo}`)  // Lets the person know to wait for something coming, video uploads can be slow
     },
     private: false,
     help: "Grabs a random sussy video and sends it.",
@@ -215,9 +216,9 @@ Commands.help = {
 
 Commands.drip = {
     fn: function(message) {
-        const dripVideos = require("./dripController.json").names                             // Drip videos
+        const dripVideos = mainController.dripNames                                           // Drip videos
         console.log(`Drip command executed.`)
-        let chosenVideo = dripVideos[Math.floor(Math.random() * dripVideos.length)]       // Selects a random video from videoController.json
+        let chosenVideo = dripVideos[Math.floor(Math.random() * dripVideos.length)]           // Selects a random video from videoController.json
         message.channel.createMessage(`Lemme pull up some fat drip for ya..\n${chosenVideo}`) // Lets the person know to wait for something coming, video uploads can be slow
     },
     private: false,
@@ -236,7 +237,7 @@ Commands.ttt = {
 
 Commands.site = {
     fn: function(message, client) {
-        let voiceLines = require("./voiceFiles/voiceControl.json").names
+        let voiceLines = mainController.voiceNames
         let randomVoiceLine = voiceLines[Math.floor(Math.random() * voiceLines.length)]
         let channelID = message.member.voiceState.channelID
         if(channelID === null) {

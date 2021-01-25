@@ -44,7 +44,7 @@ client.on("ready", () => {
     readyCount++ 
     console.log(`Eris ready!`)
     console.log(`Current Prefix: ${prefix}`)
-    console.log(`${readyCount} ready events without restart.`)
+    console.warn(`${readyCount} ready events without restart.`)
     client.editStatus({name: "Type !help for a list of commands or !help commandname to get command info."})
 })
 
