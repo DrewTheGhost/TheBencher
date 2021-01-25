@@ -2,7 +2,23 @@ const config = require("./config.json")                             // My config
 const Eris = require("eris")                                        // My discord js library
 const runtime = require("./runtime/runtime.js")                     // The hashmap creator
 const commands = runtime.commandsContainer.commands.Commands        // All commands found through my runtime
-const client = new Eris(config.token, {getAllUsers: true})          // my client constructor 
+const client = new Eris(config.token, {                             // my client constructor
+    getAllUsers: true,
+    seedVoiceConnections: true,
+    opusOnly: true,
+    maxResumeAttempts: 3,
+    maxReconnectAttempts: 999,
+    latencyThreshold: 1500,
+    disableEvents: {
+        "GUILD_BAN_ADD": true,
+        "GUILD_BAN_REMOVE": true,
+        "GUILD_MEMBER_REMOVE": true,
+        "MESSAGE_DELETE": true,
+        "MESSAGE_DELETE_BULK": true,
+        "TYPING_START": true,
+
+    }
+}) 
 const prefix = config.prefix                                        // Prefix for the bot to respond to (user mentions currently not working, I'm bad at programming.)
 const chalk = require("chalk")                                      // Console coloring
 const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`       // Error message coloring

@@ -1,16 +1,10 @@
 const Commands = []                                // Array of all commands which I will append objects to
-const config = require("../../config.json")
 const util = require("util")                       // For inspecting my evals or debugging other things
 const domers = "779446753606238258"                // This is the ID of the domer role
-const lines = require("./benchRandoms.json").lines // This is the entire array of random one-liners for the bench command
-const image = require("image-js")                  // Image editor (grayscaling)
-const download = require("image-downloader")       // Yeah.. downloads images because I don't want to write HTTP requests to do it myself
-const sharp = require("sharp")                     // This is for combining images
-sharp.cache({files: 1})                            // Set cache to 1 file otherwise it never creates a new file after the first
-const susVideos = require("./hesstonFiles/videoController.json").names // List of all videos for hesston's command
-const dripVideos = require("./dripList/videoController.json").names    // Drip videos
-const fs = require("fs")                                               // Used for mp4 -> buffer to upload files
+const sharp = require("sharp")                                         // This is for combining images
+sharp.cache({files: 1})                                                // Set cache to 1 file otherwise it never creates a new file after the first
 const chalk = require("chalk")                                         // Colored logging module
+const { connect } = require("http2")
 const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`          // Colored logs for errors
 const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`      // Colored logs for warnings
 const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`            // Colored logs for general logs
@@ -63,35 +57,43 @@ Commands.ping = {
 Commands.bench = {
     fn: async function(message, client) {
         // This command looks like hell I am so sorry I have no idea how to make it look better
+        // Welcome to variable hell :}
+
         console.log(`${log} Bench command executed`)
-        let imageBuffer
-        let foundDomers = await client.guilds.get(message.guildID).members.filter(m => m.roles.indexOf(domers) !== -1)
-        if(lastBenched) {
-            foundDomers.splice(foundDomers.indexOf(lastBenched), 1)
+
+        const lines = require("./benchRandoms.json").lines // This is the entire array of random one-liners for the bench command
+        const image = require("image-js")                  // Image editor (grayscaling)
+        const download = require("image-downloader")       // Yeah.. downloads images because I don't want to write HTTP requests to do it myself
+        let imageBuffer                                    // imageBuffer saves the buffer data from images created later
+        let embed = {
+            embed: {
+                title: "Hahahaha gay baby jail!",
+                image: {
+                    url: "attachment://gaybabyjail.png"    // attachment:// shows that the image should be set as the file we are uploading
+                }
+            }
         }
-        let chosenDomer = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]
-        lastBenched = chosenDomer
-        let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${chosenDomer.mention}`)        
-        const options = {
+        let foundDomers = await client.guilds.get(message.guildID).members.filter(m => m.roles.indexOf(domers) !== -1)                    // foundDomers filters through everyone with the domer role and returns an array with member objects of everyone with the role
+        let chosenDomer = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]                                               // chosenDomer picks a random index from the foundDomer array as the person who will sit out, this is their entire member object
+        let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${chosenDomer.username}`) // chosenLine picks a random line response from benchRandoms.json and inserts their name into it
+            lastBenched = chosenDomer
+        const options = {                                  // options saves the options for downloading the chosen person's avatar
             url: chosenDomer.avatarURL,
             dest: './runtime/commandsContainer/domerImage.jpg'
         }
-        // imageBuffer saves the buffer data from images created later
-        // foundDomers filters through everyone with the domer role and returns an array with member objects of everyone with the role
-        // chosenDomer picks a random index from the foundDomer array as the person who will sit out, this is their entire member object
-        // chosenLine picks a random line response from benchRandoms.json and inserts their name into it
-        // options saves the options for downloading the chosen person's avatar
-        message.channel.createMessage("I'm spinnin the wheel! Some unlucky fucker is sittin' out this domin' round!")
-        
         await download.image(options).then()
-        .catch(err => {
-            console.log(`${error} ${err}`)
-        })
-
+            .catch(err => {
+                console.log(`${error} ${err}`)
+            })
         let domerImage = await image.Image.load("./runtime/commandsContainer/domerImage.jpg")
-        domerImage = domerImage.grey()
+            domerImage = domerImage.grey()
         await domerImage.save("./runtime/commandsContainer/domerImage.jpg")
-        
+
+        if(lastBenched) {
+            foundDomers.splice(foundDomers.indexOf(lastBenched), 1)
+        }
+
+        message.channel.createMessage("I'm spinnin the wheel! Some unlucky fucker is sittin' out this domin' round!")
         message.channel.createMessage(chosenLine)                   // Sends the random one-liner with who is sitting out
 
         sharp("./runtime/commandsContainer/jailbars.png")           // Opens jailbars for use
@@ -124,15 +126,6 @@ Commands.bench = {
                 })
         }, 300)
 
-        let embed = {
-            embed: {
-                title: "Hahahaha gay baby jail!",
-                image: {
-                    url: "attachment://gaybabyjail.png"             // attachment:// shows that the image should be set as the file we are uploading
-                }
-            }
-        }
-
         setTimeout(() => {
             message.channel.createMessage(embed, {
                 file: imageBuffer,
@@ -140,7 +133,7 @@ Commands.bench = {
             }).catch(err => {
                 console.log(`${error} ${err}`)
             })
-        }, 1000)
+        }, 400)
     },
     private: false,
     help: "Grabs a random person to bench for the next 5-man match. Automatically excludes the previous bench from being chosen next.",
@@ -191,6 +184,7 @@ Commands.assemble = {
 
 Commands.sussy = {
     fn: function(message, client) {
+        const susVideos = require("./susController.json").names                         // List of all videos for hesston's command
         console.log(`${log} Sussy command executed`)
         if(message.author.id !== "160960464719708161") {
             return message.channel.createMessage("Ayo do you think you're hesston or something, stupid?")
@@ -225,6 +219,7 @@ Commands.help = {
 
 Commands.drip = {
     fn: function(message) {
+        const dripVideos = require("./dripController.json").names                    // Drip videos
         console.log(`${log} Drip command executed.`)
         let chosenVideo = dripVideos[Math.floor(Math.random() * (susVideos.length-1))]         // Selects a random video from videoController.json
         message.channel.createMessage(`Lemme pull up some fat drip for ya..\n${chosenVideo}`)  // Lets the person know to wait for something coming, video uploads can be slow
@@ -233,11 +228,41 @@ Commands.drip = {
     help: "Sends a video with some phat drip for domers.",
     usage: "!drip"
 }
+
 Commands.ttt = {
-    fn: function() {},
+    fn: function() {
+        // This exists solely as a means to provide help and usage values
+    },
     private: false,
     help: "Starts a tic-tac-toe game.",
     usage: "!ttt [@user]"
+}
+
+Commands.site = {
+    fn: function(message, client) {
+        let voiceLines = require("./voiceFiles/voiceControl.json").names
+        let randomVoiceLine = voiceLines[Math.floor(Math.random() * voiceLines.length)]
+        let channelID = message.member.voiceState.channelID
+        if(channelID === null) {
+            return message.channel.createMessage("You're not even in a voice channel, dumbass!")
+        } else {
+            client.joinVoiceChannel(channelID).then(connection => {
+                if(connection.playing) {
+                    connection.stopPlaying()
+                }
+                connection.play(`./runtime/commandsContainer/voiceFiles/${randomVoiceLine}`)
+                connection.once("end", function() {
+                    client.leaveVoiceChannel(channelID)
+                })
+            }).catch(err => {
+                message.channel.createMessage("Error joining voice channel or failed to play file. Dumbass code bro.")
+                console.log(`${error} ${err}`)
+            })
+        }
+    },
+    private: false,
+    help: "Joins the voice channel to tell you what site to choose.",
+    usage: "!site"
 }
 // Exports the entire Commands array to be accessible outside the commands file
 exports.Commands = Commands
