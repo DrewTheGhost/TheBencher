@@ -229,43 +229,6 @@ Commands.help = {
     usage: "!help [commandName]"
 }
 
-/* 
-Commands.reddit = {
-    fn: function(message) {
-        reddit.getSubreddit("ChickashaHighSchool").getNew().then(m => {
-            let embed = {
-                embed: {
-                    color: 16711680,
-                    title: "New post on /r/ChickashaHighSchool",
-                    type: "rich",
-
-                }
-            }
-            {
-                embed: {
-                    color:16711680, 
-                    title:"New post on /r/ChickashaHighSchool",
-                    type:"rich", 
-                    thumbnail: {
-                        url: {{ImageURL}}
-                    },
-                    fields: {
-                        [
-                            "name": "Post Author", 
-                            "value": {{Author}}
-                        ]
-                    }
-                }
-                {"username":"The Bencher Bot", "content":"", "embeds": [{"title" : "{{PostURL}}","author": {"name": "'{{Title}}' by {{Author}}"}, "description" : "{{PostedAt}}","url" : "{{PostURL}}","color": 16711680,"thumbnail": {url: "{{ImageURL}}"}}]}
-            message.channel.createMessage(embed)
-        })
-    },
-    private: false,
-    help: "Grabs the latest reddit post from ChickashaHighSchool.",
-    usage: "!reddit"
-}
-*/
-
 Commands.drip = {
     fn: function(message) {
         console.log(`${log} Drip command executed.`)
