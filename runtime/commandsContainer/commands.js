@@ -1,10 +1,13 @@
-const Commands = []                   // Array of all commands which I will append objects to
-const util = require("util")          // For inspecting my evals or debugging other things
-const domers = "779446753606238258"   // This is the ID of the domer role
-const sharp = require("sharp")        // This is for combining images
-sharp.cache({files: 1})               // Set cache to 1 file otherwise it never creates a new file after the first
-var lastBenched                       // The last person benched who will be excluded next run
-const mainController = require("./mainController.json")
+const Commands = [],                                    // Array of all commands which I will append objects to
+    util = require("util"),                             // For inspecting my evals or debugging other things
+    domers = "779446753606238258",                      // This is the ID of the domer role
+    mainController = require("./mainController.json"),  // Handles all random link getting
+    ytdl = require("ytdl-core"),                        // Downloads youtube audio for streaming
+    fs = require("fs"),                                 // Handles opening the audio files and creating buffer streams
+    sharp = require("sharp")                            // This is for combining images
+    sharp.cache({files: 1})                             // Set cache to 1 file otherwise it never creates a new file after the first
+var lastBenched,                                         // The last person benched who will be excluded next run
+    queue = []
 
 
 // All commands must contain `fn: function()`, `private: boolean`, `help: string, and `usage: string`
@@ -14,7 +17,7 @@ const mainController = require("./mainController.json")
 // usage: a string that contains usage information such as what values a command accepts.
 
 Commands.eval = {
-    fn: function(message, client, suffix) {
+    fn: async function(message, client, suffix) {
         console.log(`Eval command executed`)
         try {
             let evaled = eval(suffix)       // Save the evaluation to a variable
@@ -253,13 +256,114 @@ Commands.site = {
                 })
             }).catch(err => {
                 message.channel.createMessage("Error joining voice channel or failed to play file. Dumbass code bro.")
-                console.error(`${err}`)
+                console.error(err)
             })
         }
     },
     private: false,
     help: "Joins the voice channel to tell you what site to choose.",
     usage: "!site"
+}
+
+Commands.play = {
+    fn: async function(message, client, suffix) {
+        let channelID = message.member.voiceState.channelID,
+            buffer,
+            titleSuffixDetails,
+            titleSuffix,
+            titleQueueDetails,
+            titleQueue,
+            timer
+
+        if(!suffix) {
+            return message.channel.createMessage("You need to give me something to play, dumbass.")
+        }
+        if(channelID === null) {
+            return message.channel.createMessage("You aren't even in a voice channel to listen to anything, dumbass.")
+        }
+        if(!ytdl.validateURL(suffix)) {
+            return message.channel.createMessage("Can't seem to pull info from that. Did you actually put in a youtube video, dumbass?")
+        }
+        if(queue.length >= 10) {
+            return message.channel.createMessage("Slow down there tiger. Too many things in queue.")
+        }
+
+        queue.push(suffix)
+        titleSuffixDetails = await ytdl.getBasicInfo(suffix)
+        titleSuffix = titleSuffixDetails.videoDetails.title
+        message.channel.createMessage(`Alright, added ${titleSuffix} to the queue at position ${queue.length}.`)
+
+        if(client.voiceConnections.filter(m => m.channelID !== null).length == 0) {
+            client.joinVoiceChannel(channelID, {opusOnly: true, shared: false}).then(connection => {
+                if(connection.playing) {
+                    connection.stopPlaying()
+                }
+                playSong()
+                connection.on("end", function() {
+                    console.log("End event sent for connection")
+                    queue.shift()
+                    if(queue.length > 0) {
+                        playSong()
+                    }
+                    setTimeout(() => {
+                        timer = true
+                        if(queue.length == 0) {
+                            if(client.voiceConnections.filter(m => m.channelID).length == 0){
+                                return
+                            }
+                            message.channel.createMessage("Queue empty for 5 minutes, leaving now.")
+                            client.leaveVoiceChannel(channelID)
+                        }
+                    }, 300000) // 5 minute timer
+                })
+            }).catch(err => {
+                message.channel.createMessage("What the fuck did you do? Shit errored.")
+                console.error(err)
+            })
+        } else {
+            if(client.voiceConnections.filter(m => m.channelID !== null).length > 0) {
+                if(queue.length > 0 && !timer && !client.voiceConnections.filter(m => m.channelID !== null)[0].playing) {
+                    playSong()
+                }
+            }
+        }
+        async function playSong() {
+            buffer = ytdl(queue[0], {quality: "highestaudio"})
+            titleQueueDetails = await ytdl.getBasicInfo(queue[0])
+            titleQueue = titleQueueDetails.videoDetails.title
+            client.voiceConnections.filter(m => m.channelID !== null)[0].play(buffer, {inlineVolume: true})
+            message.channel.createMessage(`Now playing ${titleQueue}`)
+        }
+    },
+    private: false,
+    help: "Joins a voice channel and streams music.",
+    usage: "!play (url)"
+}
+Commands.volume = {
+    fn: function(message, client, suffix) {
+        if(!suffix) {
+            return message.channel.createMessage("You didn't even give me a volume to set... You stupid or something?")
+        }
+        if(client.voiceConnections.filter(m => m.channelID).length == 0) {
+            return message.channel.createMessage("There's literally nothing to change the volume of. Get checked for schizophrenia.")
+        }
+        if(!Number.isInteger(parseInt(suffix))) {
+            return message.channel.createMessage("Put in a number next time, dumbass.")
+        }
+        suffix = parseInt(suffix)
+        suffix = suffix/100
+        if(suffix < 0) {
+            return message.channel.createMessage("Shit is too small. Enter a bigger number, dumbass!")
+        }
+        if(suffix > 1) {
+            return message.channel.createMessage("Shit is too fucking big! Enter a smaller number, dumbass.")
+        }
+        client.voiceConnections.filter(m => m.channelID)[0].setVolume(suffix)
+        message.channel.createMessage(`Adjusting the volume for ya, now set to ${client.voiceConnections.filter(m => m.channelID)[0].volume}`)
+    },
+    private: false,
+    help: "Sets the volume of the current song.",
+    usage: "!volume (number 0-100)"
 }
 // Exports the entire Commands array to be accessible outside the commands file
 exports.Commands = Commands

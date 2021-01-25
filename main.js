@@ -1,37 +1,37 @@
-const config = require("./config.json")                             // My config file
-const Eris = require("eris")                                        // My discord js library
-const runtime = require("./runtime/runtime.js")                     // The hashmap creator
-const commands = runtime.commandsContainer.commands.Commands        // All commands found through my runtime
-const client = new Eris(config.token, {                             // my client constructor
-    getAllUsers: true,
-    seedVoiceConnections: true,
-    opusOnly: true,
-    maxResumeAttempts: 3,
-    maxReconnectAttempts: 999,
-    latencyThreshold: 1500,
-    disableEvents: {
-        "GUILD_BAN_ADD": true,
-        "GUILD_BAN_REMOVE": true,
-        "GUILD_MEMBER_REMOVE": true,
-        "MESSAGE_DELETE": true,
-        "MESSAGE_DELETE_BULK": true,
-        "TYPING_START": true,
+const config = require("./config.json"),                          // My config file
+    Eris = require("eris"),                                       // My discord js library
+    runtime = require("./runtime/runtime.js") ,                   // The hashmap creator
+    commands = runtime.commandsContainer.commands.Commands,       // All commands found through my runtime
+    client = new Eris(config.token, {                             // my client constructor
+        getAllUsers: true,
+        seedVoiceConnections: true,
+        opusOnly: true,
+        maxResumeAttempts: 3,
+        maxReconnectAttempts: 999,
+        latencyThreshold: 1500,
+        disableEvents: {
+            "GUILD_BAN_ADD": true,
+            "GUILD_BAN_REMOVE": true,
+            "GUILD_MEMBER_REMOVE": true,
+            "MESSAGE_DELETE": true,
+            "MESSAGE_DELETE_BULK": true,
+            "TYPING_START": true,
+        }
+    }),
+    prefix = config.prefix,                                       // Prefix for the bot to respond to (user mentions currently not working, I'm bad at programming.)
+    chalk = require("chalk"),                                     // Console coloring
+    error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`,      // Error message coloring
+    warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`,  // Warning message coloring
+    log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`,        // Log message coloring
+    Discord = require("discord.js"),                              // Please god forgive this sin of using two different libraries in the same bot
+    bot = new Discord.Client(),                                   // This is like a slap to all bot devs everywhere I am so sorry please don't roast me
+    ticTacToe = require("discord-tictactoe")                      // This goofy ass tictactoe didn't state that it would ONLY work with discord.js and I want it okay
+    new ticTacToe({                                               // roast them not me please
+        command: "!ttt",
+        language: "en"
+    }, bot)
+    var readyCount = 0                                            // Track eris ready events for debug
 
-    }
-}) 
-const prefix = config.prefix                                        // Prefix for the bot to respond to (user mentions currently not working, I'm bad at programming.)
-const chalk = require("chalk")                                      // Console coloring
-const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`       // Error message coloring
-const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`   // Warning message coloring
-const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`         // Log message coloring
-var readyCount = 0                                                  // Track eris ready events for debug
-const Discord = require("discord.js")                               // Please god forgive this sin of using two different libraries in the same bot
-const bot = new Discord.Client()                                    // This is like a slap to all bot devs everywhere I am so sorry please don't roast me
-const ticTacToe = require("discord-tictactoe")                      // This goofy ass tictactoe didn't state that it would ONLY work with discord.js and I want it okay
-new ticTacToe({                                                     // roast them not me please
-    command: "!ttt",
-    language: "en"
-}, bot)
 replaceLog()
 replaceWarning()
 replaceError()
@@ -50,8 +50,8 @@ client.on("ready", () => {
 
 client.on("messageCreate", message => {
     // Event sent when a message is sent on Discord
-    var cmd
-    var suffix
+    let cmd,
+        suffix
     if(message.content.indexOf(prefix) === 0) {
         // If the message has the prefix as the first character
         cmd = message.content.substring(prefix.length).split(' ')[0].toLowerCase()
