@@ -3,10 +3,6 @@ const util = require("util")                       // For inspecting my evals or
 const domers = "779446753606238258"                // This is the ID of the domer role
 const sharp = require("sharp")                                         // This is for combining images
 sharp.cache({files: 1})                                                // Set cache to 1 file otherwise it never creates a new file after the first
-const chalk = require("chalk")                                         // Colored logging module
-const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`          // Colored logs for errors
-const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`      // Colored logs for warnings
-const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`            // Colored logs for general logs
 var lastBenched                                                        // The last person benched who will be excluded next run
 
 
@@ -18,7 +14,7 @@ var lastBenched                                                        // The la
 
 Commands.eval = {
     fn: function(message, client, suffix) {
-        console.log(`${log} Eval command executed`)
+        console.log(`Eval command executed`)
         try {
             let evaled = eval(suffix)       // Save the evaluation to a variable
             evaled = util.inspect(evaled, { // Inspect the result with a depth of 1 so you don't get those annoying [object Object] responses.
@@ -45,7 +41,7 @@ Commands.eval = {
 
 Commands.ping = {
     fn: function(message, client) {
-        console.log(`${log} Ping command executed`)
+        console.log(`Ping command executed`)
         message.channel.createMessage(`Dome latency: ${client.shards.get(0).latency}ms`)
     },
     private: false,
@@ -58,7 +54,7 @@ Commands.bench = {
         // This command looks like hell I am so sorry I have no idea how to make it look better
         // Welcome to variable hell :}
 
-        console.log(`${log} Bench command executed`)
+        console.log(`Bench command executed`)
 
         const lines = require("./benchRandoms.json").lines // This is the entire array of random one-liners for the bench command
         const image = require("image-js")                  // Image editor (grayscaling)
@@ -73,24 +69,25 @@ Commands.bench = {
             }
         }
         let foundDomers = await client.guilds.get(message.guildID).members.filter(m => m.roles.indexOf(domers) !== -1)                    // foundDomers filters through everyone with the domer role and returns an array with member objects of everyone with the role
+        if(lastBenched) {
+            foundDomers.splice(foundDomers.indexOf(lastBenched), 1)
+        }
         let chosenDomer = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]                                               // chosenDomer picks a random index from the foundDomer array as the person who will sit out, this is their entire member object
         let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${chosenDomer.username}`) // chosenLine picks a random line response from benchRandoms.json and inserts their name into it
             lastBenched = chosenDomer
+        
         const options = {                                  // options saves the options for downloading the chosen person's avatar
             url: chosenDomer.avatarURL,
             dest: './runtime/commandsContainer/domerImage.jpg'
         }
         await download.image(options).then()
             .catch(err => {
-                console.log(`${error} ${err}`)
+                console.error(`${err}`)
             })
         let domerImage = await image.Image.load("./runtime/commandsContainer/domerImage.jpg")
             domerImage = domerImage.grey()
         await domerImage.save("./runtime/commandsContainer/domerImage.jpg")
 
-        if(lastBenched) {
-            foundDomers.splice(foundDomers.indexOf(lastBenched), 1)
-        }
 
         message.channel.createMessage("I'm spinnin the wheel! Some unlucky fucker is sittin' out this domin' round!")
         message.channel.createMessage(chosenLine)                   // Sends the random one-liner with who is sitting out
@@ -111,7 +108,7 @@ Commands.bench = {
                 })
             })
             .catch(err => {
-                console.log(`${error} ${err}`)
+                console.error(`${err}`)
         })
 
         setTimeout(() => {                                         // If we start this too fast, it will grab the last person's avatar rather than the new one created
@@ -121,7 +118,7 @@ Commands.bench = {
                     imageBuffer = data
                 })
                 .catch(err => {
-                    console.log(`${error} ${err}`)
+                    console.error(`${err}`)
                 })
         }, 300)
 
@@ -130,7 +127,7 @@ Commands.bench = {
                 file: imageBuffer,
                 name: "gaybabyjail.png"
             }).catch(err => {
-                console.log(`${error} ${err}`)
+                console.error(`${err}`)
             })
         }, 400)
     },
@@ -141,7 +138,7 @@ Commands.bench = {
 
 Commands.assemble = {
     fn: function(message, client) {
-        console.log(`${log} Assemble command executed`)
+        console.log(`Assemble command executed`)
         if(message.author.id !== "466767464902950922") {
             return message.channel.createMessage("This is a Caelan only command, retard!")
         }
@@ -184,7 +181,7 @@ Commands.assemble = {
 Commands.sussy = {
     fn: function(message, client) {
         const susVideos = require("./susController.json").names                         // List of all videos for hesston's command
-        console.log(`${log} Sussy command executed`)
+        console.log(`Sussy command executed`)
         if(message.author.id !== "160960464719708161") {
             return message.channel.createMessage("Ayo do you think you're hesston or something, stupid?")
         }
@@ -198,7 +195,7 @@ Commands.sussy = {
 
 Commands.restart = {
     fn: function(message, client) {
-        console.log(`${warning} Restart command executed.`)
+        console.log(`Restart command executed.`)
         message.channel.createMessage("Restart executed, beginning restart process now.")
         setTimeout(() => {
             eval("process.exit()")
@@ -219,7 +216,7 @@ Commands.help = {
 Commands.drip = {
     fn: function(message) {
         const dripVideos = require("./dripController.json").names                             // Drip videos
-        console.log(`${log} Drip command executed.`)
+        console.log(`Drip command executed.`)
         let chosenVideo = dripVideos[Math.floor(Math.random() * dripVideos.length)]       // Selects a random video from videoController.json
         message.channel.createMessage(`Lemme pull up some fat drip for ya..\n${chosenVideo}`) // Lets the person know to wait for something coming, video uploads can be slow
     },
@@ -255,7 +252,7 @@ Commands.site = {
                 })
             }).catch(err => {
                 message.channel.createMessage("Error joining voice channel or failed to play file. Dumbass code bro.")
-                console.log(`${error} ${err}`)
+                console.error(`${err}`)
             })
         }
     },

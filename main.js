@@ -32,16 +32,19 @@ new ticTacToe({                                                     // roast the
     command: "!ttt",
     language: "en"
 }, bot)
+replaceLog()
+replaceWarning()
+replaceError()
 
 bot.on("ready", () => {
-    console.log(`${log} Discord.js ready`)
+    console.log(`Discord.js ready`)
 })
 client.on("ready", () => {
     // Ready event sent when Eris is ready
     readyCount++ 
-    console.log(`${log} Eris ready!`)
-    console.log(`${log} Current Prefix: ${prefix}`)
-    console.log(`${warning} ${readyCount} ready events without restart.`)
+    console.log(`Eris ready!`)
+    console.log(`Current Prefix: ${prefix}`)
+    console.log(`${readyCount} ready events without restart.`)
     client.editStatus({name: "Type !help for a list of commands or !help commandname to get command info."})
 })
 
@@ -107,7 +110,7 @@ client.on("messageCreate", message => {
             }
             return message.channel.createMessage(embed).catch(err => {
                 message.channel.createMessage("Help command errored.")
-                console.log(`${error} ${err}`)
+                console.error(`${err}`)
             })
         }
         if(commands[cmd]) {
@@ -126,19 +129,41 @@ client.on("messageCreate", message => {
             } catch(e) {
                 // If an error is caught when executing the command
                 client.createMessage(message.channel.id, "Error when executing command. Details logged to console.")
-                console.log(`${error} ${e}`)
+                console.error(`${e}`)
             }
         }
     }
 })
 
 client.on("error", err => {
-    console.log(`${error} ${err}`)
+    console.error(`${err}`)
 })
 
 client.on("warn", err => {
-    console.log(`${warning} ${err}`)
+    console.warn(`${err}`)
 })
+
+function replaceLog() {
+    let oldInfo = console.log
+    console.log = function() {
+        Array.prototype.unshift.call(arguments, `${log}`)
+        oldInfo.apply(this, arguments)
+    }
+}
+function replaceWarning() {
+    let oldInfo = console.warn
+    console.warn = function() {
+        Array.prototype.unshift.call(arguments, `${warning}`)
+        oldInfo.apply(this, arguments)
+    }
+}
+function replaceError() {
+    let oldInfo = console.error
+    console.error = function() {
+        Array.prototype.unshift.call(arguments, `${error}`)
+        oldInfo.apply(this, arguments)
+    }
+}
 
 client.connect()
 bot.login(config.token) // I repent 🙏
