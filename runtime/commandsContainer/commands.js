@@ -189,7 +189,7 @@ Commands.sussy = {
         if(message.author.id !== "160960464719708161") {
             return message.channel.createMessage("Ayo do you think you're hesston or something, stupid?")
         }
-        let chosenVideo = susVideos[Math.floor(Math.random() * (susVideos.length-1))]                  // Selects a random video from videoController.json
+        let chosenVideo = susVideos[Math.floor(Math.random() * susVideos.length)]                  // Selects a random video from videoController.json
         message.channel.createMessage(`Lemme pull up somethin' sussy for ya..\n${chosenVideo}`)        // Lets the person know to wait for something coming, video uploads can be slow
     },
     private: false,
@@ -221,7 +221,7 @@ Commands.drip = {
     fn: function(message) {
         const dripVideos = require("./dripController.json").names                             // Drip videos
         console.log(`${log} Drip command executed.`)
-        let chosenVideo = dripVideos[Math.floor(Math.random() * (dripVideos.length-1))]       // Selects a random video from videoController.json
+        let chosenVideo = dripVideos[Math.floor(Math.random() * dripVideos.length)]       // Selects a random video from videoController.json
         message.channel.createMessage(`Lemme pull up some fat drip for ya..\n${chosenVideo}`) // Lets the person know to wait for something coming, video uploads can be slow
     },
     private: false,
