@@ -15,13 +15,7 @@ const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`          // Colore
 const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`      // Colored logs for warnings
 const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`            // Colored logs for general logs
 var lastBenched                                                        // The last person benched who will be excluded next run
-const Snoowrap = require("snoowrap")                                   // Reddit API Library
-const reddit = new Snoowrap({                                          // Login using reddit bot credentials
-    userAgent: config.reddit.userAgent,
-    clientId: config.reddit.clientID,
-    clientSecret: config.reddit.clientSecret,
-    refreshToken: config.reddit.refreshToken
-})
+
 
 // All commands must contain `fn: function()`, `private: boolean`, `help: string, and `usage: string`
 // fn: must be a function that can use message, client, and suffix in that order, but does not have to use everything. I.E., you can just use message.
@@ -239,6 +233,11 @@ Commands.drip = {
     help: "Sends a video with some phat drip for domers.",
     usage: "!drip"
 }
-
+Commands.ttt = {
+    fn: function() {},
+    private: false,
+    help: "Starts a tic-tac-toe game.",
+    usage: "!ttt [@user]"
+}
 // Exports the entire Commands array to be accessible outside the commands file
 exports.Commands = Commands

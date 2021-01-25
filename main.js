@@ -4,12 +4,22 @@ const runtime = require("./runtime/runtime.js")                     // The hashm
 const commands = runtime.commandsContainer.commands.Commands        // All commands found through my runtime
 const client = new Eris(config.token, {getAllUsers: true})          // my client constructor 
 const prefix = config.prefix                                        // Prefix for the bot to respond to (user mentions currently not working, I'm bad at programming.)
-const chalk = require("chalk")
-const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`
-const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`
-const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`
-var readyCount = 0
+const chalk = require("chalk")                                      // Console coloring
+const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`       // Error message coloring
+const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`   // Warning message coloring
+const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`         // Log message coloring
+var readyCount = 0                                                  // Track eris ready events for debug
+const Discord = require("discord.js")                               // Please god forgive this sin of using two different libraries in the same bot
+const bot = new Discord.Client()                                    // This is like a slap to all bot devs everywhere I am so sorry please don't roast me
+const ticTacToe = require("discord-tictactoe")                      // This goofy ass tictactoe didn't state that it would ONLY work with discord.js and I want it okay
+new ticTacToe({                                                     // roast them not me please
+    command: "!ttt",
+    language: "en"
+}, bot)
 
+bot.on("ready", () => {
+    console.log(`${log} Discord.js ready`)
+})
 client.on("ready", () => {
     // Ready event sent when Eris is ready
     readyCount++ 
@@ -115,3 +125,4 @@ client.on("warn", err => {
 })
 
 client.connect()
+bot.login(config.token) // I repent 🙏
