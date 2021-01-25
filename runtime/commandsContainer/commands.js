@@ -219,10 +219,10 @@ Commands.help = {
 
 Commands.drip = {
     fn: function(message) {
-        const dripVideos = require("./dripController.json").names                    // Drip videos
+        const dripVideos = require("./dripController.json").names                             // Drip videos
         console.log(`${log} Drip command executed.`)
-        let chosenVideo = dripVideos[Math.floor(Math.random() * (susVideos.length-1))]         // Selects a random video from videoController.json
-        message.channel.createMessage(`Lemme pull up some fat drip for ya..\n${chosenVideo}`)  // Lets the person know to wait for something coming, video uploads can be slow
+        let chosenVideo = dripVideos[Math.floor(Math.random() * (dripVideos.length-1))]       // Selects a random video from videoController.json
+        message.channel.createMessage(`Lemme pull up some fat drip for ya..\n${chosenVideo}`) // Lets the person know to wait for something coming, video uploads can be slow
     },
     private: false,
     help: "Sends a video with some phat drip for domers.",
