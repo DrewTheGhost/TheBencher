@@ -4,7 +4,6 @@ const domers = "779446753606238258"                // This is the ID of the dome
 const sharp = require("sharp")                                         // This is for combining images
 sharp.cache({files: 1})                                                // Set cache to 1 file otherwise it never creates a new file after the first
 const chalk = require("chalk")                                         // Colored logging module
-const { connect } = require("http2")
 const error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`          // Colored logs for errors
 const warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`      // Colored logs for warnings
 const log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`            // Colored logs for general logs
