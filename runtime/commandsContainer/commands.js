@@ -41,12 +41,12 @@ const Eris = require("eris"),
         }
 )
 
-
+// Register eval command
 client.registerCommand("eval", function(message, suffix) {
     console.log(`Eval command executed.`)
     try {
-        let evaled = eval(suffix.join(" "))       // Save the evaluation to a variable
-        evaled = util.inspect(evaled, { // Inspect the result with a depth of 1 so you don't get those annoying [object Object] responses.
+        let evaled = eval(suffix.join(" "))     // Save the evaluation to a variable
+        evaled = util.inspect(evaled, {         // Inspect the result with a depth of 1 so you don't get those annoying [object Object] responses.
             depth: 1
         })                              
         evaled = evaled.replace(new RegExp(client.token, "gi"), "Token leak! Censored.") // RegExp for replacing the bot token so it doesn't leak in eval
@@ -73,6 +73,7 @@ client.registerCommand("eval", function(message, suffix) {
     errorMessage: "The fucking command failed. Either you fucked up or I'm a dumbass, and I dunno about you but I don't have the capacity to be stupid."
 })
 
+// Register ping command
 client.registerCommand("ping", function() {
     return `Domer latency: ${client.shards.get(0).latency}ms`
 }, {
@@ -80,6 +81,7 @@ client.registerCommand("ping", function() {
     fullDescription: "Did you really just use the help command.. for ping? Just type fucking ping dumbass.",
 })
 
+// Register restart command
 client.registerCommand("restart", function() {
     console.log(`Restart command executed.`)
     setTimeout(() => {
@@ -94,16 +96,18 @@ client.registerCommand("restart", function() {
     permissionMessage: "You think you're special or something kid?"
 })
 
+// Register drip command
 client.registerCommand("drip", function() {
-    const dripVideos = mainController.dripNames                                           // Drip videos
+    const dripVideos = mainController.dripNames                                 // Drip videos
     console.log(`Drip command executed.`)
-    let chosenVideo = dripVideos[Math.floor(Math.random() * dripVideos.length)]           // Selects a random video from mainController.json
+    let chosenVideo = dripVideos[Math.floor(Math.random() * dripVideos.length)] // Selects a random video from mainController.json
     return `Lemme pull up some fat drip for ya..\n${chosenVideo}`
 }, {
     description: "Sends a video with some phat drip for domers.",
     fullDescription: "Sends a video with some phat drip for domers."
 })
 
+// Register sussy command
 client.registerCommand("sussy", function() {
     const susVideos = mainController.susNames                                 // List of all videos for hesston's command
     console.log(`Sussy command executed`)
@@ -118,6 +122,7 @@ client.registerCommand("sussy", function() {
     fullDescription: "It sends some sussy shit! What more do you want!?"
 })
 
+// Register bench command
 client.registerCommand("bench", async function(message) {
     let responseStrings = []
     console.log(`Bench command executed`)
@@ -133,7 +138,7 @@ client.registerCommand("bench", async function(message) {
         embed: {
             title: "Hahahaha gay baby jail!",
             image: {
-                url: "attachment://gaybabyjail.png"    // attachment:// shows that the image should be set as the file we are uploading
+                url: "attachment://gaybabyjail.png"     // attachment:// shows that the image should be set as the file we are uploading
             }
         }
     }
@@ -169,8 +174,8 @@ client.registerCommand("bench", async function(message) {
         .toBuffer()                                             // png -> buffer so we can use this data
         .then(data => {
             sharp('./runtime/commandsContainer/domerImage.jpg')
-                .resize(128, 128)                                   // Sharp really doesn't like images that don't match in size, 128x128
-                .composite([{                                       // Mash jailbars.png on top of the person's avatar
+                .resize(128, 128)                               // Sharp really doesn't like images that don't match in size, 128x128
+                .composite([{                                   // Mash jailbars.png on top of the person's avatar
                     input: data
                 }])
                 .toFile('./runtime/commandsContainer/gaybabyjail.png', (err, info) => {
@@ -180,10 +185,10 @@ client.registerCommand("bench", async function(message) {
             console.error(`${err}`)
     })
 
-    setTimeout(() => {                                         // If we start this too fast, it will grab the last person's avatar rather than the new one created
-        sharp("./runtime/commandsContainer/gaybabyjail.png")   // Load up the mashed image
-            .toBuffer()                                        // Turn it into a useable buffer
-            .then(data => {                                    // We save the mashed image buffer data into imageBuffer for uploading later
+    setTimeout(() => {                                          // If we start this too fast, it will grab the last person's avatar rather than the new one created
+        sharp("./runtime/commandsContainer/gaybabyjail.png")    // Load up the mashed image
+            .toBuffer()                                         // Turn it into a useable buffer
+            .then(data => {                                     // We save the mashed image buffer data into imageBuffer for uploading later
                 imageBuffer = data
             })
             .catch(err => {
@@ -205,6 +210,7 @@ client.registerCommand("bench", async function(message) {
     fullDescription: "Grabs a random person to bench for the next 5-man match. Automatically excludes the previous bench from being chosen next."
 })
 
+// Register assemble command
 client.registerCommand("assemble", function(message) {
     console.log(`Assemble command executed`)
 
@@ -249,11 +255,13 @@ client.registerCommand("assemble", function(message) {
     fullDescription: "Moves all people from the waiting room into The Penthouse. Automatically shames those who don't wait for the captain."
 })
 
-client.registerCommand("ttt", function(){}, {
+// Register ttt command
+client.registerCommand("ttt", function() {}, {
     description: "Starts a game of tic-tac-toe.",
     fullDescription: "Starts a game of tic-tac-toe with either the AI or a person. Mention someone after the command to play with them."
 })
 
+// Register site command
 client.registerCommand("site", function(message) {
     let voiceLines = mainController.voiceNames
     let randomVoiceLine = voiceLines[Math.floor(Math.random() * voiceLines.length)]
@@ -279,6 +287,7 @@ client.registerCommand("site", function(message) {
     fullDescription: "Joins the voice channel to play a line describing what to do in a CS:GO match pre-round."
 })
 
+// Register music command
 client.registerCommand("music", async function(message, suffix) {
     let channelID = message.member.voiceState.channelID,
     buffer,
@@ -367,6 +376,7 @@ client.registerCommand("music", async function(message, suffix) {
     aliases: ["play"]
 })
 
+// Register volume subcommand of music
 client.commands.music.registerSubcommand("volume", function(message, suffix) {
     if(client.voiceConnections.filter(m => m.channelID).length == 0) {
         return "There's literally nothing to change the volume of. Get checked for schizophrenia."
@@ -395,6 +405,7 @@ client.commands.music.registerSubcommand("volume", function(message, suffix) {
     aliases: ["vol"]
 })
 
+// Register voteskip subcommand of music
 client.commands.music.registerSubcommand("voteskip", function(message, suffix) {
     let voiceChannelID
     if(client.voiceConnections.filter(m => m.channelID).length == 0) {
@@ -441,6 +452,7 @@ client.commands.music.registerSubcommand("voteskip", function(message, suffix) {
     aliases: ["skip"]
 })
 
+// Register queue subcommand of music
 client.commands.music.registerSubcommand("queue", async function(message) {
     if(queue.length == 0) {
         return "There's nothing in the queue."
@@ -479,6 +491,7 @@ client.commands.music.registerSubcommand("queue", async function(message) {
     fullDescription: "Returns back the full queue with all song positions"
 })
 
+// Register stop subcommand of music
 client.commands.music.registerSubcommand("stop", function() {
     queue.splice(0, queue.length-1)
     voteSkippers = []
@@ -489,6 +502,7 @@ client.commands.music.registerSubcommand("stop", function() {
     fullDescription: "Clears the queue and stops the bot from playing."
 })
 
+// Register disconnect subcommand of music
 client.commands.music.registerSubcommand("disconnect", function(message) {
     queue = []
     voteSkippers = []
