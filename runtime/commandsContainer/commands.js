@@ -31,7 +31,7 @@ const Eris = require("eris"),
         {
             description: "I fuck shit up.",
             owner: `Drew 👻#2567`,
-            prefix: ["@mention ", "!!"],
+            prefix: ["@mention ", config.prefix],
             defaultCommandOptions: {
                 caseInsensitive: true,
                 cooldown: 1000,
@@ -74,8 +74,7 @@ client.registerCommand("eval", function(message, suffix) {
 })
 
 client.registerCommand("ping", function() {
-    return `Domer latency: ${client.shards.get(0).latency}`
-
+    return `Domer latency: ${client.shards.get(0).latency}ms`
 }, {
     description: "Gets the latency of the bot",
     fullDescription: "Did you really just use the help command.. for ping? Just type fucking ping dumbass.",

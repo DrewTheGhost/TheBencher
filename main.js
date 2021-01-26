@@ -9,7 +9,7 @@ const config = require("./config.json"),                          // My config f
     bot = new Discord.Client(),                                   // This is like a slap to all bot devs everywhere I am so sorry please don't roast me
     ticTacToe = require("discord-tictactoe"),                     // This goofy ass tictactoe didn't state that it would ONLY work with discord.js and I want it okay
     ttt = new ticTacToe({                                         // roast them not me please
-        command: "!!ttt",
+        command: "!ttt",
         language: "en"
     }, bot),
     util = require("util")                                        // Do not delete this variable even if unused, can debug with it
