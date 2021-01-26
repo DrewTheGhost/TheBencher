@@ -33,6 +33,7 @@ client.on("ready", () => {
     client.editStatus({name: "Type !help for a list of commands or !help commandname to get command info."})
     setTimeout(() => {
         if(client.voiceConnections.filter(m => m.channelID !== null).length !== 0) {
+            console.warn("Leaving voice channel joined during previous connection.")
             client.leaveVoiceChannel(client.voiceConnections.filter(m => m.channelID !== null)[0].channelID)
         }
     }, 350)
