@@ -17,20 +17,21 @@ const config = require("./config.json"),                          // My config f
             "MESSAGE_DELETE_BULK": true,
             "TYPING_START": true,
         }
-    }),
-    prefix = config.prefix,                                       // Prefix for the bot to respond to (user mentions currently not working, I'm bad at programming.)
+    }),                                                           // Prefix for the bot to respond to (user mentions currently not working, I'm bad at programming.)
     chalk = require("chalk"),                                     // Console coloring
     error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`,      // Error message coloring
     warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`,  // Warning message coloring
     log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`,        // Log message coloring
     Discord = require("discord.js"),                              // Please god forgive this sin of using two different libraries in the same bot
     bot = new Discord.Client(),                                   // This is like a slap to all bot devs everywhere I am so sorry please don't roast me
-    ticTacToe = require("discord-tictactoe")                      // This goofy ass tictactoe didn't state that it would ONLY work with discord.js and I want it okay
-    new ticTacToe({                                               // roast them not me please
+    ticTacToe = require("discord-tictactoe"),                     // This goofy ass tictactoe didn't state that it would ONLY work with discord.js and I want it okay
+    ttt = new ticTacToe({                                         // roast them not me please
         command: "!ttt",
         language: "en"
-    }, bot)
-    var readyCount = 0                                            // Track eris ready events for debug
+    }, bot),
+    util = require("util")                                        // Do not delete this variable even if unused, can debug with it
+var readyCount = 0                                                // Track eris ready events for debug
+let prefix = config.prefix
 
 replaceLog()
 replaceWarning()
@@ -51,7 +52,9 @@ client.on("ready", () => {
 client.on("messageCreate", message => {
     // Event sent when a message is sent on Discord
     let cmd,
-        suffix
+        suffix,
+        prefix = (message.content.indexOf("<@!801939642261307393> ") === 0) ? "<@!801939642261307393> " : config.prefix
+
     if(message.content.indexOf(prefix) === 0) {
         // If the message has the prefix as the first character
         cmd = message.content.substring(prefix.length).split(' ')[0].toLowerCase()
