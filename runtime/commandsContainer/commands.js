@@ -7,7 +7,9 @@ const Commands = [],                                    // Array of all commands
     sharp = require("sharp")                            // This is for combining images
     sharp.cache({files: 1})                             // Set cache to 1 file otherwise it never creates a new file after the first
 var lastBenched,                                         // The last person benched who will be excluded next run
-    queue = []
+    queue = [],
+    voteSkippers = [],
+    leakConnection
 
 
 // All commands must contain `fn: function()`, `private: boolean`, `help: string, and `usage: string`
@@ -72,12 +74,12 @@ Commands.bench = {
                 }
             }
         }
-        let foundDomers = await client.guilds.get(message.guildID).members.filter(m => m.roles.indexOf(domers) !== -1)                    // foundDomers filters through everyone with the domer role and returns an array with member objects of everyone with the role
+        let foundDomers = await client.guilds.get(message.guildID).members.filter(m => m.roles.indexOf(domers) !== -1)                     // foundDomers filters through everyone with the domer role and returns an array with member objects of everyone with the role
         if(lastBenched) {
             foundDomers.splice(foundDomers.indexOf(lastBenched), 1)
         }
-        let chosenDomer = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]                                               // chosenDomer picks a random index from the foundDomer array as the person who will sit out, this is their entire member object
-        let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${chosenDomer.username}`) // chosenLine picks a random line response from benchRandoms.json and inserts their name into it
+        let chosenDomer = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]                                                // chosenDomer picks a random index from the foundDomer array as the person who will sit out, this is their entire member object
+        let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${chosenDomer.mention}`) // chosenLine picks a random line response from benchRandoms.json and inserts their name into it
             lastBenched = chosenDomer
         
         const options = {                                  // options saves the options for downloading the chosen person's avatar
@@ -287,20 +289,31 @@ Commands.play = {
         if(queue.length >= 10) {
             return message.channel.createMessage("Slow down there tiger. Too many things in queue.")
         }
+        titleSuffixDetails = await ytdl.getBasicInfo(suffix)
+        if(titleSuffixDetails.videoDetails.isLiveContent) {
+            return message.channel.createMessage("Guess again if you think I'm about to let you queue a fucking livestream.")
+        }
+        if(titleSuffixDetails.videoDetails.lengthSeconds > 600) {
+            return message.channel.createMessage("Dude, no one wants to listen to your 10 hour mix of despacito. Put in a shorter song.")
+        }
 
         queue.push(suffix)
-        titleSuffixDetails = await ytdl.getBasicInfo(suffix)
+        timer = false;
         titleSuffix = titleSuffixDetails.videoDetails.title
         message.channel.createMessage(`Alright, added ${titleSuffix} to the queue at position ${queue.length}.`)
 
         if(client.voiceConnections.filter(m => m.channelID !== null).length == 0) {
             client.joinVoiceChannel(channelID, {opusOnly: true, shared: false}).then(connection => {
+                leakConnection = connection
+                connection.setVolume(0.1)
                 if(connection.playing) {
                     connection.stopPlaying()
                 }
                 playSong()
                 connection.on("end", function() {
-                    console.log("End event sent for connection")
+                    if(connection.playing) {
+                        connection.stopPlaying()
+                    }
                     queue.shift()
                     if(queue.length > 0) {
                         playSong()
@@ -308,7 +321,7 @@ Commands.play = {
                     setTimeout(() => {
                         timer = true
                         if(queue.length == 0) {
-                            if(client.voiceConnections.filter(m => m.channelID).length == 0){
+                            if(client.voiceConnections.filter(m => m.channelID).length == 0) {
                                 return
                             }
                             message.channel.createMessage("Queue empty for 5 minutes, leaving now.")
@@ -332,6 +345,7 @@ Commands.play = {
             titleQueueDetails = await ytdl.getBasicInfo(queue[0])
             titleQueue = titleQueueDetails.videoDetails.title
             client.voiceConnections.filter(m => m.channelID !== null)[0].play(buffer, {inlineVolume: true})
+            client.voiceConnections.filter(m => m.channelID !== null)[0].setVolume(0.1)
             message.channel.createMessage(`Now playing ${titleQueue}`)
         }
     },
@@ -339,6 +353,7 @@ Commands.play = {
     help: "Joins a voice channel and streams music.",
     usage: "!play (url)"
 }
+
 Commands.volume = {
     fn: function(message, client, suffix) {
         if(!suffix) {
@@ -346,6 +361,9 @@ Commands.volume = {
         }
         if(client.voiceConnections.filter(m => m.channelID).length == 0) {
             return message.channel.createMessage("There's literally nothing to change the volume of. Get checked for schizophrenia.")
+        }
+        if(message.member.voiceState.channelID !== client.voiceConnections.filter(m => m.channelID)[0].channelID) {
+            return message.channel.createMessage("Bro, you tryna fuck with people in the VC? Homies jamming to tunes? And you think you DESERVE control of the volume knob? Think again, knob.")
         }
         if(!Number.isInteger(parseInt(suffix))) {
             return message.channel.createMessage("Put in a number next time, dumbass.")
@@ -364,6 +382,119 @@ Commands.volume = {
     private: false,
     help: "Sets the volume of the current song.",
     usage: "!volume (number 0-100)"
+}
+
+Commands.voteskip = {
+    fn: function(message, client, suffix) {
+        let voiceChannelID
+        if(client.voiceConnections.filter(m => m.channelID).length == 0) {
+            return message.channel.createMessage("You hear that? Yeah, me neither. Maybe cus I'm not playing anything in the first place, dumbass!")
+        }
+        if(client.voiceConnections.filter(m => m.channelID !== null).length > 0) {
+            voiceChannelID = client.voiceConnections.filter(m => m.channelID !== null)[0].channelID
+        }
+
+        if(message.member.voiceState.channelID !== client.voiceConnections.filter(m => m.channelID)[0].channelID) {
+            if(voteSkippers.indexOf(message.member) !== -1) {
+                voteSkippers.splice(voteSkippers.indexOf(memssage.member), 1)
+            }
+            return message.channel.createMessage("You're.. trying to voteskip when you aren't even listening? Fuck off, shithead.")
+        }
+        let voiceMembers = client.guilds.get(message.guildID).channels.get(voiceChannelID).voiceMembers.map(m => m)
+        /* 
+        if(suffix) {
+            if(!Number.isInteger(parseInt(suffix))) {
+                return message.channel.createMessage("You didn't put in a number, try putting in a position next time dumbass.")
+            }
+            if(queue[suffix]) {
+
+            }
+        }
+        I actually don't know a good way to add position vote skipping because then multiple people can vote skip different numbers and I have to track all of that and all thresholds... 
+        */
+        if(voteSkippers.indexOf(message.member) !== -1) {
+            return message.channel.createMessage("You already voted to skip... Stop trying to rig the vote #stopthecount.")
+        }
+        voteSkippers.push(message.member)
+        message.channel.createMessage(`${message.author.username} voted to skip. ${voteSkippers.length}/${Math.ceil((voiceMembers.length-1) / 2)} required.`)
+        if(voteSkippers.length >= Math.ceil(voiceMembers.length / 2)) {
+            voteSkippers = []
+            message.channel.createMessage(`Requirement met to skip song, skipping.`)
+            leakConnection.emit("end")
+        }
+    },
+    private: false,
+    help: "Votes to skip the current song.",
+    usage: "!voteskip"
+}
+
+Commands.queue = {
+    fn: async function(message) {
+        if(queue.length == 0) {
+            return message.channel.createMessage("There's nothing in the queue.")
+        }
+        let fields = []
+        for(let song of queue) {
+            let videoInfo = await ytdl.getBasicInfo(song)
+            let title = videoInfo.videoDetails.title
+            fields.push({
+                "name": "Song Name",
+                "value": `${title}`,
+                "inline": true
+            })
+            fields.push({
+                "name": "Position",
+                "value": `${queue.indexOf(song)+1}`,
+                "inline": true
+            })
+            if(fields.length % 3 == 2) {
+                fields.push({
+                    "name": "\u200B",
+                    "value": "\u200B",
+                    "inline": true
+                })
+            }
+        }
+        let embed = {
+            embed: {
+                "color": 165920,
+                fields: fields
+            }
+        }
+        message.channel.createMessage(embed)        
+    },
+    private: false,
+    help: "Shows the current queue for music.",
+    usage: "!queue"
+}
+
+Commands.stop = {
+    fn: function(message, client) {
+        queue.splice(0, queue.length-1)
+        voteSkippers = []
+        leakConnection.emit("end")
+        message.channel.createMessage("God, fuck, shit, fine, I'll stop playing.")
+    },
+    private: false,
+    help: "Clears the queue and stops the bot from playing.",
+    usage: "!stop"
+}
+
+Commands.disconnect = {
+    fn: function(message, client) {
+        queue = []
+        voteSkippers = []
+        timer = false
+        if(leakConnection) {
+            message.channel.createMessage(`lol bye dumbass ${message.member.mention}`)
+            return client.leaveVoiceChannel(leakConnection.channelID)            
+        }
+        message.channel.createMessage(`lol bye dumbass ${message.member.mention}`)
+        client.leaveVoiceChannel(client.voiceConnections.filter(m => m.channelID !== null)[0].channelID)
+    },
+    private: false,
+    help: "Disconnects the bot from the voice channel.",
+    usage: "!disconnect"
 }
 // Exports the entire Commands array to be accessible outside the commands file
 exports.Commands = Commands
