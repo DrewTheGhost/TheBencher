@@ -340,10 +340,10 @@ client.registerCommand("music", async function(message, suffix) {
                 }
                 setTimeout(() => {
                     timer = true
-                    if(queue.length == 0) {
-                        if(client.voiceConnections.filter(m => m.channelID).length == 0) {
-                            return
-                        }
+                    if(client.voiceConnections.filter(m => m.channelID).length == 0) {
+                        return
+                    }
+                    if(queue.length == 0 && !client.voiceConnections.filter(m => m.channelID)[0].playing) {
                         client.leaveVoiceChannel(channelID)
                         message.channel.createMessage("Queue empty for 5 minutes, leaving now.")
                     }
