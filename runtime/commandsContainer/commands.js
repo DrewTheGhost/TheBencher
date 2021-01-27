@@ -268,6 +268,8 @@ client.registerCommand("site", function(message) {
     let channelID = message.member.voiceState.channelID
     if(channelID === null) {
         return "You're not even in a voice channel, dumbass!"
+    } else if(client.voiceConnections.filter(m => m.channelID !== null)[0].playing) {
+        return "I'm already playing something, fuck off"
     } else {
         client.joinVoiceChannel(channelID).then(connection => {
             if(connection.playing) {
