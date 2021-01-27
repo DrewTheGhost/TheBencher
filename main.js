@@ -10,7 +10,7 @@ const config = require("./config.json"),                          // My config f
     ticTacToe = require("discord-tictactoe"),                     // This goofy ass tictactoe didn't state that it would ONLY work with discord.js and I want it okay
     ttt = new ticTacToe({                                         // roast them not me please
         command: "!ttt",
-        language: "en"
+        language: "ru"
     }, bot),
     util = require("util")                                        // Do not delete this variable even if unused, can debug with it
 var readyCount = 0                                                // Track eris ready events for debug
