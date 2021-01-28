@@ -296,12 +296,8 @@ client.registerCommand("music", async function(message, suffix) {
     titleSuffixDetails,
     titleSuffix,
     titleQueueDetails,
-    titleQueue,
-    timer
+    titleQueue
 
-    if(!suffix) {
-        return "You need to give me something to play, dumbass."
-    }
     if(channelID === null) {
         return "You aren't even in a voice channel to listen to anything, dumbass."
     }
@@ -320,7 +316,6 @@ client.registerCommand("music", async function(message, suffix) {
     }
 
     queue.push(suffix)
-    timer = false;
     titleSuffix = titleSuffixDetails.videoDetails.title
     message.channel.createMessage(`Alright, added ${titleSuffix} to the queue at position ${queue.length}.`)
 
@@ -340,16 +335,6 @@ client.registerCommand("music", async function(message, suffix) {
                 if(queue.length > 0) {
                     playSong()
                 }
-                setTimeout(() => {
-                    timer = true
-                    if(client.voiceConnections.filter(m => m.channelID).length == 0) {
-                        return
-                    }
-                    if(queue.length == 0 && !client.voiceConnections.filter(m => m.channelID)[0].playing) {
-                        client.leaveVoiceChannel(channelID)
-                        message.channel.createMessage("Queue empty for 5 minutes, leaving now.")
-                    }
-                }, 300000) // 5 minute timer
             })
         }).catch(err => {
             message.channel.createMessage("What the fuck did you do? Shit errored.")
@@ -357,7 +342,7 @@ client.registerCommand("music", async function(message, suffix) {
         })
     } else {
         if(client.voiceConnections.filter(m => m.channelID !== null).length > 0) {
-            if(queue.length > 0 && !timer && !client.voiceConnections.filter(m => m.channelID !== null)[0].playing) {
+            if(queue.length > 0 && !client.voiceConnections.filter(m => m.channelID !== null)[0].playing) {
                 playSong()
             }
         }
@@ -369,6 +354,7 @@ client.registerCommand("music", async function(message, suffix) {
         client.voiceConnections.filter(m => m.channelID !== null)[0].play(buffer, {inlineVolume: true})
         client.voiceConnections.filter(m => m.channelID !== null)[0].setVolume(0.1)
         message.channel.createMessage(`Now playing ${titleQueue}`)
+        voteSkippers = []
     }
 }, {
     description: "Joins and plays music :}",
@@ -508,7 +494,6 @@ client.commands.music.registerSubcommand("stop", function() {
 client.commands.music.registerSubcommand("disconnect", function(message) {
     queue = []
     voteSkippers = []
-    timer = false
     if(leakConnection) {
         client.leaveVoiceChannel(leakConnection.channelID)
         return `lol bye dumbass ${message.member.mention}`        
@@ -518,6 +503,23 @@ client.commands.music.registerSubcommand("disconnect", function(message) {
 }, {
     description: "Disconnects the bot from the voice channel",
     fullDescription: "Disconnects the bot from the channel which clears the queue and all music data."
+})
+
+client.registerCommand("stocks", function (message) {
+    let https = require("https")
+    https.get(`https://finnhub.io/api/v1/quote?symbol=GME&token=${config.finnhub.apiKey}`, res => {
+        res.on("data", d => {
+            d = d.toString("utf8")
+            d = JSON.parse(d)
+            let time = new Date(d.t * 1000)
+            data = `GME Data\n**Last close:** \$${d.pc}\n**Opened at:** \$${d.o}\n\n**High of:** \$${d.h}\n**Low of:** \$${d.l}\n\n**Current:** \$${(time.getHours() == "18") ? `${d.c} (Closed)` : `${d.c}`}`
+            
+            message.channel.createMessage(`${data}\n\nTime: ${time.toLocaleString()}`)
+        })
+    })
+}, {
+    description: "Returns GME price.",
+    fullDescription: "Returns the current price of GME given by finnhub."
 })
 
 // Exports the client to be accessible to the main file which logs in and handles ready, warn, and error events

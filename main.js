@@ -12,8 +12,11 @@ const config = require("./config.json"),                          // My config f
         command: "!ttt",
         language: "en"
     }, bot),
-    util = require("util")                                        // Do not delete this variable even if unused, can debug with it
-var readyCount = 0                                                // Track eris ready events for debug
+    util = require("util"),                                       // Do not delete this variable even if unused, can debug with it
+    WebSocket = require('ws')
+    socket = new WebSocket(`wss://ws.finnhub.io?token=${config.finnhub.apiKey}`)
+var readyCount = 0,                                               // Track eris ready events for debug
+    ratelimit = false
 
 
 replaceLog()
@@ -70,5 +73,28 @@ function replaceError() {
     }
 }
 
+socket.addEventListener("open", function(event) {
+    socket.send(JSON.stringify({"type": "subscribe", "symbol": "GME"}))
+})
+socket.addEventListener("message", function(event) {
+    let tradePrice = event.data[0].p
+    let diamondHands = "803738581406318602"
+    if(!ratelimit) {
+        if(tradePrice >= 400) {
+            ratelimit = true
+            client.createMessage(diamondHands, `<@&804120499872858132>\nGME IS 🌙\nPRICE IS ${tradePrice}`)
+            setTimeout(() => {
+                ratelimit = false
+            }, 5000)
+        }
+        if(tradePrice <= 100) {
+            ratelimit = true
+            client.createMessage(diamondHands, `<@&804120499872858132>\nPrice is fucking FALLING!!!\nCurrent Price: ${tradePrice}`)
+            setTimeout(() => {
+                ratelimit = false
+            }, 5000)
+        }
+    }
+})
 client.connect()
 bot.login(config.token) // I repent 🙏
