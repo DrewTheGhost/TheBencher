@@ -26,6 +26,7 @@ replaceError()
 bot.on("ready", () => {
     console.log(`Discord.js ready`)
 })
+
 client.on("ready", () => {
     // Ready event sent when Eris is ready
     readyCount++ 
@@ -58,6 +59,7 @@ function replaceLog() {
         oldInfo.apply(this, arguments)
     }
 }
+
 function replaceWarning() {
     let oldInfo = console.warn
     console.warn = function() {
@@ -65,6 +67,7 @@ function replaceWarning() {
         oldInfo.apply(this, arguments)
     }
 }
+
 function replaceError() {
     let oldInfo = console.error
     console.error = function() {
@@ -76,6 +79,7 @@ function replaceError() {
 socket.addEventListener("open", function(event) {
     socket.send(JSON.stringify({"type": "subscribe", "symbol": "GME"}))
 })
+
 socket.addEventListener("message", function(event) {
     let tradePrice = event.data[0].p
     let diamondHands = "803738581406318602"

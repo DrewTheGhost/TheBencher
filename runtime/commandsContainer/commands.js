@@ -268,8 +268,10 @@ client.registerCommand("site", function(message) {
     let channelID = message.member.voiceState.channelID
     if(channelID === null) {
         return "You're not even in a voice channel, dumbass!"
-    } else if(client.voiceConnections.filter(m => m.channelID !== null)[0].playing) {
-        return "I'm already playing something, fuck off"
+    } else if(client.voiceConnections.filter(m => m.channelID !== null).length > 0) {
+        if(client.voiceConnections.filter(m => m.channelID !== null)[0].playing) {
+            return "I'm already playing something, fuck off"
+        }
     } else {
         client.joinVoiceChannel(channelID).then(connection => {
             if(connection.playing) {
@@ -305,6 +307,9 @@ client.registerCommand("music", async function(message, suffix) {
         return "Can't seem to pull info from that. Did you actually put in a youtube video, dumbass?"
     }
     if(queue.length >= 10) {
+        if(queue.length > 10) {
+            queue.pop()
+        }
         return "Slow down there tiger. Too many things in queue."
     }
     titleSuffixDetails = await ytdl.getBasicInfo(suffix)
@@ -361,7 +366,8 @@ client.registerCommand("music", async function(message, suffix) {
     fullDescription: "Joins the voice channel you're in and plays a song you request or adds it to the queue.",
     argsRequired: true,
     usage: "[youtube url] or [subcommand]",
-    aliases: ["play"]
+    aliases: ["play"],
+    invalidUsageMessage: "Give me something to play >:{"
 })
 
 // Register volume subcommand of music
@@ -405,7 +411,7 @@ client.commands.music.registerSubcommand("voteskip", function(message, suffix) {
 
     if(message.member.voiceState.channelID !== client.voiceConnections.filter(m => m.channelID)[0].channelID) {
         if(voteSkippers.indexOf(message.member) !== -1) {
-            voteSkippers.splice(voteSkippers.indexOf(memssage.member), 1)
+            voteSkippers.splice(voteSkippers.indexOf(message.member), 1)
         }
         return "You're.. trying to voteskip when you aren't even listening? Fuck off, shithead."
     }
