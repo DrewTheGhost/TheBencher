@@ -81,22 +81,22 @@ socket.addEventListener("open", function(event) {
 })
 
 socket.addEventListener("message", function(event) {
-    let tradePrice = event.data[0].p
+    let tradePrice = (JSON.parse(event.data).data[0].p) ? JSON.parse(event.data).data[0].p : null
     let diamondHands = "803738581406318602"
     if(!ratelimit) {
-        if(tradePrice >= 400) {
+        if(tradePrice >= 600) {
             ratelimit = true
             client.createMessage(diamondHands, `<@&804120499872858132>\nGME IS 🌙\nPRICE IS ${tradePrice}`)
             setTimeout(() => {
                 ratelimit = false
-            }, 5000)
+            }, 300000)
         }
         if(tradePrice <= 100) {
             ratelimit = true
             client.createMessage(diamondHands, `<@&804120499872858132>\nPrice is fucking FALLING!!!\nCurrent Price: ${tradePrice}`)
             setTimeout(() => {
                 ratelimit = false
-            }, 5000)
+            }, 10000)
         }
     }
 })
