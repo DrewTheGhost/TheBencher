@@ -30,6 +30,10 @@ bot.on("ready", () => {
 client.on("ready", () => {
     // Ready event sent when Eris is ready
     readyCount++ 
+    if(readyCount >= 2) {
+        console.error("Something funky is going on, restarting.")
+        process.exit(1)
+    }
     console.log(`Eris ready!`)
     let prefix = config.prefix
     console.log(`Current Prefix: ${prefix}`)
@@ -88,14 +92,14 @@ socket.addEventListener("message", function(event) {
         if(tradePrice !== null) {
             if(tradePrice >= 600) {
                 ratelimit = true
-                client.createMessage(diamondHands, `GME IS 🌙\nPRICE IS ${tradePrice}`)
+                client.createMessage(diamondHands, `<@804120499872858132>\nGME IS 🌙\nPRICE IS ${tradePrice}`)
                 setTimeout(() => {
                     ratelimit = false
                 }, 300000)
             }
-            if(tradePrice <= 100) {
+            if(tradePrice <= 200) {
                 ratelimit = true
-                client.createMessage(diamondHands, `Price is fucking FALLING!!!\nCurrent Price: ${tradePrice}`)
+                client.createMessage(diamondHands, `THEY'RE MANIPULATIN' THE GOD DAMN MARKETS AGAIN!\nCurrent Price: ${tradePrice}`)
                 setTimeout(() => {
                     ratelimit = false
                 }, 300000)

@@ -85,7 +85,7 @@ client.registerCommand("ping", function() {
 client.registerCommand("restart", function() {
     console.log(`Restart command executed.`)
     setTimeout(() => {
-        eval("process.exit()")
+        process.exit()
     }, 200)
     return "Restart executed, beginning restart process now."
 }, {
@@ -511,21 +511,23 @@ client.commands.music.registerSubcommand("disconnect", function(message) {
     fullDescription: "Disconnects the bot from the channel which clears the queue and all music data."
 })
 
-client.registerCommand("stocks", function (message) {
+client.registerCommand("stocks", function (message, suffix) {
     let https = require("https")
-    https.get(`https://finnhub.io/api/v1/quote?symbol=GME&token=${config.finnhub.apiKey}`, res => {
+    let symbol = (!suffix[0]) ? "GME" : suffix[0].toUpperCase()
+    https.get(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${config.finnhub.apiKey}`, res => {
         res.on("data", d => {
             d = d.toString("utf8")
             d = JSON.parse(d)
             let time = new Date(d.t * 1000)
-            data = `GME Data\n**Last close:** \$${d.pc}\n**Opened at:** \$${d.o}\n\n**High of:** \$${d.h}\n**Low of:** \$${d.l}\n\n**Current:** \$${(time.getHours() == "18") ? `${d.c} (Closed)` : `${d.c}`}`
+            data = `${symbol} Data\n**Last close:** \$${d.pc}\n**Opened at:** \$${d.o}\n\n**High of:** \$${d.h}\n**Low of:** \$${d.l}\n\n**Current:** \$${(time.getHours() == "18") ? `${d.c} (Closed)` : `${d.c}`}`
             
-            message.channel.createMessage(`${data}\n\nTime: ${time.toLocaleString()}`)
+            message.channel.createMessage(`${data}\n\nTime: ${time.toLocaleString()}\n(Time may be inaccurate, I can only use what is given by the API.)`)
         })
     })
 }, {
-    description: "Returns GME price.",
-    fullDescription: "Returns the current price of GME given by finnhub."
+    description: "Returns stock price.",
+    fullDescription: "Returns stock data for GME by default, else whatever symbol you put in.",
+    aliases: ["stock"]
 })
 
 // Exports the client to be accessible to the main file which logs in and handles ready, warn, and error events
