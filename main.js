@@ -88,17 +88,17 @@ socket.addEventListener("message", function(event) {
         if(tradePrice !== null) {
             if(tradePrice >= 600) {
                 ratelimit = true
-                client.createMessage(diamondHands, `<@&804120499872858132>\nGME IS 🌙\nPRICE IS ${tradePrice}`)
+                client.createMessage(diamondHands, `GME IS 🌙\nPRICE IS ${tradePrice}`)
                 setTimeout(() => {
                     ratelimit = false
                 }, 300000)
             }
             if(tradePrice <= 100) {
                 ratelimit = true
-                client.createMessage(diamondHands, `<@&804120499872858132>\nPrice is fucking FALLING!!!\nCurrent Price: ${tradePrice}`)
+                client.createMessage(diamondHands, `Price is fucking FALLING!!!\nCurrent Price: ${tradePrice}`)
                 setTimeout(() => {
                     ratelimit = false
-                }, 10000)
+                }, 300000)
             }
         }
     }
