@@ -97,7 +97,7 @@ socket.addEventListener("message", function(event) {
                     ratelimit = false
                 }, 300000)
             }
-            if(tradePrice <= 200) {
+            if(tradePrice <= 290) {
                 ratelimit = true
                 client.createMessage(diamondHands, `THEY'RE MANIPULATIN' THE GOD DAMN MARKETS AGAIN!\nCurrent Price: ${tradePrice}`)
                 setTimeout(() => {
