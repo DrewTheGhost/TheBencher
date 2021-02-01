@@ -97,12 +97,12 @@ socket.addEventListener("message", function(event) {
                     ratelimit = false
                 }, 300000)
             }
-            if(tradePrice <= 260) {
+            if(tradePrice <= 250) {
                 ratelimit = true
                 client.createMessage(diamondHands, `THEY'RE MANIPULATIN' THE GOD DAMN MARKETS AGAIN!\nCurrent Price: ${tradePrice}`)
                 setTimeout(() => {
                     ratelimit = false
-                }, 300000)
+                }, 600000) // manipulated so much that I have to once again up ratelimits and thresholds
             }
         }
     }
