@@ -530,5 +530,21 @@ client.registerCommand("stocks", function (message, suffix) {
     aliases: ["stock"]
 })
 
+client.registerCommand("shorts", function(message) {
+    let https = require("https")
+    https.get(`https://finnhub.io/api/v1/stock/short-interest?symbol=GME&from=2020-12-31&to=2021-02-01&token=${config.finnhub.apiKey}`, res => {
+        res.on("data", d => {
+            d = d.toString("utf8")
+            d = JSON.parse(d)
+            let data = `Short Interest Data GME\n\nShort Interest Volume: ${d.data[0].shortInterest}\nDate: ${d.data[0].date}\n\nUpdates twice monthly (15th and 29th/30th/31st)`
+            message.channel.createMessage(`${data}`)
+        })
+    })
+}, {
+    description: "Returns short information on GME.",
+    fullDescription: "Returns short interest data for a time period on GME.",
+    aliases: ["short"]
+})
+
 // Exports the client to be accessible to the main file which logs in and handles ready, warn, and error events
 exports.client = client
