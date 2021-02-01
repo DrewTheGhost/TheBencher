@@ -546,5 +546,51 @@ client.registerCommand("shorts", function(message) {
     aliases: ["short"]
 })
 
+client.registerCommand("cipher", async function(message, suffix) {
+    suffix = suffix.join(" ")
+    function rotRight(str) {
+        str = (typeof str == "string") ? str : "" 
+        return str.split('').map(x => rotRight.lookup[x] || x).join('')
+    }
+    rotRight.input  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('')
+    rotRight.output = 'SNVFRGHJOKL:<MP{WTDYIBECUXsnvfrghjokl;,mp[wtdyibecux'.split('')
+    rotRight.lookup = rotRight.input.reduce((m,k,i) => Object.assign(m, {[k]: rotRight.output[i]}), {})
+    
+    message.channel.createMessage(`${rotRight(suffix)}`)
+}, {
+    argsRequired: true,
+    hidden: true,
+    requirements: {
+        userIDs: ["197114859316314112","161014852368859137"]
+    },
+    invalidUsageMessage: "You fucked up, give me some shit to put in.",
+    permissionMessage: "?",
+    errorMessage: "The fucking command failed. Either you fucked up or I'm a dumbass, and I dunno about you but I don't have the capacity to be stupid.",
+    dmOnly: true
+})
+
+client.registerCommand("solve", async function(message, suffix) {
+    suffix = suffix.join(" ")
+    function rotLeft(str) {
+        str = (typeof str == "string") ? str : "" 
+        return str.split('').map(x => rotLeft.lookup[x] || x).join('')
+    }
+    rotLeft.input = 'SNVFRGHJOKL:<MP{WTDYIBECUXsnvfrghjokl;,mp[wtdyibecux'.split('')
+    rotLeft.output  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('')
+    rotLeft.lookup = rotLeft.input.reduce((m,k,i) => Object.assign(m, {[k]: rotLeft.output[i]}), {})
+    
+    message.channel.createMessage(`${rotLeft(suffix)}`)
+}, {
+    argsRequired: true,
+    hidden: true,
+    requirements: {
+        userIDs: ["197114859316314112","161014852368859137"]
+    },
+    invalidUsageMessage: "You fucked up, give me some shit to put in.",
+    permissionMessage: "?",
+    errorMessage: "The fucking command failed. Either you fucked up or I'm a dumbass, and I dunno about you but I don't have the capacity to be stupid.",
+    dmOnly: true
+})
+
 // Exports the client to be accessible to the main file which logs in and handles ready, warn, and error events
 exports.client = client
