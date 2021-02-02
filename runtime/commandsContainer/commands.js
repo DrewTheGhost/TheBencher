@@ -148,7 +148,7 @@ client.registerCommand("bench", async function(message) {
     // Welcome to variable hell :}
 
     const domers = "779446753606238258",                // This is the ID of the domer role
-          lines = require("./benchRandoms.json").lines, // This is the entire array of random one-liners for the bench command
+          lines = mainController.lines,                 // This is the entire array of random one-liners for the bench command
           image = require("image-js"),                  // Image editor (grayscaling)
           download = require("image-downloader")        // Yeah.. downloads images because I don't want to write HTTP requests to do it myself
     let imageBuffer                                     // imageBuffer saves the buffer data from images created later
@@ -165,7 +165,7 @@ client.registerCommand("bench", async function(message) {
         foundDomers.splice(foundDomers.indexOf(lastBenched), 1)
     }
     let chosenDomer = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]                                               // chosenDomer picks a random index from the foundDomer array as the person who will sit out, this is their entire member object
-    let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${chosenDomer.mention}`) // chosenLine picks a random line response from benchRandoms.json and inserts their name into it
+    let chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `${chosenDomer.mention}`) // chosenLine picks a random line response from mainController.lines and inserts their name into it
         lastBenched = chosenDomer
     
     responseStrings.push("I'm spinnin' the wheel! Some unlucky fucker is sittin' out this domin' round!")
