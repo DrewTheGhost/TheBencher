@@ -15,7 +15,8 @@ const util = require("util"),                           // For inspecting my eva
 var lastBenched,                                        // The last person benched who will be excluded next run
     queue = [],                                         // The music queue
     voteSkippers = [],                                  // Array of voice members that have voted to skip
-    leakConnection                                      // VoiceConnection object leaked after joining the channel for music
+    leakConnection,                                     // VoiceConnection object leaked after joining the channel for music
+    sussyCache
 
 const Eris = require("eris"),
     client = new Eris.CommandClient(config.token, 
@@ -116,9 +117,18 @@ client.registerCommand("drip", function() {
 
 // Register sussy command
 client.registerCommand("sussy", function() {
-    const susVideos = mainController.susNames                                 // List of all videos for hesston's command
+    var susVideos = mainController.susNames                                   // List of all videos for hesston's command
     console.log(`Sussy command executed`)
+    if(sussyCache.length >= 5) {
+        sussyCache.shift()
+    }
+    if(sussyCache[0]) {
+        for(let cache in sussyCache) {
+            susVideos.splice(susVideos.indexOf(cache), 1)
+        }
+    }
     let chosenVideo = susVideos[Math.floor(Math.random() * susVideos.length)] // Selects a random video from videoController.json
+    sussyCache.push(chosenVideo)
     return `Lemme pull up somethin' sussy for ya..\n${chosenVideo}`           // Lets the person know to wait for something coming, video uploads can be slow
 }, {
     requirements: {
@@ -126,7 +136,8 @@ client.registerCommand("sussy", function() {
     },
     permissionMessage: "Ayo do you think you're hesston or something, stupid?",
     description: "Grabs a random sussy video and sends it.",
-    fullDescription: "It sends some sussy shit! What more do you want!?"
+    fullDescription: "It sends some sussy shit! What more do you want!?",
+    aliases: ["sus"]
 })
 
 // Register bench command
