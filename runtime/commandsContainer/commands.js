@@ -2,7 +2,14 @@ const util = require("util"),                           // For inspecting my eva
     mainController = require("./mainController.json"),  // Handles all random link getting
     ytdl = require("ytdl-core"),                        // Downloads youtube audio for streaming
     fs = require("fs"),                                 // Handles opening the audio files and creating buffer streams
-    config = require("../../config.json")               // Config folder
+    config = require("../../config.json"),              // Config folder
+    mysql = require("mysql"),
+    db = mysql.createConnection({                       // Database connection
+        host: config.mysql.host,
+        user: config.mysql.user,
+        password: config.mysql.password,
+        database: "bencher"
+    }),
     sharp = require("sharp")                            // This is for combining images
     sharp.cache({files: 1})                             // Set cache to 1 file otherwise it never creates a new file after the first
 var lastBenched,                                        // The last person benched who will be excluded next run
@@ -590,6 +597,29 @@ client.registerCommand("solve", async function(message, suffix) {
     permissionMessage: "?",
     errorMessage: "The fucking command failed. Either you fucked up or I'm a dumbass, and I dunno about you but I don't have the capacity to be stupid.",
     dmOnly: true
+})
+
+client.registerCommand("register", async function(message) {
+    db.query(`SELECT id FROM player WHERE id = ${message.author.id}`, function(err, results, fields) {
+        if(err) {
+            console.error(err)
+            return message.channel.createMessage("Somethin' fucked up bro.. I dunno.")
+        }
+        if(!results[0]) {
+            db.query(`INSERT INTO player (id) VALUES ("${message.author.id}")`, function(err, results, fields) {
+                if(err) {
+                    console.error(err)
+                    return message.channel.createMessage("Somethin' fucked up during registration..")
+                }
+                message.channel.createMessage("Alrriiiiighty. You're set to FUCKING GOOOOO now.")
+            })
+        } else {
+            return message.channel.createMessage("You tryna register when you already exist or somethin' stupid?")
+        }
+    })
+}, {
+    description: "Registers you as a player.",
+    fullDescription: "Registers you as a player in the database if you aren't one."
 })
 
 // Exports the client to be accessible to the main file which logs in and handles ready, warn, and error events

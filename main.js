@@ -13,7 +13,7 @@ const config = require("./config.json"),                          // My config f
         language: "en"
     }, bot),
     util = require("util"),                                       // Do not delete this variable even if unused, can debug with it
-    WebSocket = require('ws')
+    WebSocket = require("ws"),
     socket = new WebSocket(`wss://ws.finnhub.io?token=${config.finnhub.apiKey}`)
 var readyCount = 0,                                               // Track eris ready events for debug
     ratelimit = false
@@ -45,7 +45,6 @@ client.on("ready", () => {
             client.leaveVoiceChannel(client.voiceConnections.filter(m => m.channelID !== null)[0].channelID)
         }
     }, 350)
-
 })
 
 client.on("error", err => {

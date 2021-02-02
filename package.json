@@ -13,6 +13,7 @@
     "erlpack": "github:abalabahaha/erlpack",
     "image-downloader": "^4.0.2",
     "image-js": "^0.31.4",
+    "mysql": "^2.18.1",
     "require-directory": "^2.1.1",
     "sharp": "^0.27.0",
     "snoowrap": "^1.22.0",
