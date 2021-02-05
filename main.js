@@ -79,32 +79,5 @@ function replaceError() {
     }
 }
 
-socket.addEventListener("open", function(event) {
-    socket.send(JSON.stringify({"type": "subscribe", "symbol": "GME"}))
-})
-
-socket.addEventListener("message", function(event) {
-    let tradeJson = JSON.parse(event.data)
-    tradePrice = (tradeJson.data) ? tradeJson.data[0].p : null
-    let diamondHands = "803738581406318602"
-    if(!ratelimit) {
-        if(tradePrice !== null) {
-            if(tradePrice >= 600) {
-                ratelimit = true
-                client.createMessage(diamondHands, `<@804120499872858132>\nGME IS 🌙\nPRICE IS ${tradePrice}`)
-                setTimeout(() => {
-                    ratelimit = false
-                }, 300000)
-            }
-            if(tradePrice <= 250) {
-                ratelimit = true
-                client.createMessage(diamondHands, `THEY'RE MANIPULATIN' THE GOD DAMN MARKETS AGAIN!\nCurrent Price: ${tradePrice}`)
-                setTimeout(() => {
-                    ratelimit = false
-                }, 600000) // manipulated so much that I have to once again up ratelimits and thresholds
-            }
-        }
-    }
-})
 client.connect()
 bot.login(config.token) // I repent 🙏

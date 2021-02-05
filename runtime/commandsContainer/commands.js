@@ -611,14 +611,14 @@ client.registerCommand("solve", async function(message, suffix) {
 })
 
 client.registerCommand("register", async function(message) {
-    db.query(`SELECT id FROM player WHERE id = ${message.author.id}`, function(err, results, fields) {
-        if(err) {
+    db.query(`SELECT id FROM player WHERE id = ${message.author.id}`, (err, results) => {
+        if (err) {
             console.error(err)
             return message.channel.createMessage("Somethin' fucked up bro.. I dunno.")
         }
-        if(!results[0]) {
-            db.query(`INSERT INTO player (id) VALUES ("${message.author.id}")`, function(err, results, fields) {
-                if(err) {
+        if (!results[0]) {
+            db.query(`INSERT INTO player (id) VALUES ("${message.author.id}")`, (err) => {
+                if (err) {
                     console.error(err)
                     return message.channel.createMessage("Somethin' fucked up during registration..")
                 }
@@ -631,6 +631,113 @@ client.registerCommand("register", async function(message) {
 }, {
     description: "Registers you as a player.",
     fullDescription: "Registers you as a player in the database if you aren't one."
+})
+
+client.registerCommand("balance", function(message, suffix) {
+    if(!suffix[0]) {
+        db.query(`SELECT currency FROM player WHERE id = ${message.author.id}`, (err, results) => {
+            if(err) {
+                console.error(err)
+                return message.channel.createMessage("Somethin' fucked up bro.. I dunno.")
+            } else if(!results[0]) {
+                return message.channel.createMessage("You're trying to check your balance without even being registered.. Bro use !register.")
+            } else {
+                return message.channel.createMessage(`Looks like you got ${results[0].currency} oz of cringe on ya.`)
+            }
+        })
+    } else if(message.mentions.length > 0) {
+        db.query(`SELECT currency FROM player WHERE id = ${message.mentions[0].id}`, (err, results) => {
+            if(err) {
+                console.error(err)
+                return message.channel.createMessage("Somethin' fucked up bro.. I dunno.")
+            } else if(!results[0]) {
+                return message.channel.createMessage("Yo, that person don't exist bro. Tell them to register or somethin'.")
+            } else {
+                return message.channel.createMessage(`Looks like they got ${results[0].currency} oz of cringe on em.`)
+            }
+        })
+    } else {
+        if(!client.users.get(suffix[0])) {
+            return message.channel.createMessage("Yo, gimme a valid ID next time dipshit.")
+        } else {
+            db.query(`SELECT currency FROM player WHERE id = ${suffix[0]}`, (err, results) => {
+                if(err) {
+                    console.error(err)
+                    return message.channel.createMessage("Somethin' fucked up bro.. I dunno.")
+                } else if(!results[0]) {
+                    return message.channel.createMessage("Yo, that person don't exist bro. Tell them to register or somethin'.")
+                } else {
+                    return message.channel.createMessage(`Looks like they got ${results[0].currency} oz of cringe on em.`)
+                }
+            })
+        }
+    }
+}, {
+    description: "Grabs the liquid balance of someone.",
+    fullDescription: "Grabs the liquid balance of you or the person specified.",
+    aliases: ["bal", "currency", "money"]
+})
+
+client.registerCommand("profile", function(message, suffix) {
+    if(!suffix[0]) {
+        db.query(`SELECT * FROM player WHERE id = ${message.author.id}`, (err, results) => {
+            if(err) {
+                console.error(err)
+                return message.channel.createMessage("Somethin' fucked up bro.. I dunno.")
+            } else if(!results[0]) {
+                return message.channel.createMessage("You're trying to check your profile without even being registered.. Bro use !register.")
+            } else {
+                let player = client.users.get(results[0].id).username,
+                    currency = results[0].currency,
+                    losses = results[0].losses,
+                    wins = results[0].wins,
+                    cards = (results[0].cards !== null) ? results[0].cards.length : "None",
+                    decks = (results[0].decks !== null) ? results[0].decks.length : "None"
+                return message.channel.createMessage(`${player}'s Profile\n------------------------\nDecks:\n${decks}\n------------------------\nCards:\n${cards}\n------------------------\nWins: ${wins}\nLosses: ${losses}\n------------------------\nLiquid Cringe: ${currency} oz`)
+            }
+        })
+    } else if(message.mentions.length > 0) {
+        db.query(`SELECT * FROM player WHERE id = ${message.mentions[0].id}`, (err, results) => {
+            if(err) {
+                console.error(err)
+                return message.channel.createMessage("Somethin' fucked up bro.. I dunno.")
+            } else if(!results[0]) {
+                return message.channel.createMessage("Yo, that person don't exist bro. Tell them to register or somethin'.")
+            } else {
+                let player = client.users.get(results[0].id).username,
+                    currency = results[0].currency,
+                    losses = results[0].losses,
+                    wins = results[0].wins,
+                    cards = (results[0].cards !== null) ? results[0].cards.length : "None",
+                    decks = (results[0].decks !== null) ? results[0].decks.length : "None"
+                return message.channel.createMessage(`${player}'s Profile\n------------------------\nDecks:\n${decks}\n------------------------\nCards:\n${cards}\n------------------------\nWins: ${wins}\nLosses: ${losses}\n------------------------\nLiquid Cringe: ${currency} oz`)
+            }
+        })
+    } else {
+        if(!client.users.get(suffix[0])) {
+            return message.channel.createMessage("Yo, gimme a valid ID next time dipshit.")
+        } else {
+            db.query(`SELECT * FROM player WHERE id = ${suffix[0]}`, (err, results) => {
+                if(err) {
+                    console.error(err)
+                    return message.channel.createMessage("Somethin' fucked up bro.. I dunno.")
+                } else if(!results[0]) {
+                    return message.channel.createMessage("Yo, that person don't exist bro. Tell them to register or somethin'.")
+                } else {
+                    let player = client.users.get(suffix[0]).username,
+                        currency = results[0].currency,
+                        losses = results[0].losses,
+                        wins = results[0].wins,
+                        cards = (results[0].cards !== null) ? results[0].cards.length : "None",
+                        decks = (results[0].decks !== null) ? results[0].decks.length : "None"
+                    return message.channel.createMessage(`${player}'s Profile\n------------------------\nDecks:\n${decks}\n------------------------\nCards:\n${cards}\n------------------------\nWins: ${wins}\nLosses: ${losses}\n------------------------\nLiquid Cringe: ${currency} oz`)
+                }
+            })
+        }
+    }
+}, {
+    description: "Gets a profile :}",
+    fullDescription: "Gets the profile of you or someone you specify."
 })
 
 // Exports the client to be accessible to the main file which logs in and handles ready, warn, and error events
