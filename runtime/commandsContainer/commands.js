@@ -536,10 +536,9 @@ client.registerCommand("stocks", function (message, suffix) {
         res.on("data", d => {
             d = d.toString("utf8")
             d = JSON.parse(d)
-            let time = new Date(d.t * 1000)
-            data = `${symbol} Data\n**Last close:** \$${d.pc}\n**Opened at:** \$${d.o}\n\n**High of:** \$${d.h}\n**Low of:** \$${d.l}\n\n**Current:** \$${(time.getHours() == "18") ? `${d.c} (Closed)` : `${d.c}`}`
+            data = `${symbol} Data\n**Last close:** \$${d.pc}\n**Opened at:** \$${d.o}\n\n**High of:** \$${d.h}\n**Low of:** \$${d.l}\n\n**Current:** \$${d.c}`
             
-            message.channel.createMessage(`${data}\n\nTime: ${time.toLocaleString()}\n(Time may be inaccurate, I can only use what is given by the API.)`)
+            message.channel.createMessage(`${data}`)
         })
     })
 }, {
