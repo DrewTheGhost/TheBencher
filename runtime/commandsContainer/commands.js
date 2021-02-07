@@ -16,7 +16,7 @@ var lastBenched,                                        // The last person bench
     queue = [],                                         // The music queue
     voteSkippers = [],                                  // Array of voice members that have voted to skip
     leakConnection,                                     // VoiceConnection object leaked after joining the channel for music
-    sussyCache
+    sussyCache = []
 
 const Eris = require("eris"),
     client = new Eris.CommandClient(config.token, 
@@ -117,23 +117,20 @@ client.registerCommand("drip", function() {
 
 // Register sussy command
 client.registerCommand("sussy", function() {
-    var susVideos = mainController.susNames                                   // List of all videos for hesston's command
+    let susVideos = mainController.susNames                                   // List of all videos for hesston's command
     console.log(`Sussy command executed`)
-    if(sussyCache.length >= 5) {
+    if(sussyCache.length > 5) {                                              // Cache of last 5 videos so repeats don't happen
         sussyCache.shift()
     }
     if(sussyCache[0]) {
-        for(let cache in sussyCache) {
+        for(let cache of sussyCache) {
             susVideos.splice(susVideos.indexOf(cache), 1)
         }
     }
-    let chosenVideo = susVideos[Math.floor(Math.random() * susVideos.length)] // Selects a random video from videoController.json
+    let chosenVideo = susVideos[Math.floor(Math.random() * susVideos.length)] // Selects a random video from mainController.json
     sussyCache.push(chosenVideo)
-    return `Lemme pull up somethin' sussy for ya..\n${chosenVideo}`           // Lets the person know to wait for something coming, video uploads can be slow
+    return `Lemme pull up somethin' sussy for ya..\n${chosenVideo}`
 }, {
-    requirements: {
-        userIDs: ["160960464719708161"]
-    },
     permissionMessage: "Ayo do you think you're hesston or something, stupid?",
     description: "Grabs a random sussy video and sends it.",
     fullDescription: "It sends some sussy shit! What more do you want!?",
