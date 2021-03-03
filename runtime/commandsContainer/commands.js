@@ -736,5 +736,19 @@ client.registerCommand("profile", function(message, suffix) {
     fullDescription: "Gets the profile of you or someone you specify."
 })
 
+client.registerCommand("warn", function(message, suffix) {
+    if(!suffix[0]) {
+        return message.channel.createMessage(`?? Warn someone, hello?`)
+    }
+    if(message.mentions.length < 1) {
+        return message.channel.createMessage(`Dude. Ping the bastard.`)
+    }
+    return message.channel.createMessage(`Alright, domer. You've done some fucked up shit. You messed up. The first step is admitting you have a problem. Own up to it, ${message.mentions[0].mention}, and maybe we'll forgive you. You've been warned, shithead.`)
+}, {
+    description: "Warns a bad boy..",
+    fullDescription: "Warns a very bad boy.. Mention that fucker by the way.",
+    argsRequired: true,
+    invalidUsageMessage: "You fucked up, give me some shithead (pronounced shuh-theed) to warn.",
+})
 // Exports the client to be accessible to the main file which logs in and handles ready, warn, and error events
 exports.client = client
