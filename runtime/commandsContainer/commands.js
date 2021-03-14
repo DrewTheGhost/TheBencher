@@ -331,9 +331,6 @@ client.registerCommand("music", async function(message, suffix) {
     if(titleSuffixDetails.videoDetails.isLiveContent) {
         return "Guess again if you think I'm about to let you queue a fucking livestream."
     }
-    if(titleSuffixDetails.videoDetails.lengthSeconds > 600) {
-        return "Dude, no one wants to listen to your 10 hour mix of despacito. Put in a shorter song."
-    }
 
     queue.push(suffix)
     titleSuffix = titleSuffixDetails.videoDetails.title
@@ -372,7 +369,6 @@ client.registerCommand("music", async function(message, suffix) {
         titleQueueDetails = await ytdl.getBasicInfo(queue[0])
         titleQueue = titleQueueDetails.videoDetails.title
         client.voiceConnections.filter(m => m.channelID !== null)[0].play(buffer, {inlineVolume: true})
-        client.voiceConnections.filter(m => m.channelID !== null)[0].setVolume(0.1)
         message.channel.createMessage(`Now playing ${titleQueue}`)
         voteSkippers = []
     }
