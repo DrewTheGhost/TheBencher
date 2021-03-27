@@ -18,7 +18,6 @@ const config = require("./config.json"),                          // My config f
 var readyCount = 0,                                               // Track eris ready events for debug
     ratelimit = false
 
-
 replaceLog()
 replaceWarning()
 replaceError()

@@ -10,6 +10,7 @@ const util = require("util"),                           // For inspecting my eva
         password: config.mysql.password,
         database: "bencher"
     }),
+    weatherKey = config.weatherAPIKey,                  // Accessing OpenWeather API
     sharp = require("sharp")                            // This is for combining images
     sharp.cache({files: 1})                             // Set cache to 1 file otherwise it never creates a new file after the first
 var lastBenched,                                        // The last person benched who will be excluded next run
@@ -401,7 +402,7 @@ client.commands.music.registerSubcommand("volume", function(message, suffix) {
         return "Shit is too fucking big! Enter a smaller number, dumbass."
     }
     client.voiceConnections.filter(m => m.channelID)[0].setVolume(suffix)
-    return `Adjusting the volume for ya, now set to ${client.voiceConnections.filter(m => m.channelID)[0].volume}`
+    return `Adjusting the volume for ya, now set to ${suffix*100}`
 }, {
     argsRequired: true,
     description: "Sets the volume",
@@ -744,7 +745,42 @@ client.registerCommand("warn", function(message, suffix) {
     description: "Warns a bad boy..",
     fullDescription: "Warns a very bad boy.. Mention that fucker by the way.",
     argsRequired: true,
-    invalidUsageMessage: "You fucked up, give me some shithead (pronounced shuh-theed) to warn.",
+    invalidUsageMessage: "You fucked up, give me some shithead (pronounced shuh-theed) to warn."
 })
+
+/* whenever you decide to stop being lazy, make an embed response and add multi-location functionality using geo lookup api they provide
+client.registerCommand("weather", function(message, suffix) {
+    let lat, 
+        lon;
+    let https = require('https')
+    if(!suffix[0]) {
+        lat = "-35.0526"
+        lon = "-97.9364"
+        https.get(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly&appid=${weatherKey}`, res => {
+            let partialData = "";
+            res.on("data", chunk => {
+                partialData += chunk;
+            })
+            res.on("end", () => {
+                message.channel.createMessage({
+                    embed: {
+                        
+                    }
+                })
+            })
+        }).on('error', err => {
+            console.error(err)
+        })
+    }
+}, {
+    description: "Grabs some weather :)",
+    fullDescription: "Gets some funky weather deets!",
+    argsRequired: false,
+    invalidUsageMessage: "You fucked up somehow. I dunno.",
+    cooldown: 0,
+    cooldownMessage: "Ayo, API don't like it when I request a location more than once per 10 minutes. Sorry fucker."
+}) 
+*/
+
 // Exports the client to be accessible to the main file which logs in and handles ready, warn, and error events
 exports.client = client
