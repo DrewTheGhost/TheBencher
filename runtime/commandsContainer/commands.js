@@ -334,22 +334,32 @@ client.registerCommand("music", async function(message, suffix) {
     }
 
     queue.push(suffix)
+    console.log(`Music: ${message.author.username} Requested ${suffix}`)
     titleSuffix = titleSuffixDetails.videoDetails.title
+    console.log(`Music: Song title ${titleSuffix}`)
+    console.log(`Music: Queue length now ${queue.length}`)
     message.channel.createMessage(`Alright, added ${titleSuffix} to the queue at position ${queue.length}.`)
 
     if(client.voiceConnections.filter(m => m.channelID !== null).length == 0) {
         client.joinVoiceChannel(channelID, {opusOnly: true, shared: false}).then(connection => {
+            console.log(`Music: Joined voice channel to play ${queue[0]}`)
+            console.log(`Music: Current titleSuffix is ${titleSuffix}`)
             leakConnection = connection
             connection.setVolume(0.1)
+            console.log(`Music: Set volume to 0.1`)
             if(connection.playing) {
+                console.log(`Music: stopPlaying() sent, should not be playing anything yet`)
                 connection.stopPlaying()
             }
             playSong()
+            console.log(`Music: playSong() function executed`)
             connection.on("end", function() {
+                console.log(`Music: end event received`)
                 if(connection.playing) {
                     connection.stopPlaying()
                 }
                 queue.shift()
+                console.log(`Music: Queue shifted, new length ${queue.length}`)
                 if(queue.length > 0) {
                     playSong()
                 }
@@ -362,6 +372,7 @@ client.registerCommand("music", async function(message, suffix) {
         if(client.voiceConnections.filter(m => m.channelID !== null).length > 0) {
             if(queue.length > 0 && !client.voiceConnections.filter(m => m.channelID !== null)[0].playing) {
                 playSong()
+                console.log(`Music: playSong() function executed`)
             }
         }
     }
@@ -384,6 +395,7 @@ client.registerCommand("music", async function(message, suffix) {
 
 // Register volume subcommand of music
 client.commands.music.registerSubcommand("volume", function(message, suffix) {
+    console.log(`Music: Volume command executed by ${message.author.username}`)
     if(client.voiceConnections.filter(m => m.channelID).length == 0) {
         return "There's literally nothing to change the volume of. Get checked for schizophrenia."
     }
@@ -402,6 +414,7 @@ client.commands.music.registerSubcommand("volume", function(message, suffix) {
         return "Shit is too fucking big! Enter a smaller number, dumbass."
     }
     client.voiceConnections.filter(m => m.channelID)[0].setVolume(suffix)
+    console.log(`Music: Adjusted volume to ${suffix}`)
     return `Adjusting the volume for ya, now set to ${suffix*100}`
 }, {
     argsRequired: true,
