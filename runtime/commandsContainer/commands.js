@@ -11,6 +11,7 @@ const util = require("util"),                           // For inspecting my eva
         database: "bencher"
     }),
     weatherKey = config.weatherAPIKey,                  // Accessing OpenWeather API
+    chalk = require("chalk"),                           // Console coloring
     sharp = require("sharp")                            // This is for combining images
     sharp.cache({files: 1})                             // Set cache to 1 file otherwise it never creates a new file after the first
 var lastBenched,                                        // The last person benched who will be excluded next run
@@ -334,21 +335,21 @@ client.registerCommand("music", async function(message, suffix) {
     }
 
     queue.push(suffix)
-    console.log(`Music: ${message.author.username} Requested ${suffix}`)
+    console.log(`Music: ${chalk.yellow(message.author.username)}${chalk.reset()} Requested ${suffix}`)
     titleSuffix = titleSuffixDetails.videoDetails.title
-    console.log(`Music: Song title ${titleSuffix}`)
+    console.log(`Music: Song title - ${chalk.yellow(titleSuffix)}${chalk.reset()}`)
     console.log(`Music: Queue length now ${queue.length}`)
     message.channel.createMessage(`Alright, added ${titleSuffix} to the queue at position ${queue.length}.`)
 
     if(client.voiceConnections.filter(m => m.channelID !== null).length == 0) {
         client.joinVoiceChannel(channelID, {opusOnly: true, shared: false}).then(connection => {
-            console.log(`Music: Joined voice channel to play ${queue[0]}`)
+            console.log(`Music: Joined voice channel to play ${chalk.yellow(queue[0])}${chalk.reset()}`)
             console.log(`Music: Current titleSuffix is ${titleSuffix}`)
             leakConnection = connection
             connection.setVolume(0.1)
             console.log(`Music: Set volume to 0.1`)
             if(connection.playing) {
-                console.log(`Music: stopPlaying() sent, should not be playing anything yet`)
+                console.warn(`Music: stopPlaying() sent, should not be playing anything yet`)
                 connection.stopPlaying()
             }
             playSong()
