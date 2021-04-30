@@ -335,32 +335,31 @@ client.registerCommand("music", async function(message, suffix) {
     }
 
     queue.push(suffix)
-    console.log(`Music: ${chalk.yellow(message.author.username)}${chalk.reset()} Requested ${suffix}`)
+    console.log(`${chalk.blue("Music:")}${chalk.reset()} ${chalk.yellow(message.author.username)}${chalk.reset()} Requested ${suffix}`)
     titleSuffix = titleSuffixDetails.videoDetails.title
-    console.log(`Music: Song title - ${chalk.yellow(titleSuffix)}${chalk.reset()}`)
-    console.log(`Music: Queue length now ${queue.length}`)
+    console.log(`${chalk.blue("Music:")} Song title - ${chalk.yellow(titleSuffix)}${chalk.reset()}\n`)
+    console.log(`${chalk.blue("Music:")}${chalk.reset()} Queue length now ${queue.length}\n`)
     message.channel.createMessage(`Alright, added ${titleSuffix} to the queue at position ${queue.length}.`)
 
     if(client.voiceConnections.filter(m => m.channelID !== null).length == 0) {
         client.joinVoiceChannel(channelID, {opusOnly: true, shared: false}).then(connection => {
-            console.log(`Music: Joined voice channel to play ${chalk.yellow(queue[0])}${chalk.reset()}`)
-            console.log(`Music: Current titleSuffix is ${titleSuffix}`)
+            console.log(`${chalk.blue("Music:")}${chalk.reset()} Joined voice channel to play ${chalk.yellow(queue[0])}${chalk.reset()}`)
+            console.log(`${chalk.blue("Music:")}${chalk.reset()} Current titleSuffix is ${titleSuffix}\n`)
             leakConnection = connection
             connection.setVolume(0.1)
-            console.log(`Music: Set volume to 0.1`)
+            console.log(`${chalk.blue("Music:")}${chalk.reset()} Set volume to 0.1`)
             if(connection.playing) {
-                console.warn(`Music: stopPlaying() sent, should not be playing anything yet`)
+                console.warn(`${chalk.blue("Music:")}${chalk.reset()} stopPlaying() sent, should not be playing anything yet`)
                 connection.stopPlaying()
             }
             playSong()
-            console.log(`Music: playSong() function executed`)
             connection.on("end", function() {
-                console.log(`Music: end event received`)
+                console.log(`${chalk.blue("Music:")}${chalk.reset()} end event received`)
                 if(connection.playing) {
                     connection.stopPlaying()
                 }
                 queue.shift()
-                console.log(`Music: Queue shifted, new length ${queue.length}`)
+                console.log(`${chalk.blue("Music:")}${chalk.reset()} Queue shifted, new length ${queue.length}`)
                 if(queue.length > 0) {
                     playSong()
                 }
@@ -373,11 +372,11 @@ client.registerCommand("music", async function(message, suffix) {
         if(client.voiceConnections.filter(m => m.channelID !== null).length > 0) {
             if(queue.length > 0 && !client.voiceConnections.filter(m => m.channelID !== null)[0].playing) {
                 playSong()
-                console.log(`Music: playSong() function executed`)
             }
         }
     }
     async function playSong() {
+        console.log(`${chalk.blue("Music:")}${chalk.reset()} playSong() function executed\n`)
         buffer = ytdl(queue[0], {quality: "highestaudio"})
         titleQueueDetails = await ytdl.getBasicInfo(queue[0])
         titleQueue = titleQueueDetails.videoDetails.title
