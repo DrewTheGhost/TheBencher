@@ -239,7 +239,12 @@ client.registerCommand("assemble", function(message) {
     let nonWaiters = []
     
     nonWaitersVoiceStates.forEach(nonwaiter => {
-        nonWaiters.push(message.member.guild.members.find(m => m.id == nonwaiter.id && m.id !== "466767464902950922").mention)
+        try {
+            nonWaiters.push(message.member.guild.members.find(m => m.id == nonwaiter.id && m.id !== "466767464902950922").mention)
+        } catch(e) {
+            message.channel.createMessage("An error happened, this can happen when only caelan is in the penthouse and everyone else isn't. Prolly will still work.")
+            console.error(e)
+        }
     })
 
     waiters.forEach(waiter => {
