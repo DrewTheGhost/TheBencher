@@ -272,7 +272,7 @@ client.registerCommand("assemble", function(message) {
     requirements: {
         userIDs: ["466767464902950922"]
     },
-    permissionMessage: "This is a Caelan only command, retard!",
+    permissionMessage: "This is a Caelan only command, stupid!",
     description: "Assembles the domers into the penthouse.",
     fullDescription: "Moves all people from the waiting room into The Penthouse. Automatically shames those who don't wait for the captain."
 })
