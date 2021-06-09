@@ -1,6 +1,6 @@
 let sussyCache = [],
     mainController = require("../mainController.json"),
-    susVideos = mainController.susNames                                         // List of all videos for zoe's command
+    susVideos = mainController.susNames                                          // List of all videos for zoe's command
 
 module.exports = {
     name: "sussy",

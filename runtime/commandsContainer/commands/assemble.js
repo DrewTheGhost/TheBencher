@@ -8,8 +8,8 @@ module.exports = {
         let waiters = message.member.guild.voiceStates.cache.filter(m => m.channelID == "784537245616439296")
 
         // Filter through all voiceStates and return an array of all states where the person is already in the penthouse
-        let nonWaitersVoiceStates = message.member.guild.voiceStates.cache.filter(m => m.channelID == "773245943218307082")
-        let nonWaiters = []
+        let nonWaitersVoiceStates = message.member.guild.voiceStates.cache.filter(m => m.channelID == "773245943218307082"),
+            nonWaiters = []
         
         nonWaitersVoiceStates.each(nonwaiter => {
             try {
@@ -19,7 +19,8 @@ module.exports = {
                 console.error(e)
             }
         })
-    
+        // Iterate through the array of nonWaiters and push all their mentions to an array for shaming later
+        
         waiters.each(waiter => {
             try {
                 message.guild.members.cache.find(m => m.id == waiter.id).edit({channel: "773245943218307082"})
@@ -27,9 +28,7 @@ module.exports = {
                 console.error(e)
             }
         })
-        // Iterate through the array of nonWaiters and push all their mentions to an array for shaming later
         // Iterate through the array of waiters and move them to the penthouse
-    
     
         if(waiters.size <= 0) {
             message.channel.send("Hey, dumbass. There's no one waiting.")

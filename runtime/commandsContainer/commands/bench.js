@@ -43,7 +43,7 @@ module.exports = {
         }, 100)
         */
     
-        message.guild.roles.cache.get("779446753606238258").members.map(m => foundDomers.push(m))
+        message.guild.roles.cache.get(domers).members.map(m => foundDomers.push(m))
         if(lastBenched) {
             foundDomers.splice(foundDomers.indexOf(lastBenched), 1)
         }

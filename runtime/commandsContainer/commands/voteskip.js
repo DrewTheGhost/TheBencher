@@ -43,7 +43,6 @@ module.exports = {
             voteSkippers = []
             music.dispatcher.emit("speaking", 0)
             return message.channel.send(`Requirement met to skip song, skipping.`)
-    
         }
     }
 }

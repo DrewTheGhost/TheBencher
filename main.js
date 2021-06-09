@@ -17,7 +17,7 @@ bot.on("ready", () => {
     // Ready event sent when discord.js is ready
     console.log(`Discord.js ready`)
     console.log(`Current Prefix: ${config.prefix}`)
-    bot.user.setPresence({activity: {name: "Type !!help for a list of commands or !help commandname to get command info."}})
+    bot.user.setPresence({activity: {name: "Type !help for a list of commands or !help commandname to get command info."}})
 })
 
 bot.on("message", message => {
