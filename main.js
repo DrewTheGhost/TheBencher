@@ -1,54 +1,59 @@
 const config = require("./config.json"),                          // My config file
     runtime = require("./runtime/runtime.js"),
-    client = runtime.commandsContainer.commands.client            // Prefix for the bot to respond to (user mentions currently not working, I'm bad at programming.)
+    bot = runtime.commandsContainer.commands.bot,
     chalk = require("chalk"),                                     // Console coloring
     error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`,      // Error message coloring
     warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`,  // Warning message coloring
     log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`,        // Log message coloring
-    Discord = require("discord.js"),                              // Please god forgive this sin of using two different libraries in the same bot
-    bot = new Discord.Client(),                                   // This is like a slap to all bot devs everywhere I am so sorry please don't roast me
-    ticTacToe = require("discord-tictactoe"),                     // This goofy ass tictactoe didn't state that it would ONLY work with discord.js and I want it okay
-    ttt = new ticTacToe({                                         // roast them not me please
-        command: "!ttt",
-        language: "en"
-    }, bot),
+    debug = `${chalk.magentaBright("[DEBUG]")}${chalk.reset()}`                             
     util = require("util")                                        // Do not delete this variable even if unused, can debug with it
-var readyCount = 0,                                               // Track eris ready events for debug
-    ratelimit = false
 
 replaceLog()
 replaceWarning()
 replaceError()
+replaceDebug()
 
 bot.on("ready", () => {
+    // Ready event sent when discord.js is ready
     console.log(`Discord.js ready`)
+    console.log(`Current Prefix: ${config.prefix}`)
+    bot.user.setPresence({activity: {name: "Type !!help for a list of commands or !help commandname to get command info."}})
 })
 
-client.on("ready", () => {
-    // Ready event sent when Eris is ready
-    readyCount++ 
-    if(readyCount >= 2) {
-        console.error("Something funky is going on, restarting.")
-        process.exit(1)
+bot.on("message", message => {
+    let cmd,
+    suffix
+    if(message.author.bot) return
+    if(message.content.indexOf(config.prefix) === 0) { // If the prefix is used, do this
+        cmd = message.content.substring(config.prefix.length).split(' ')[0].toLowerCase()
+        suffix = message.content.substr(config.prefix.length).split(' ')
+        suffix = suffix.slice(1, suffix.length).join(' ')
     }
-    console.log(`Eris ready!`)
-    let prefix = config.prefix
-    console.log(`Current Prefix: ${prefix}`)
-    console.warn(`${readyCount} ready events without restart.`)
-    client.editStatus({name: "Type !help for a list of commands or !help commandname to get command info."})
-    setTimeout(() => {
-        if(client.voiceConnections.filter(m => m.channelID !== null).length !== 0) {
-            console.warn("Leaving voice channel joined during previous connection.")
-            client.leaveVoiceChannel(client.voiceConnections.filter(m => m.channelID !== null)[0].channelID)
+    if(cmd) {
+        if(bot.commands.get(cmd)) {
+            if(bot.commands.get(cmd).controlled && config.owner.indexOf(message.author.id) == -1) {
+                return message.channel.send("Can't use this one, dumbass!")
+            }
+            try {
+                bot.commands.get(cmd).fn(message, suffix, bot)
+                console.log(`${cmd} command executed.`)
+            } catch (err) {
+                message.channel.send("Command errored, I fucked something up oh jesus christ")
+                console.error(err)
+            }
         }
-    }, 350)
+    }
 })
 
-client.on("error", err => {
+bot.on("debug", log => {
+    console.debug(`${log}`)
+})
+
+bot.on("error", err => {
     console.error(`${err}`)
 })
 
-client.on("warn", err => {
+bot.on("warn", err => {
     console.warn(`${err}`)
 })
 
@@ -76,5 +81,12 @@ function replaceError() {
     }
 }
 
-client.connect()
+function replaceDebug() {
+    let oldInfo = console.debug
+    console.debug = function () {
+        Array.prototype.unshift.call(arguments, `${debug}`)
+        oldInfo.apply(this, arguments)
+    }
+}
+
 bot.login(config.token) // I repent 🙏
