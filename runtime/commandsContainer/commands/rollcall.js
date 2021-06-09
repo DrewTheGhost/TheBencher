@@ -50,7 +50,7 @@ module.exports = {
     aliases: [],
     description: "Starts a roll-call for the domers..",
     controlled: false,
-    fn(message, suffix, bot) {
+    fn(message, _suffix, bot) {
         if(embedMessage != undefined) {
             myEmbed = {
                 "title": "Domer Roll-Caaaall!",
