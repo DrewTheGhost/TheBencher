@@ -1,5 +1,4 @@
-const util = require("util"),                           // For inspecting my evals or debugging other things
-    fs = require("fs"),                                 // Handles opening the audio files and creating buffer streams
+const fs = require("fs"),                               // Handles opening the audio files and creating buffer streams
     Discord = require("discord.js"),                    // Please god forgive this sin of using two different libraries in the same bot
     bot = new Discord.Client({
         fetchAllMembers: true,
