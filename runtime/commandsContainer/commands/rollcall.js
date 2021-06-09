@@ -12,32 +12,32 @@ let myEmbed = {
     "color": 16711680,
     "fields": [
         {
-          "name": ":x: Caelan",
+          "name": "🟨 Caelan",
           "value": "Not active!",
           "inline": true
         },
         {
-          "name": ":x: Drew",
+          "name": "🟨 Drew",
           "value": "Not active!",
           "inline": true
         },
         {
-          "name": ":x: Luke",
+          "name": "🟨 Luke",
           "value": "Not active!",
           "inline": true
         },
         {
-          "name": ":x: Mark",
+          "name": "🟨 Mark",
           "value": "Not active!",
           "inline": true
         },
         {
-          "name": ":x: Tyler",
+          "name": "🟨 Tyler",
           "value": "Not active!",
           "inline": true
         },
         {
-          "name": ":x: Zoe",
+          "name": "🟨 Zoe",
           "value": "Not active!",
           "inline": true
         }
@@ -58,32 +58,32 @@ module.exports = {
                 "color": 16711680,
                 "fields": [
                     {
-                      "name": ":x: Caelan",
+                      "name": "🟨 Caelan",
                       "value": "Not active!",
                       "inline": true
                     },
                     {
-                      "name": ":x: Drew",
+                      "name": "🟨 Drew",
                       "value": "Not active!",
                       "inline": true
                     },
                     {
-                      "name": ":x: Luke",
+                      "name": "🟨 Luke",
                       "value": "Not active!",
                       "inline": true
                     },
                     {
-                      "name": ":x: Mark",
+                      "name": "🟨 Mark",
                       "value": "Not active!",
                       "inline": true
                     },
                     {
-                      "name": ":x: Tyler",
+                      "name": "🟨 Tyler",
                       "value": "Not active!",
                       "inline": true
                     },
                     {
-                      "name": ":x: Zoe",
+                      "name": "🟨 Zoe",
                       "value": "Not active!",
                       "inline": true
                     }
@@ -139,6 +139,7 @@ module.exports = {
         }
         message.channel.send(`${domerID}`, {embed: myEmbed}).then(m => {
             m.react("✋")
+            m.react("✊")
             embedMessage = m
             m.pin()
         })
@@ -186,6 +187,57 @@ module.exports = {
                         myEmbed.fields[5] = {
                             "name": ":white_check_mark: Zoe",
                             "value": "Active!",
+                            "inline": true
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                message.channel.messages.fetch(embedMessage.id).then(m => { 
+                    m.edit(`${domerID}`, {embed: myEmbed}) 
+                })
+            }
+            if(reaction.message == embedMessage && reaction.emoji.name == "✊") {
+                switch(user.id) {
+                    case caelanID:
+                        myEmbed.fields[0] = {
+                            "name": ":x: Caelan",
+                            "value": "Sitting Out",
+                            "inline": true
+                        }
+                        break;
+                    case drewID:
+                        myEmbed.fields[1] = {
+                            "name": ":x: Drew",
+                            "value": "Sitting Out",
+                            "inline": true
+                        }
+                        break;
+                    case lukeID:
+                        myEmbed.fields[2] = {
+                            "name": ":x: Luke",
+                            "value": "Sitting Out",
+                            "inline": true
+                        }
+                        break;
+                    case markID:
+                        myEmbed.fields[3] = {
+                            "name": ":x: Mark",
+                            "value": "Sitting Out",
+                            "inline": true
+                        }
+                        break;
+                    case tylerID:
+                        myEmbed.fields[4] = {
+                            "name": ":x: Tyler",
+                            "value": "Sitting Out",
+                            "inline": true
+                        }
+                        break;
+                    case zoeID:
+                        myEmbed.fields[5] = {
+                            "name": ":x: Zoe",
+                            "value": "Sitting Out",
                             "inline": true
                         }
                         break;
