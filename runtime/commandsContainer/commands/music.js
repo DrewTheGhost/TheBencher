@@ -38,6 +38,7 @@ module.exports = {
         titleSuffix = titleSuffixDetails.videoDetails.title
         console.log(`${chalk.blue("Music:")} Song title - ${chalk.yellow(titleSuffix)}${chalk.reset()}\n`)
         console.log(`${chalk.blue("Music:")}${chalk.reset()} Queue length now ${queue.length}\n`)
+        message.delete()
         message.channel.send(`${message.author.username} requested ${titleSuffix}. Added to the queue at position ${queue.length}.`)
     
         if(bot.voice.connections.filter(m => m.channelID !== null).size == 0) {
