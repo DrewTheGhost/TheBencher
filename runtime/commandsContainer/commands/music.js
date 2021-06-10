@@ -1,4 +1,5 @@
 const ytdl = require("ytdl-core"),
+      ytpl = require("ytpl"),
       chalk = require("chalk")
 let queue = [],
     dispatcher,
@@ -15,18 +16,16 @@ module.exports = {
         titleSuffix,
         titleQueueDetails,
         titleQueue
-    
+        /** 
+         * TODO: change basically the entire command using ytpl to add playlist support, ytdl validation will not work on playlist links
+         * ytdl getBasicInfo returns a promise and will reject the playlist links so titleSuffixDetails WILL break with playlist linking
+         * Will probably need to add two seperate entire blocks for if playlist or if singular video
+        */
         if(channelID === null) {
             return message.channel.send("You aren't even in a voice channel to listen to anything, dumbass.")
         }
-        if(!ytdl.validateURL(suffix)) {
-            return message.channel.send("Can't seem to pull info from that. Did you actually put in a youtube video, dumbass?")
-        }
-        if(queue.length >= 10) {
-            if(queue.length > 10) {
-                queue.pop()
-            }
-            return message.channel.send("Slow down there tiger. Too many things in queue.")
+        if(!ytdl.validateURL(suffix) || !ytpl.validateID(suffix)) {
+            return message.channel.send("Can't seem to pull info from that. Did you actually put in a youtube link, dumbass?")
         }
         titleSuffixDetails = await ytdl.getBasicInfo(suffix)
         if(titleSuffixDetails.videoDetails.isLiveContent) {
