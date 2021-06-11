@@ -50,7 +50,7 @@ module.exports = {
     aliases: [],
     description: "Starts a roll-call for the domers..",
     controlled: false,
-    fn(message, _suffix, bot) {
+    async fn(message, _suffix, bot) {
         if(embedMessage != undefined) {
             myEmbed = {
                 "title": "Domer Roll-Caaaall!",
@@ -89,7 +89,7 @@ module.exports = {
                     }
                 ]
             }
-            embedMessage.unpin()
+            await embedMessage.unpin()
         }
         switch(message.author.id) {
             case caelanID:
@@ -137,11 +137,11 @@ module.exports = {
             default:
                 break;
         }
-        message.channel.send(`${domerID}`, {embed: myEmbed}).then(m => {
+        message.channel.send(`${domerID}`, {embed: myEmbed}).then(async m => {
             m.react("✋")
             m.react("✊")
-            embedMessage = m
-            m.pin()
+            embedMessage = m;
+            await m.pin()
         })
         bot.on("messageReactionAdd", (reaction, user) => {
             if(user.bot) return
