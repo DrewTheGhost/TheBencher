@@ -1,4 +1,7 @@
-let lastBenched;
+let lastBenched,
+    options,
+    chosenDomer,
+    chosenLine;
 module.exports = {
     name: "bench",
     aliases: [],
@@ -11,7 +14,7 @@ module.exports = {
               image = require("image-js"),                          // Image editor (grayscaling)
               download = require("image-downloader"),               // Yeah.. downloads images because I don't want to write HTTP requests to do it myself
               sharp = require("sharp")                              // This is for combining images
-              sharp.cache({files: 1})                               // Set cache to 1 file otherwise it never creates a new file after the first
+              // sharp.cache({files: 1})                               // Set cache to 1 file otherwise it never creates a new file after the first
         let embed = {
                 embed: {
                     title: "Hahahaha gay baby jail!",
@@ -24,9 +27,6 @@ module.exports = {
                     name: "gaybabyjail.png"
                 }]
             },
-            options,
-            chosenDomer,
-            chosenLine,
             responseStrings = [],
             foundDomers = [],
             domerImage                                              // Unused because grayscaling is bugging
@@ -48,6 +48,7 @@ module.exports = {
             foundDomers.splice(foundDomers.indexOf(lastBenched), 1)
         }
         chosenDomer = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]                                             // chosenDomer picks a random index from the foundDomer array as the person who will sit out, this is their entire member object
+        console.log(chosenDomer.user.displayAvatarURL())
         lastBenched = chosenDomer
         chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `<@${chosenDomer.id}>`) // chosenLine picks a random line response from mainController.lines and inserts their name into it
         options = {                                                                                                                 // options saves the options for downloading the chosen person's avatar
@@ -55,7 +56,8 @@ module.exports = {
             dest: './runtime/commandsContainer/commands/domerImage.jpg'
         }
 
-        await download.image(options).then()
+        await download.image(options)
+        .then()
         .catch(err => {
             console.error(`${err}`)
         })
@@ -83,8 +85,8 @@ module.exports = {
         responseStrings.push(chosenLine)                            // Sends the random one-liner with who is sitting out
         message.channel.send(responseStrings.join("\n"))
 
-        setTimeout(() => { 
+        setTimeout(() => {
             message.channel.send("", embed)
-        }, 200)
+        }, 500)
     }
 }
