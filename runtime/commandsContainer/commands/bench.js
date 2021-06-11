@@ -45,9 +45,7 @@ module.exports = {
         if(lastBenched) {
             foundDomers.splice(foundDomers.indexOf(lastBenched), 1)
         }
-        chosenDomer = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]                                             // chosenDomer picks a random index from the foundDomer array as the person who will sit out, this is their entire member object
-        console.log(chosenDomer.user.displayAvatarURL())
-        lastBenched = chosenDomer
+        chosenDomer = foundDomers[(Math.floor(Math.random() * (foundDomers.length-1)))]                                             // chosenDomer picks a random index from the foundDomer array as the person who will sit out, this is their entire member object        lastBenched = chosenDomer
         chosenLine = lines[Math.floor(Math.random() * (lines.length-1))].replace(new RegExp("pname", "gi"), `<@${chosenDomer.id}>`) // chosenLine picks a random line response from mainController.lines and inserts their name into it
         options = {                                                                                                                 // options saves the options for downloading the chosen person's avatar
             url: chosenDomer.user.displayAvatarURL(),
