@@ -5,7 +5,7 @@ module.exports = {
     controlled: true,
     fn(message, suffix, bot) {
         let fs = require('fs')
-        let fullPath = "D:\\Users\\Drew\\Desktop\\Bots\\TheBencherDev\\runtime\\commandsContainer\\commands\\"
+        let fullPath = "D:\\Users\\Drew\\Desktop\\Bots\\TheBencher\\runtime\\commandsContainer\\commands\\"
         if(suffix) {
             try {
                 if(require.cache[`${fullPath}${suffix}.js`]) {

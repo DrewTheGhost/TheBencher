@@ -6,6 +6,7 @@ const sharp = require("sharp"),                             // This is for combi
       download = require("image-downloader")                // Yeah.. downloads images because I don't want to write HTTP requests to do it myself
       sharp.cache({files: 1})                               // Set cache to 1 file otherwise it never creates a new file after the first
 let lastBenched
+
 module.exports = {
     name: "bench",
     aliases: [],
