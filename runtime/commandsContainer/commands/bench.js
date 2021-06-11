@@ -1,20 +1,17 @@
-let lastBenched,
-    options,
-    chosenDomer,
-    chosenLine;
+const sharp = require("sharp"),                             // This is for combining images
+      domers = "779446753606238258",                        // This is the ID of the domer role
+      mainController = require("../mainController.json"),   // All the one-liners
+      lines = mainController.lines,                         // This is the entire array of random one-liners for the bench command
+      image = require("image-js"),                          // Image editor (grayscaling)
+      download = require("image-downloader")                // Yeah.. downloads images because I don't want to write HTTP requests to do it myself
+      sharp.cache({files: 1})                               // Set cache to 1 file otherwise it never creates a new file after the first
+let lastBenched
 module.exports = {
     name: "bench",
     aliases: [],
     description: "Benches a domer to sit out.",
     controlled: false,
     async fn(message) {
-        const domers = "779446753606238258",                        // This is the ID of the domer role
-              mainController = require("../mainController.json"),   // All the one-liners
-              lines = mainController.lines,                         // This is the entire array of random one-liners for the bench command
-              image = require("image-js"),                          // Image editor (grayscaling)
-              download = require("image-downloader"),               // Yeah.. downloads images because I don't want to write HTTP requests to do it myself
-              sharp = require("sharp")                              // This is for combining images
-              // sharp.cache({files: 1})                               // Set cache to 1 file otherwise it never creates a new file after the first
         let embed = {
                 embed: {
                     title: "Hahahaha gay baby jail!",
@@ -23,7 +20,7 @@ module.exports = {
                     }
                 },
                 files: [{
-                    attachment: 'D:\\Users\\Drew\\Desktop\\Bots\\TheBencherDev\\runtime\\commandsContainer\\commands\\gaybabyjail.png',
+                    attachment: 'D:\\Users\\Drew\\Desktop\\Bots\\TheBencher\\runtime\\commandsContainer\\commands\\gaybabyjail.png',
                     name: "gaybabyjail.png"
                 }]
             },
