@@ -6,7 +6,7 @@ let queue = [],
     currentVoiceConnection
 
 /** 
- * Potential new queue schema
+ * New queue schema
  * { 
  *     "url": urlhere,
  *     "title": songtitlehere,
@@ -26,11 +26,6 @@ module.exports = {
         let channelID = message.member.voice.channelID,
             requestInfo,
             queueObject = {}
-        /** 
-         * TODO: change basically the entire command using ytpl to add playlist support, ytdl validation will not work on playlist links
-         * ytdl getBasicInfo returns a promise and will reject the playlist links so requestInfo WILL break with playlist linking
-         * Will probably need to add two seperate entire blocks for if playlist or if singular video
-        */
         if(channelID === null) {
             return message.channel.send("You aren't even in a voice channel to listen to anything, dumbass.")
         }
@@ -38,6 +33,10 @@ module.exports = {
             return message.channel.send("Can't seem to pull info from that. Did you actually put in a youtube link, dumbass?")
         }
 
+        /**
+        * This is the block for singular song requesting, the block for playlists is below this at line 82 currently
+        * separate blocks required due to needing different behaviors with playlists
+        */
         if(ytdl.validateURL(suffix)) {
             requestInfo = await ytdl.getBasicInfo(suffix)
 
@@ -76,6 +75,10 @@ module.exports = {
                 }
             }
         }
+
+        /**
+         * This is for playlists, I had to entirely subject it to another block as I was really unsure of how to do it without making it have its own code
+         */
         if(ytpl.validateID(suffix)) {
             let ID = await ytpl.getPlaylistID(suffix)
             await ytpl(ID).then(m => {
@@ -134,7 +137,7 @@ module.exports = {
                     }
                 }
             })
-            message.channel.send(`Now playing ${queue[0].title}`)
+            message.channel.send(`Now playing ${queue[0].title} - Requested by ${queue[0].requester}`)
         }
     }
 }
