@@ -6,12 +6,14 @@ module.exports = {
     description: "Voteskips a song.",
     controlled: false,
     fn(message, _suffix, bot) {
-        let music = require("./music.js"),
+        let dispatcher = (bot.voice.connections.first() != undefined) ? bot.voice.connections.first().dispatcher : undefined,
             voiceMembers = []
+        if(dispatcher == undefined) {
+            return message.channel.send("I'm apparently not playing anything! THERE'S NO VOICE DISPATCHER IDIOT!!")
+        }
         if(bot.voice.connections.filter(m => m.channelID !== null).size == 0) {
             return message.channel.send("You hear that? Yeah, me neither. Maybe cus I'm not playing anything in the first place, dumbass!")
         }
-    
         if(message.member.voice.channelID !== bot.voice.connections.filter(m => m.channelID !== null).first().channel.id) {
             if(voteSkippers.indexOf(message.member.id) !== -1) {
                 voteSkippers.splice(voteSkippers.indexOf(message.member.id), 1)
@@ -41,7 +43,7 @@ module.exports = {
         message.channel.send(`${message.author.username} voted to skip. ${voteSkippers.length}/${Math.ceil((voiceMembers.length-1) / 2)} required.`)
         if(voteSkippers.length >= Math.ceil((voiceMembers.length-1) / 2)) {
             voteSkippers = []
-            music.dispatcher.emit("speaking", 0)
+            dispatcher.emit("speaking", 0)
             return message.channel.send(`Requirement met to skip song, skipping.`)
         }
     }

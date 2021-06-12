@@ -4,7 +4,7 @@ module.exports = {
     description: "Changes the volume of the tunes.",
     controlled: false,
     fn(message, suffix, bot) {
-        let music = require("./music.js")
+        let dispatcher = bot.voice.connections.first().dispatcher
         if(bot.voice.connections.filter(m => m.channelID !== null).size == 0) {
             return message.channel.send("I'm not even in a voice channel, how could I have a volume to change??")
         }
@@ -23,7 +23,7 @@ module.exports = {
         if(suffix > 2) {
             return "Shit is too fucking big! Enter a smaller number, dumbass."
         }
-        music.dispatcher.setVolume(suffix)
+        dispatcher.setVolume(suffix)
         console.log(`Music: Adjusted volume to ${suffix}`)
         message.channel.send(`Adjusting the volume for ya, now set to ${suffix*100}`)
     }

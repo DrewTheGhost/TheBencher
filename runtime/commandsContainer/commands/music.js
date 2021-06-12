@@ -5,6 +5,18 @@ let queue = [],
     dispatcher,
     currentVoiceConnection
 
+/** 
+ * Potential new queue schema
+ * { 
+ *     "url": urlhere,
+ *     "title": songtitlehere,
+ *     "requester": username
+ * }
+ * requesting would be like queue[0].url
+ * Significantly speeds up queue things as no longer need to request more than once for information
+ * Can keep track of who is requesting what
+*/
+
 module.exports = {
     name: "music",
     aliases: ["play"],
@@ -12,56 +24,99 @@ module.exports = {
     controlled: false,
     async fn(message, suffix, bot) {
         let channelID = message.member.voice.channelID,
-        titleSuffixDetails,
-        titleSuffix,
-        titleQueueDetails,
-        titleQueue
+            requestInfo,
+            queueObject = {}
         /** 
          * TODO: change basically the entire command using ytpl to add playlist support, ytdl validation will not work on playlist links
-         * ytdl getBasicInfo returns a promise and will reject the playlist links so titleSuffixDetails WILL break with playlist linking
+         * ytdl getBasicInfo returns a promise and will reject the playlist links so requestInfo WILL break with playlist linking
          * Will probably need to add two seperate entire blocks for if playlist or if singular video
         */
         if(channelID === null) {
             return message.channel.send("You aren't even in a voice channel to listen to anything, dumbass.")
         }
-        if(!ytdl.validateURL(suffix) || !ytpl.validateID(suffix)) {
+        if(!ytdl.validateURL(suffix) && !ytpl.validateID(suffix)) {
             return message.channel.send("Can't seem to pull info from that. Did you actually put in a youtube link, dumbass?")
         }
-        titleSuffixDetails = await ytdl.getBasicInfo(suffix)
-        if(titleSuffixDetails.videoDetails.isLiveContent) {
-            return message.channel.send("Guess again if you think I'm about to let you queue a fucking livestream.")
-        }
+
+        if(ytdl.validateURL(suffix)) {
+            requestInfo = await ytdl.getBasicInfo(suffix)
+
+            if(requestInfo.videoDetails.isLiveContent) {
+                return message.channel.send("Guess again if you think I'm about to let you queue a fucking livestream.")
+            }
     
-        queue.push(suffix)
-        console.log(`${chalk.blue("Music:")}${chalk.reset()} ${chalk.yellow(message.author.username)}${chalk.reset()} Requested ${suffix}`)
-        titleSuffix = titleSuffixDetails.videoDetails.title
-        console.log(`${chalk.blue("Music:")} Song title - ${chalk.yellow(titleSuffix)}${chalk.reset()}\n`)
-        console.log(`${chalk.blue("Music:")}${chalk.reset()} Queue length now ${queue.length}\n`)
-        message.delete()
-        message.channel.send(`\`${message.author.username} requested ${titleSuffix}. Added to the queue at position ${queue.length}.\``)
+            queueObject.url = suffix
+            queueObject.title = requestInfo.videoDetails.title
+            queueObject.requester = message.author.username
+            queue.push(queueObject)
     
-        if(bot.voice.connections.filter(m => m.channelID !== null).size == 0) {
-            message.member.voice.channel.join().then(connection => {
-                currentVoiceConnection = connection
-                console.log(`${chalk.blue("Music:")}${chalk.reset()} Joined voice channel to play ${chalk.yellow(queue[0])}${chalk.reset()}`)
-                console.log(`${chalk.blue("Music:")}${chalk.reset()} Current titleSuffix is ${titleSuffix}\n`)
-                playSong()
-            }).catch(err => {
-                message.channel.send("What the fuck did you do? Shit errored.")
-                console.error(err)
-            })
-        } else {
-            currentVoiceConnection = bot.voice.connections.first()
-            if(bot.voice.connections.filter(m => m.channelID !== null).size > 0) {
-                if(queue.length > 0 && bot.voice.connections.filter(m => m.channelID !== null).first().speaking == 0) {
+            console.log(`${chalk.blue("Music:")}${chalk.reset()} ${chalk.yellow(message.author.username)}${chalk.reset()} Requested ${suffix}`)
+            console.log(`${chalk.blue("Music:")} Song title - ${chalk.yellow(queueObject.title)}${chalk.reset()}\n`)
+            console.log(`${chalk.blue("Music:")}${chalk.reset()} Queue length now ${queue.length}\n`)
+    
+            message.delete()
+            message.channel.send(`\`${message.author.username} requested ${queueObject.title}. Added to the queue at position ${queue.length}.\``)
+        
+            if(bot.voice.connections.filter(m => m.channelID !== null).size == 0) {
+                message.member.voice.channel.join().then(connection => {
+                    currentVoiceConnection = connection
+                    console.log(`${chalk.blue("Music:")}${chalk.reset()} Joined voice channel to play ${chalk.yellow(queueObject.title)}${chalk.reset()}`)
+                    console.log(`${chalk.blue("Music:")}${chalk.reset()} Current queueObject.title is ${queueObject.title}\n`)
                     playSong()
+                }).catch(err => {
+                    message.channel.send("What the fuck did you do? Shit errored.")
+                    console.error(err)
+                })
+            } else {
+                currentVoiceConnection = bot.voice.connections.first()
+                if(bot.voice.connections.filter(m => m.channelID !== null).size > 0) {
+                    if(queue.length > 0 && bot.voice.connections.filter(m => m.channelID !== null).first().speaking == 0) {
+                        playSong()
+                    }
                 }
             }
         }
+        if(ytpl.validateID(suffix)) {
+            let ID = await ytpl.getPlaylistID(suffix)
+            await ytpl(ID).then(m => {
+                for(const items of m.items) {
+                    queueObject = {}
+                    queueObject.url = items.shortUrl
+                    queueObject.title = items.title
+                    queueObject.requester = message.author.username
+                    queue.push(queueObject)
+                }
+            })
+
+            console.log(`${chalk.blue("Music:")}${chalk.reset()} ${chalk.yellow(message.author.username)}${chalk.reset()} Requested Playlist ${suffix}`)
+            console.log(`${chalk.blue("Music:")}${chalk.reset()} Queue length now ${queue.length}\n`)
+    
+            message.delete()
+            message.channel.send(`\`${message.author.username} requested a playlist. Added to the queue, new length ${queue.length}.\``)
+        
+            if(bot.voice.connections.filter(m => m.channelID !== null).size == 0) {
+                message.member.voice.channel.join().then(connection => {
+                    currentVoiceConnection = connection
+                    console.log(`${chalk.blue("Music:")}${chalk.reset()} Joined voice channel to play ${chalk.yellow(queue[0].title)}${chalk.reset()}`)
+                    console.log(`${chalk.blue("Music:")}${chalk.reset()} Current queue[0].title is ${queue[0].title}\n`)
+                    playSong()
+                }).catch(err => {
+                    message.channel.send("What the fuck did you do? Shit errored.")
+                    console.error(err)
+                })
+            } else {
+                currentVoiceConnection = bot.voice.connections.first()
+                if(bot.voice.connections.filter(m => m.channelID !== null).size > 0) {
+                    if(queue.length > 0 && bot.voice.connections.filter(m => m.channelID !== null).first().speaking == 0) {
+                        playSong()
+                    }
+                }
+            }
+        }
+
         async function playSong() {
             console.log(`${chalk.blue("Music:")}${chalk.reset()} playSong() function executed\n`)
-            dispatcher = await currentVoiceConnection.play(ytdl(queue[0], {quality: "highestaudio"}))
-            module.exports.dispatcher = dispatcher
+            dispatcher = await currentVoiceConnection.play(ytdl(queue[0].url, {quality: "highestaudio"}))
             dispatcher.setVolume(0.5)
             dispatcher.player.voiceConnection.on("disconnect", () => {
                 queue = []
@@ -79,9 +134,7 @@ module.exports = {
                     }
                 }
             })
-            titleQueueDetails = await ytdl.getBasicInfo(queue[0])
-            titleQueue = titleQueueDetails.videoDetails.title
-            message.channel.send(`Now playing ${titleQueue}`)
+            message.channel.send(`Now playing ${queue[0].title}`)
         }
     }
 }
