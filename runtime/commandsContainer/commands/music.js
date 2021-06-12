@@ -7,7 +7,7 @@ let queue = [],
 
 /** 
  * New queue schema
- * { 
+ * {
  *     "url": urlhere,
  *     "title": songtitlehere,
  *     "requester": username
@@ -120,7 +120,7 @@ module.exports = {
         async function playSong() {
             console.log(`${chalk.blue("Music:")}${chalk.reset()} playSong() function executed\n`)
             dispatcher = await currentVoiceConnection.play(ytdl(queue[0].url, {quality: "highestaudio"}))
-            dispatcher.setVolume(0.5)
+            dispatcher.setVolume(0.25)
             dispatcher.player.voiceConnection.on("disconnect", () => {
                 queue = []
             })
