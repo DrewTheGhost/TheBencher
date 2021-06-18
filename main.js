@@ -5,7 +5,7 @@ const config = require("./config.json"),                          // My config f
     error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`,      // Error message coloring
     warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`,  // Warning message coloring
     log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`,        // Log message coloring
-    debug = `${chalk.magentaBright("[DEBUG]")}${chalk.reset()}`                             
+    debug = `${chalk.magentaBright("[DEBUG]")}${chalk.reset()}`,                             
     util = require("util")                                        // Do not delete this variable even if unused, can debug with it
 
 replaceLog()
