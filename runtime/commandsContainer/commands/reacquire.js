@@ -1,10 +1,11 @@
+let fs = require('fs')
+
 module.exports = {
     name: "reacquire",
     aliases: ["acquire"],
     description: "Reacquire commands, dynamic reload",
     controlled: true,
     fn(message, suffix, bot) {
-        let fs = require('fs')
         let fullPath = "D:\\Users\\Drew\\Desktop\\Bots\\TheBencher\\runtime\\commandsContainer\\commands\\"
         if(suffix) {
             try {
