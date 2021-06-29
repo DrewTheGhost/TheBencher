@@ -1,4 +1,4 @@
-Submit all pull requests to the file `runtime/commandsContainer/benchRandoms.json` for new random lines, make sure emotes are unicode if included. You can get these by escaping the emote in discord before putting it in the file, I.E., `\:ghost`
+Submit all pull requests to the file `runtime/commandsContainer/mainController.json` for new random lines, make sure emotes are unicode if included. You can get these by escaping the emote in discord before putting it in the file, I.E., `\:ghost`
 
 Use the keyword "pname" for where you want the person's name to go, my RegExp will replace the word "pname" with a mention of the person chosen
 
