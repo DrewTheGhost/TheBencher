@@ -20,7 +20,7 @@ module.exports = {
             }
             return message.channel.send("You're.. trying to voteskip when you aren't even listening? Fuck off, shithead.")
         }
-        if(music.dispatcher.player.voiceConnection.speaking == 0) {
+        if(dispatcher.player.voiceConnection.speaking == 0) {
             return message.channel.send("I'm literally not playing anything. The fuck are you trying to skip?")
         }
         for(const [key, _value] of bot.voice.connections.first().channel.members) {

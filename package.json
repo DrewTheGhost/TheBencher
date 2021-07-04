@@ -19,7 +19,7 @@
     "snoowrap": "^1.22.0",
     "sodium-native": "^3.2.0",
     "utf-8-validate": "^5.0.5",
-    "ytdl-core": "^4.8.2",
+    "ytdl-core": "^4.8.3",
     "ytpl": "^2.2.1",
     "zlib-sync": "^0.1.7"
   },
