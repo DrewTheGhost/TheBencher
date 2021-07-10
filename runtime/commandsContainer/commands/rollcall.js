@@ -138,15 +138,15 @@ module.exports = {
                 break;
         }
         message.channel.send(`${domerID}`, {embed: myEmbed}).then(async m => {
-            m.react("✋")
-            m.react("✊")
+            m.react("<:Active:857075629627015169>")
+            m.react("<:SittingOut:857073545322037250>")
             embedMessage = m;
             await m.pin()
         })
         bot.on("messageReactionAdd", (reaction, user) => {
             if(user.bot) return
             if(user.id == message.author.id) return
-            if(reaction.message == embedMessage && reaction.emoji.name == "✋") {
+            if(reaction.message == embedMessage && reaction.emoji.id == "857075629627015169") {
                 switch(user.id) {
                     case caelanID:
                         myEmbed.fields[0] = {
@@ -197,7 +197,7 @@ module.exports = {
                     m.edit(`${domerID}`, {embed: myEmbed}) 
                 })
             }
-            if(reaction.message == embedMessage && reaction.emoji.name == "✊") {
+            if(reaction.message == embedMessage && reaction.emoji.id == "857073545322037250") {
                 switch(user.id) {
                     case caelanID:
                         myEmbed.fields[0] = {
