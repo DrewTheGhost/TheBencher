@@ -8,7 +8,7 @@ const fs = require("fs"),                               // Handles opening the a
     }),
     ticTacToe = require("discord-tictactoe"),
     ttt = new ticTacToe({                               // do not delet this command has its own handler
-        command: "!!ttt",
+        command: "!ttt",
         language: "en"
     }, bot),
     commandFiles = fs.readdirSync('runtime/commandsContainer/commands').filter(file => file.endsWith('.js'))
