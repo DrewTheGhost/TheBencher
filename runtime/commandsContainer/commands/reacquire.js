@@ -16,6 +16,7 @@ module.exports = {
                 bot.commands.set(command.name, command)
                 return message.channel.send(`Successfully reacquired ${suffix}.`)
             } catch(err) {
+                console.error(err)
                 return message.channel.send(`An error occurred. This is likely due to a module not being found.`)
             }
         }

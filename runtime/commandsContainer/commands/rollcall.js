@@ -4,7 +4,9 @@ const caelanID = "466767464902950922",
     markID = "197114859316314112",
     tylerID = "161182773875441664",
     zoeID = "160960464719708161",
-    domerID = "<@&779446753606238258>"
+    domerID = "<@&779446753606238258>",
+    Discord = require("discord.js"),
+    buttonRow = new Discord.MessageActionRow()
 
 let myEmbed = {
     "title": "Domer Roll-Caaaall!",
@@ -44,6 +46,21 @@ let myEmbed = {
     ]
     },
     embedMessage
+
+buttonRow.addComponents([
+    new Discord.MessageButton({
+        label: "Active",
+        customId: "active",
+        style: 3,
+        emoji: "<:Active:857075629627015169>"
+    }),
+    new Discord.MessageButton({
+        label: "Sitting Out",
+        customId: "idle",
+        style: 4,
+        emoji: "<:SittingOut:857073545322037250>"
+    })
+])
 
 module.exports = {
     name: "rollcall",
@@ -137,17 +154,19 @@ module.exports = {
             default:
                 break;
         }
-        message.channel.send(`No Pingeroni`, {embeds: myEmbed}).then(async m => {
-            m.react("<:Active:857075629627015169>")
-            m.react("<:SittingOut:857073545322037250>")
+        message.channel.send({
+            content: `${domerID}`,
+            embeds: [ myEmbed ],
+            components: [ buttonRow ]
+        })
+        .then(async m => {
             embedMessage = m;
             await m.pin()
         })
-        bot.on("messageReactionAdd", (reaction, user) => {
-            if(user.bot) return
-            if(user.id == message.author.id) return
-            if(reaction.message == embedMessage && reaction.emoji.id == "857075629627015169") {
-                switch(user.id) {
+        bot.on("interactionCreate", interaction => {
+            if(!interaction.isButton) return
+            if(interaction.customId == "active") {
+                switch(interaction.user.id) {
                     case caelanID:
                         myEmbed.fields[0] = {
                             "name": ":white_check_mark: Caelan",
@@ -193,12 +212,23 @@ module.exports = {
                     default:
                         break;
                 }
-                message.channel.messages.fetch(embedMessage.id).then(m => { 
-                    m.edit(`${domerID}`, {embed: myEmbed}) 
-                })
+
+                interaction.update({
+                    content: `${domerID}`,
+                    embeds: [ myEmbed ],
+                    components: [ buttonRow ]
+                }).then()
+                .catch(console.error)
+                
+                interaction.followUp({
+                    content: "You're active, that's fucking poggers!", 
+                    ephemeral: true
+                }).then()
+                .catch(console.error)
             }
-            if(reaction.message == embedMessage && reaction.emoji.id == "857073545322037250") {
-                switch(user.id) {
+
+            if(interaction.customId == "idle") {
+                switch(interaction.user.id) {
                     case caelanID:
                         myEmbed.fields[0] = {
                             "name": ":x: Caelan",
@@ -244,9 +274,20 @@ module.exports = {
                     default:
                         break;
                 }
-                message.channel.messages.fetch(embedMessage.id).then(m => { 
-                    m.edit(`${domerID}`, {embed: myEmbed}) 
-                })
+
+                interaction.update({
+                    content: `${domerID}`,
+                    embeds: [ myEmbed ],
+                    components: [ buttonRow ]
+                }).then()
+                .catch(console.error)
+
+                interaction.followUp({
+                    content: "You're sitting out... little shitter.",
+                    ephemeral: true
+                }).then()
+                .catch(console.error)
+
             }
         })
     }
