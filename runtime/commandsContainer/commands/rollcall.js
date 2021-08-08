@@ -137,7 +137,7 @@ module.exports = {
             default:
                 break;
         }
-        message.channel.send(`${domerID}`, {embed: myEmbed}).then(async m => {
+        message.channel.send(`No Pingeroni`, {embeds: myEmbed}).then(async m => {
             m.react("<:Active:857075629627015169>")
             m.react("<:SittingOut:857073545322037250>")
             embedMessage = m;

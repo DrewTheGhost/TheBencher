@@ -20,7 +20,7 @@ bot.on("ready", () => {
     bot.user.setPresence({activity: {name: "Type !help for a list of commands or !help commandname to get command info."}})
 })
 
-bot.on("message", message => {
+bot.on("messageCreate", message => {
     let cmd,
     suffix
     if(message.author.bot) return
@@ -89,4 +89,4 @@ function replaceDebug() {
     }
 }
 
-bot.login(config.token) // I repent 🙏
+bot.login(config.token)

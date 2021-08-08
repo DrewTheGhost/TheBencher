@@ -2,9 +2,7 @@ const fs = require("fs"),                               // Handles opening the a
     Discord = require("discord.js"),                    // Please god forgive this sin of using two different libraries in the same bot
     bot = new Discord.Client({
         fetchAllMembers: true,
-        ws: {
-            intents: 1923
-        }
+        intents: 1923
     }),
     ticTacToe = require("discord-tictactoe"),
     ttt = new ticTacToe({                               // do not delet this command has its own handler
