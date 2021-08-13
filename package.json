@@ -5,13 +5,11 @@
   "main": "main.js",
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
-    "bufferutil": "^4.0.3",
     "canvas": "^2.8.0",
     "chalk": "^4.1.0",
     "discord-buttons": "^3.2.1",
     "discord-tictactoe": "^2.0.7",
     "discord.js": "^13.0.1",
-    "erlpack": "github:abalabahaha/erlpack",
     "image-downloader": "^4.0.2",
     "image-js": "^0.31.4",
     "libsodium-wrappers": "^0.7.9",
@@ -19,10 +17,8 @@
     "sharp": "^0.27.0",
     "snoowrap": "^1.22.0",
     "sodium-native": "^3.2.0",
-    "utf-8-validate": "^5.0.5",
     "ytdl-core": "^4.8.3",
-    "ytpl": "^2.2.1",
-    "zlib-sync": "^0.1.7"
+    "ytpl": "^2.2.1"
   },
   "devDependencies": {
     "typescript": "^4.3.4"
