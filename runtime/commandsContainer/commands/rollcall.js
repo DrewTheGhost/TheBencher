@@ -45,7 +45,8 @@ let myEmbed = {
         }
     ]
     },
-    embedMessage
+    embedMessage,
+    listening = false;
 
 buttonRow.addComponents([
     new Discord.MessageButton({
@@ -62,12 +63,14 @@ buttonRow.addComponents([
     })
 ])
 
+
 module.exports = {
     name: "rollcall",
     aliases: [],
     description: "Starts a roll-call for the domers..",
     controlled: false,
     async fn(message, _suffix, bot) {
+        bot = bot
         if(embedMessage != undefined) {
             myEmbed = {
                 "title": "Domer Roll-Caaaall!",
@@ -106,7 +109,7 @@ module.exports = {
                     }
                 ]
             }
-            await embedMessage.unpin()
+            await message.channel.messages.cache.get(embedMessage).unpin()
         }
         switch(message.author.id) {
             case caelanID:
@@ -155,140 +158,143 @@ module.exports = {
                 break;
         }
         message.channel.send({
-            content: `${domerID}`,
+            content: "No ping",
             embeds: [ myEmbed ],
             components: [ buttonRow ]
         })
         .then(async m => {
-            embedMessage = m;
+            embedMessage = m.id;
             await m.pin()
         })
-        bot.on("interactionCreate", interaction => {
-            if(!interaction.isButton) return
-            if(interaction.customId == "active") {
-                switch(interaction.user.id) {
-                    case caelanID:
-                        myEmbed.fields[0] = {
-                            "name": ":white_check_mark: Caelan",
-                            "value": "Active!",
-                            "inline": true
-                        }
-                        break;
-                    case drewID:
-                        myEmbed.fields[1] = {
-                            "name": ":white_check_mark: Drew",
-                            "value": "Active!",
-                            "inline": true
-                        }
-                        break;
-                    case lukeID:
-                        myEmbed.fields[2] = {
-                            "name": ":white_check_mark: Luke",
-                            "value": "Active!",
-                            "inline": true
-                        }
-                        break;
-                    case markID:
-                        myEmbed.fields[3] = {
-                            "name": ":white_check_mark: Mark",
-                            "value": "Active!",
-                            "inline": true
-                        }
-                        break;
-                    case tylerID:
-                        myEmbed.fields[4] = {
-                            "name": ":white_check_mark: Tyler",
-                            "value": "Active!",
-                            "inline": true
-                        }
-                        break;
-                    case zoeID:
-                        myEmbed.fields[5] = {
-                            "name": ":white_check_mark: Zoe",
-                            "value": "Active!",
-                            "inline": true
-                        }
-                        break;
-                    default:
-                        break;
+        if(!listening) {
+            listening = true
+            bot.on("interactionCreate", interaction => {
+                if(!interaction.isButton) return
+                if(interaction.customId == "active") {
+                    switch(interaction.user.id) {
+                        case caelanID:
+                            myEmbed.fields[0] = {
+                                "name": ":white_check_mark: Caelan",
+                                "value": "Active!",
+                                "inline": true
+                            }
+                            break;
+                        case drewID:
+                            myEmbed.fields[1] = {
+                                "name": ":white_check_mark: Drew",
+                                "value": "Active!",
+                                "inline": true
+                            }
+                            break;
+                        case lukeID:
+                            myEmbed.fields[2] = {
+                                "name": ":white_check_mark: Luke",
+                                "value": "Active!",
+                                "inline": true
+                            }
+                            break;
+                        case markID:
+                            myEmbed.fields[3] = {
+                                "name": ":white_check_mark: Mark",
+                                "value": "Active!",
+                                "inline": true
+                            }
+                            break;
+                        case tylerID:
+                            myEmbed.fields[4] = {
+                                "name": ":white_check_mark: Tyler",
+                                "value": "Active!",
+                                "inline": true
+                            }
+                            break;
+                        case zoeID:
+                            myEmbed.fields[5] = {
+                                "name": ":white_check_mark: Zoe",
+                                "value": "Active!",
+                                "inline": true
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+            
+                    interaction.update({
+                        content: "No ping",
+                        embeds: [ myEmbed ],
+                        components: [ buttonRow ]
+                    }).then()
+                    .catch(console.error)
+                    
+                    interaction.followUp({
+                        content: "You're active, that's fucking poggers!", 
+                        ephemeral: true
+                    }).then()
+                    .catch(console.error)
                 }
-
-                interaction.update({
-                    content: `${domerID}`,
-                    embeds: [ myEmbed ],
-                    components: [ buttonRow ]
-                }).then()
-                .catch(console.error)
-                
-                interaction.followUp({
-                    content: "You're active, that's fucking poggers!", 
-                    ephemeral: true
-                }).then()
-                .catch(console.error)
-            }
-
-            if(interaction.customId == "idle") {
-                switch(interaction.user.id) {
-                    case caelanID:
-                        myEmbed.fields[0] = {
-                            "name": ":x: Caelan",
-                            "value": "Sitting Out",
-                            "inline": true
-                        }
-                        break;
-                    case drewID:
-                        myEmbed.fields[1] = {
-                            "name": ":x: Drew",
-                            "value": "Sitting Out",
-                            "inline": true
-                        }
-                        break;
-                    case lukeID:
-                        myEmbed.fields[2] = {
-                            "name": ":x: Luke",
-                            "value": "Sitting Out",
-                            "inline": true
-                        }
-                        break;
-                    case markID:
-                        myEmbed.fields[3] = {
-                            "name": ":x: Mark",
-                            "value": "Sitting Out",
-                            "inline": true
-                        }
-                        break;
-                    case tylerID:
-                        myEmbed.fields[4] = {
-                            "name": ":x: Tyler",
-                            "value": "Sitting Out",
-                            "inline": true
-                        }
-                        break;
-                    case zoeID:
-                        myEmbed.fields[5] = {
-                            "name": ":x: Zoe",
-                            "value": "Sitting Out",
-                            "inline": true
-                        }
-                        break;
-                    default:
-                        break;
+            
+                if(interaction.customId == "idle") {
+                    switch(interaction.user.id) {
+                        case caelanID:
+                            myEmbed.fields[0] = {
+                                "name": ":x: Caelan",
+                                "value": "Sitting Out",
+                                "inline": true
+                            }
+                            break;
+                        case drewID:
+                            myEmbed.fields[1] = {
+                                "name": ":x: Drew",
+                                "value": "Sitting Out",
+                                "inline": true
+                            }
+                            break;
+                        case lukeID:
+                            myEmbed.fields[2] = {
+                                "name": ":x: Luke",
+                                "value": "Sitting Out",
+                                "inline": true
+                            }
+                            break;
+                        case markID:
+                            myEmbed.fields[3] = {
+                                "name": ":x: Mark",
+                                "value": "Sitting Out",
+                                "inline": true
+                            }
+                            break;
+                        case tylerID:
+                            myEmbed.fields[4] = {
+                                "name": ":x: Tyler",
+                                "value": "Sitting Out",
+                                "inline": true
+                            }
+                            break;
+                        case zoeID:
+                            myEmbed.fields[5] = {
+                                "name": ":x: Zoe",
+                                "value": "Sitting Out",
+                                "inline": true
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+            
+                    interaction.update({
+                        content: "No ping",
+                        embeds: [ myEmbed ],
+                        components: [ buttonRow ]
+                    }).then()
+                    .catch(console.error)
+            
+                    interaction.followUp({
+                        content: "You're sitting out... little shitter.",
+                        ephemeral: true
+                    }).then()
+                    .catch(console.error)
+            
                 }
-
-                interaction.update({
-                    content: `${domerID}`,
-                    embeds: [ myEmbed ],
-                    components: [ buttonRow ]
-                }).then()
-                .catch(console.error)
-
-                interaction.followUp({
-                    content: "You're sitting out... little shitter.",
-                    ephemeral: true
-                }).then()
-                .catch(console.error)
-
-            }
-        })
+            })
+        }
     }
 }
