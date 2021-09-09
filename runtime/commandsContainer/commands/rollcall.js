@@ -109,7 +109,12 @@ module.exports = {
                     }
                 ]
             }
-            await message.channel.messages.fetch(embedMessage, {cache: false}).unpin()
+            message.channel.messages.fetch(embedMessage, {cache: false})
+            .then(message => message.unpin())
+            .catch(e => {
+                message.channel.sendMessage(e)
+                console.error(e)
+            })
         }
         switch(message.author.id) {
             case caelanID:
