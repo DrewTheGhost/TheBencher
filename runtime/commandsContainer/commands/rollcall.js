@@ -109,7 +109,7 @@ module.exports = {
                     }
                 ]
             }
-            message.channel.messages.fetch(embedMessage, {cache: false})
+            await message.channel.messages.fetch(embedMessage, {cache: false})
             .then(message => message.unpin())
             .catch(e => {
                 message.channel.sendMessage(e)
