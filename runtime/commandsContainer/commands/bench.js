@@ -14,20 +14,18 @@ module.exports = {
     controlled: false,
     async fn(message) {
         let embed = {
-                embed: {
-                    title: "Hahahaha gay baby jail!",
-                    image: {
-                        url: "attachment://gaybabyjail.png"         // attachment:// shows that the image should be set as the file we are uploading
-                    }
-                },
-                files: [{
-                    attachment: 'D:\\Users\\Drew\\Desktop\\Bots\\TheBencher\\runtime\\commandsContainer\\commands\\gaybabyjail.png',
-                    name: "gaybabyjail.png"
-                }]
+            title: "Hahahaha gay baby jail!",
+            image: {
+                url: "attachment://gaybabyjail.png"         // attachment:// shows that the image should be set as the file we are uploading
             },
-            responseStrings = [],
-            foundDomers = [],
-            domerImage                                              // Unused because grayscaling is bugging
+            files: [{
+                attachment: 'D:\\Users\\Drew\\Desktop\\Bots\\TheBencher\\runtime\\commandsContainer\\commands\\gaybabyjail.png',
+                name: "gaybabyjail.png"
+            }]
+        },
+        responseStrings = [],
+        foundDomers = [],
+        domerImage                                              // Unused because grayscaling is bugging
 
         /* Grayscaling is absolutely broken, don't know why
         sharp("./runtime/commandsContainer/commands/domerImage.jpg").png().toBuffer().then(async buffer => {
@@ -79,10 +77,11 @@ module.exports = {
 
         responseStrings.push("I'm spinnin' the wheel! Some unlucky fucker is sittin' out this domin' round!")
         responseStrings.push(chosenLine)                            // Sends the random one-liner with who is sitting out
-        message.channel.send(responseStrings.join("\n"))
-
         setTimeout(() => {
-            message.channel.send("", embed)
+            message.channel.send({
+                content: responseStrings.join("\n"),
+                embeds: [embed]
+            })
         }, 500)
     }
 }

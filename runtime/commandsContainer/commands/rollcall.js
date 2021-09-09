@@ -158,7 +158,7 @@ module.exports = {
                 break;
         }
         message.channel.send({
-            content: "No ping",
+            content: `${domerID}`,
             embeds: [ myEmbed ],
             components: [ buttonRow ]
         })
@@ -219,7 +219,7 @@ module.exports = {
                     }
             
                     interaction.update({
-                        content: "No ping",
+                        content: `${domerID}`,
                         embeds: [ myEmbed ],
                         components: [ buttonRow ]
                     }).then()
@@ -281,7 +281,7 @@ module.exports = {
                     }
             
                     interaction.update({
-                        content: "No ping",
+                        content: `${domerID}`,
                         embeds: [ myEmbed ],
                         components: [ buttonRow ]
                     }).then()
