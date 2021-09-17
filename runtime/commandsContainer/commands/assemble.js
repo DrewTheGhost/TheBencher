@@ -35,10 +35,7 @@ module.exports = {
         } else if(waiters.size > 0 && nonWaiters.length <= 0) {
             message.channel.send("Avengers! Assemble at The Penthouse!")
         } else {
-            let plural = "Bitch"
-            if(nonWaiters.length > 1) {
-                plural = "Bitches"
-            }
+            let plural = (nonWaiters.length > 1) ? "Bitch" : "Bitches"
             nonWaiters = nonWaiters.join(", ") 
             // This will take the array of mentions for people who didn't wait and join them into one string delimited by commas
             // Ex: ["<@160960464719708161>", "<@197114859316314112>", "<@161014852368859137>"] -> "<@160960464719708161>, <@197114859316314112>, <@161014852368859137>"

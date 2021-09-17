@@ -6,18 +6,36 @@ const config = require("./config.json"),                          // My config f
     warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`,  // Warning message coloring
     log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`,        // Log message coloring
     debug = `${chalk.magentaBright("[DEBUG]")}${chalk.reset()}`,                             
-    util = require("util")                                        // Do not delete this variable even if unused, can debug with it
+    util = require("util"),                                       // Do not delete this variable even if unused, can debug with it
+    { Client } = require("pg"),
+    client = new Client({
+        user: config.mysql.user,
+        host: config.mysql.host,
+        database: config.mysql.database,
+        password: config.mysql.password,
+        port: config.mysql.port
+    })
 
 replaceLog()
 replaceWarning()
 replaceError()
 replaceDebug()
+let db;
+client.connect(function (err, client) {
+    db = {err, client}
+})
 
 bot.on("ready", () => {
     // Ready event sent when discord.js is ready
     console.log(`Discord.js ready`)
     console.log(`Current Prefix: ${config.prefix}`)
     bot.user.setPresence({activity: {name: "Type !help for a list of commands or !help commandname to get command info."}})
+    client.query("DELETE FROM queue;", function(err, res) {
+        if(err) {
+            console.error(err)
+        }
+        console.log(`Dropping queue on READY, rowCount: ${res.rowCount}`)
+    })
 })
 
 bot.on("messageCreate", message => {
@@ -35,7 +53,7 @@ bot.on("messageCreate", message => {
                 return message.channel.send("Can't use this one, dumbass!")
             }
             try {
-                bot.commands.get(cmd).fn(message, suffix, bot)
+                bot.commands.get(cmd).fn(message, suffix, bot, db)
                 console.log(`${cmd} command executed.`)
             } catch (err) {
                 message.channel.send("Command errored, I fucked something up oh jesus christ")

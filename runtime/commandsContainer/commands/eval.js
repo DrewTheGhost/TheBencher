@@ -1,5 +1,4 @@
 const util = require('util')
-
 module.exports = {
     name: "eval",
     aliases: [],
