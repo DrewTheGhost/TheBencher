@@ -4,7 +4,7 @@ module.exports = {
     aliases: [],
     description: "Disconnects the bot",
     controlled: false,
-    fn(message) {
+    fn(message, _suffix, _bot, db) {
         const connection = getVoiceConnection(message.guild.id)
         if(connection == undefined) {
             return message.channel.send("Errr.. Disconnect.. From where??")
@@ -14,5 +14,11 @@ module.exports = {
         }
         connection.destroy()
         message.channel.send("Okay bye :)!")
+        db.client.query("DELETE FROM queue;", function(err, res) {
+            if(err) {
+                console.error(err)
+            }
+            console.log(`Dropping queue from disconnect command, rowCount: ${res.rowCount}`)
+        })
     }
 } 
