@@ -1,7 +1,7 @@
 const ytdl = require("ytdl-core"),
       ytpl = require("ytpl"),
       chalk = require("chalk"),
-      { VoiceConnectionStatus, AudioPlayerStatus, StreamType, createAudioPlayer, createAudioResource, joinVoiceChannel } = require("@discordjs/voice"),
+      { AudioPlayerStatus, StreamType, createAudioPlayer, createAudioResource, joinVoiceChannel } = require("@discordjs/voice"),
       util = require("util") // Do NOT remove, used for debugging
 let id = 0;
 /** 
