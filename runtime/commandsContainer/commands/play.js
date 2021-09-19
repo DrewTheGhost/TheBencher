@@ -72,7 +72,6 @@ module.exports = {
             await ytpl(ID).then(m => {
                 console.debug(`${chalk.blue("Music:")}${chalk.reset()} ${chalk.yellow(message.author.username)}${chalk.reset()} Requested Playlist ${suffix}`)
                 for(const items of m.items) {
-                    console.log(items.thumbnails)
                     id++
                     db.client.query("INSERT INTO queue (title, url, requester, id, thumbnail) VALUES ($1, $2, $3, $4, $5);", [items.title, items.shortUrl, message.author.username, id, items.thumbnails[0].url], function(err, _result) {
                         if(err) {
