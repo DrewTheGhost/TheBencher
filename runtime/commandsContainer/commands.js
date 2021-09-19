@@ -15,6 +15,10 @@ const fs = require("fs"),                               // Handles opening the a
     for(const file of commandFiles) {
         const command = require(`./commands/${file}`)
         bot.commands.set(command.name, command)
+        for(const alias of command.aliases) {
+            if(alias.length == 0 || alias == command.name) return
+            bot.commands.set(alias, command)
+        }
     }
 
 // Exports the client to be accessible to the main file which logs in and handles ready, warn, and error events

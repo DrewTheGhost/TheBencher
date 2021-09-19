@@ -14,6 +14,13 @@ module.exports = {
                 }
                 let command = require(`./${suffix}.js`)
                 bot.commands.set(command.name, command)
+                if(command.aliases.length != 0) {
+                    for(const alias of command.aliases) {
+                        if(alias != command.name) {
+                            bot.commands.set(alias, command)
+                        }
+                    }
+                }
                 return message.channel.send(`Successfully reacquired ${suffix}.`)
             } catch(err) {
                 console.error(err)
@@ -27,6 +34,10 @@ module.exports = {
             }
             let command = require(`./${file}`)
             bot.commands.set(command.name, command)
+            for(const alias of command.aliases) {
+                if(alias.length == 0 || alias == command.name) return
+                bot.commands.set(alias, command)
+            }
         }
         message.channel.send("Reacquired commands.")
     }
