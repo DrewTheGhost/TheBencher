@@ -2,7 +2,8 @@ const ytdl = require("ytdl-core"),
       ytpl = require("ytpl"),
       chalk = require("chalk"),
       { AudioPlayerStatus, StreamType, createAudioPlayer, createAudioResource, joinVoiceChannel } = require("@discordjs/voice"),
-      util = require("util") // Do NOT remove, used for debugging
+      util = require("util"), // Do NOT remove, used for debugging
+      player = createAudioPlayer()
 let id = 0;
 /** 
  * New queue schema
@@ -23,8 +24,7 @@ module.exports = {
     controlled: false,
     async fn(message, suffix, bot, db) {
         let channelID = message.member.voice.channelId,
-            requestInfo,
-            eventsCreated = {stateChange: 0, error: 0}
+            requestInfo
         if(channelID === null) {
             return message.channel.send("You aren't even in a voice channel to listen to anything, dumbass.")
         }
@@ -38,20 +38,20 @@ module.exports = {
         */
         if(ytdl.validateURL(suffix)) {
             let title, requester;
-            requestInfo = await ytdl.getBasicInfo(suffix)
+            requestInfo = await ytdl.getInfo(suffix)
             if(requestInfo.videoDetails.isLiveContent) {
                 return message.channel.send("Guess again if you think I'm about to let you queue a fucking livestream.")
             }
             id++;
-            db.client.query("INSERT INTO queue(title, url, requester, id) VALUES($1, $2, $3, $4) RETURNING *;", [requestInfo.videoDetails.title, suffix, (message.author.username), id], function(err, result) {
+            db.client.query("INSERT INTO queue(title, url, requester, id, thumbnail) VALUES($1, $2, $3, $4, $5) RETURNING *;", [requestInfo.videoDetails.title, suffix, message.author.username, id, requestInfo.videoDetails.thumbnail[-1].url], function(err, result) {
                 title = result.rows[0].title
                 requester = result.rows[0].requester
                 if(err) {
                     console.error(err)
                     message.channel.send(`Errr.. Fucked up requestin' that one! Master has been alerted of this error :)`)
                 } else {
-                    console.log(`${chalk.blue("Music:")}${chalk.reset()} ${chalk.yellow(result.rows[0].requester)}${chalk.reset()} Requested ${result.rows[0].title}`)
-                    console.log(`${chalk.blue("Music:")} Song title - ${chalk.yellow(result.rows[0].title)}${chalk.reset()}\n`)
+                    console.debug(`${chalk.blue("Music:")}${chalk.reset()} ${chalk.yellow(result.rows[0].requester)}${chalk.reset()} Requested ${result.rows[0].title}`)
+                    console.debug(`${chalk.blue("Music:")} Song title - ${chalk.yellow(result.rows[0].title)}${chalk.reset()}\n`)
                 }
             })
             db.client.query("SELECT * FROM queue;", function(err, result) {
@@ -59,7 +59,7 @@ module.exports = {
                     console.error(err)
                 }
                 message.delete()
-                console.log(`${chalk.blue("Music:")}${chalk.reset()} Queue length now ${result.rows.length}\n`)
+                console.debug(`${chalk.blue("Music:")}${chalk.reset()} Queue length now ${result.rows.length}\n`)
                 message.channel.send(`\`${requester} requested ${title}. Added to the queue at position ${result.rows.length}.\``)
             })
         }
@@ -70,10 +70,11 @@ module.exports = {
         if(ytpl.validateID(suffix)) {
             let ID = await ytpl.getPlaylistID(suffix)
             await ytpl(ID).then(m => {
-                console.log(`${chalk.blue("Music:")}${chalk.reset()} ${chalk.yellow(message.author.username)}${chalk.reset()} Requested Playlist ${suffix}`)
+                console.debug(`${chalk.blue("Music:")}${chalk.reset()} ${chalk.yellow(message.author.username)}${chalk.reset()} Requested Playlist ${suffix}`)
                 for(const items of m.items) {
+                    console.log(items.thumbnails)
                     id++
-                    db.client.query("INSERT INTO queue (title, url, requester, id) VALUES ($1, $2, $3, $4);", [items.title, items.shortUrl, message.author.username, id], function(err, result) {
+                    db.client.query("INSERT INTO queue (title, url, requester, id, thumbnail) VALUES ($1, $2, $3, $4, $5);", [items.title, items.shortUrl, message.author.username, id, items.thumbnails[0].url], function(err, _result) {
                         if(err) {
                             console.error(err)
                         }
@@ -84,7 +85,7 @@ module.exports = {
                     if(err) {
                         console.error(err)
                     }
-                    message.channel.send(`\`${message.author.username} requested a playlist. Added to the queue, new length ${result.rows[0].length}.\``)
+                    message.channel.send(`\`${message.author.username} requested a playlist. Added to the queue, new length ${result.rows.length}.\``)
                 })
             })
         }
@@ -97,19 +98,20 @@ module.exports = {
             });
             db.client.query("SELECT * FROM queue ORDER BY id ASC LIMIT 1;", (err, result) => {
                 if(err) {
-                    console.log(err)
+                    console.error(err)
                 }
-                console.log(`${chalk.blue("Music:")}${chalk.reset()} Joined voice channel to play ${chalk.yellow(result.rows[0].title)}${chalk.reset()}`)
+                console.debug(`${chalk.blue("Music:")}${chalk.reset()} Joined voice channel to play ${chalk.yellow(result.rows[0].title)}${chalk.reset()}`)
                 var stream = ytdl(result.rows[0].url, {filter: "audioonly", quality: "highestaudio"})
                 var resource = createAudioResource(stream, { inputType: StreamType.Arbitrary })
-                const player = createAudioPlayer()
                 player.play(resource)
                 connection.subscribe(player)
-                if(eventsCreated.error == 0) {
-                    eventsCreated.error = 1
+                if(player.listenerCount("error" == 0)) {
                     player.on("error", error => {
                         console.error(`Error: ${error.message} with resource ${util.inspect(error.resource)}`)
-                        db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, result) => {
+                        db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1);", (err, _result) => {
+                            if(err) {
+                                console.error(err)
+                            }
                             message.channel.send("I fucked up playing the song somehow, skipping it for now.")
                         })
                         db.client.query("SELECT * FROM queue;", function(err, result) {
@@ -128,11 +130,10 @@ module.exports = {
                             }
                         })
                     })
-                    if(eventsCreated.stateChange == 0) {
-                        eventsCreated.stateChange = 1
+                    if(player.listenerCount("stateChange") == 0) {
                         player.on("stateChange", (oldState, newState) => {
                             if(oldState.status == AudioPlayerStatus.Playing && newState.status == AudioPlayerStatus.Idle) {
-                                console.log(`${chalk.blue("Music:")}${chalk.reset()} end event received`)
+                                console.debug(`${chalk.blue("Music:")}${chalk.reset()} end event received`)
                                 db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, _result) => {
                                     if(err) {
                                         console.error(err)
@@ -142,7 +143,7 @@ module.exports = {
                                     if(err) {
                                         console.error(err)
                                     }
-                                    console.log(`${chalk.blue("Music:")}${chalk.reset()} Queue shifted, new length ${result.rows.length}`)
+                                    console.debug(`${chalk.blue("Music:")}${chalk.reset()} Queue shifted, new length ${result.rows.length}`)
                                     if(result.rows.length > 0) {
                                         db.client.query("SELECT * FROM queue ORDER BY id ASC LIMIT 1;", (err, result) => {
                                             if(err) {
@@ -164,6 +165,7 @@ module.exports = {
                     }
                 }
             })
+            // Why do I have this in here twice? Can't remember but it somehow isn't breaking anything or acting weird so I'll keep it
             db.client.query("SELECT * FROM queue ORDER BY id ASC LIMIT 1;", (err, result) => {
                 if(err) {
                     console.error(err)
@@ -171,5 +173,6 @@ module.exports = {
                 message.channel.send(`Now playing ${result.rows[0].title} - Requested by ${result.rows[0].requester}`)
             })
         }
-    }
-} 
+    },
+    player: player
+}
