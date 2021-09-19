@@ -1,4 +1,4 @@
-global.AbortController = require("abort-controller")
+global.AbortController = require("abort-controller")    // Fix for discordjs/voice aborts while playing, node version post 14 are fucked and have to use this to use anything older than v16
 const fs = require("fs"),                               // Handles opening the audio files and creating buffer streams
     Discord = require("discord.js"),                    // Please god forgive this sin of using two different libraries in the same bot
     bot = new Discord.Client({
