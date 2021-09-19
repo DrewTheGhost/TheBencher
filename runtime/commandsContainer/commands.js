@@ -1,3 +1,4 @@
+global.AbortController = require("abort-controller")
 const fs = require("fs"),                               // Handles opening the audio files and creating buffer streams
     Discord = require("discord.js"),                    // Please god forgive this sin of using two different libraries in the same bot
     bot = new Discord.Client({
