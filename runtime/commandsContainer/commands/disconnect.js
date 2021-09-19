@@ -1,7 +1,7 @@
 const { getVoiceConnection } = require("@discordjs/voice")
 module.exports = {
     name: "disconnect",
-    aliases: [],
+    aliases: ["dc"],
     description: "Disconnects the bot",
     controlled: false,
     fn(message, _suffix, _bot, db) {
