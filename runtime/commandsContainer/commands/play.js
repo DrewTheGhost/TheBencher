@@ -43,7 +43,7 @@ module.exports = {
                 return message.channel.send("Guess again if you think I'm about to let you queue a fucking livestream.")
             }
             id++;
-            db.client.query("INSERT INTO queue(title, url, requester, id, thumbnail) VALUES($1, $2, $3, $4, $5) RETURNING *;", [requestInfo.videoDetails.title, suffix, message.author.username, id, requestInfo.videoDetails.thumbnail[-1].url], function(err, result) {
+            db.client.query("INSERT INTO queue(title, url, requester, id, thumbnail) VALUES($1, $2, $3, $4, $5) RETURNING *;", [requestInfo.videoDetails.title, suffix, message.author.username, id, requestInfo.videoDetails.thumbnails[requestInfo.videoDetails.thumbnails.length - 1].url], function(err, result) {
                 title = result.rows[0].title
                 requester = result.rows[0].requester
                 if(err) {
@@ -104,7 +104,7 @@ module.exports = {
                 var resource = createAudioResource(stream, { inputType: StreamType.Arbitrary })
                 player.play(resource)
                 connection.subscribe(player)
-                if(player.listenerCount("error" == 0)) {
+                if(player.listenerCount("error") == 0) {
                     player.on("error", error => {
                         console.error(`Error: ${error.message} with resource ${util.inspect(error.resource)}`)
                         db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1);", (err, _result) => {
