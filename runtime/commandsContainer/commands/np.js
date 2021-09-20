@@ -7,7 +7,7 @@ module.exports = {
         let adapter = (bot.voice.adapters.size == 0) ? undefined : bot.voice.adapters.get(message.guild.id),
             embed = []
         if(adapter == undefined) {
-            return message.channel.send("I'm literally not even playing anything, skip yourself asshole!")
+            return message.channel.send("I'm.. not playing anything. Idiot.")
         }
         if(message.member.voice.channelId == null) {
             return message.channel.send("You literally aren't even listening, fuck off.")
