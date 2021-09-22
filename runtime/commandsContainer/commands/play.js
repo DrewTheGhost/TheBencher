@@ -1,7 +1,7 @@
 const ytdl = require("ytdl-core"),
       ytpl = require("ytpl"),
       chalk = require("chalk"),
-      { AudioPlayerStatus, StreamType, createAudioPlayer, createAudioResource, joinVoiceChannel } = require("@discordjs/voice"),
+      { AudioPlayerStatus, StreamType, createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnectionStatus } = require("@discordjs/voice"),
       util = require("util"), // Do NOT remove, used for debugging
       player = createAudioPlayer()
 let id = 0;
@@ -33,7 +33,7 @@ module.exports = {
         }
 
         /**
-        * This is the block for singular song requesting, the block for playlists is below this at line 64 currently
+        * This is the block for singular song requesting, the block for playlists is below this at line 70 currently
         * separate blocks required due to needing different behaviors with playlists
         */
         if(ytdl.validateURL(suffix)) {
@@ -90,7 +90,7 @@ module.exports = {
         }
         
         if(bot.voice.adapters.get(message.guild.id) == undefined) {
-            const connection = joinVoiceChannel({
+            let connection = joinVoiceChannel({
                 channelId: message.member.voice.channel.id,
                 guildId: message.channel.guild.id,
                 adapterCreator: message.channel.guild.voiceAdapterCreator
@@ -131,13 +131,15 @@ module.exports = {
                     })
                     if(player.listenerCount("stateChange") == 0) {
                         player.on("stateChange", (oldState, newState) => {
-                            if(oldState.status == AudioPlayerStatus.Playing && newState.status == AudioPlayerStatus.Idle) {
+                            if(oldState.status == AudioPlayerStatus.Playing && (newState.status == AudioPlayerStatus.Idle || newState.status == AudioPlayerStatus.Paused)) {
+                                if(newState.status != AudioPlayerStatus.Paused) {
+                                    db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, _result) => {
+                                        if(err) {
+                                            console.error(err)
+                                        }
+                                    })
+                                }
                                 console.debug(`${chalk.blue("Music:")}${chalk.reset()} end event received`)
-                                db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, _result) => {
-                                    if(err) {
-                                        console.error(err)
-                                    }
-                                })
                                 db.client.query("SELECT * FROM queue", function(err, result) {
                                     if(err) {
                                         console.error(err)
@@ -155,6 +157,9 @@ module.exports = {
                                         })
                                     } else {
                                         id = 0
+                                        if(connection.state == VoiceConnectionStatus.Destroyed) {
+                                            return message.channel.send("Nothing left in queue, leaving!")
+                                        }
                                         connection.destroy()
                                         return message.channel.send("Nothing left in queue, leaving!")
                                     }

@@ -1,11 +1,12 @@
+const { getVoiceConnection } = require("@discordjs/voice")
 module.exports = {
     name: "skip",
     aliases: [],
     description: "Skips a song.",
     controlled: false,
-    fn(message, _suffix, bot, db) {
-        let adapter = (bot.voice.adapters.size == 0) ? undefined : bot.voice.adapters.get(message.guild.id)
-        if(adapter == undefined) {
+    fn(message, _suffix, _bot, db) {
+        const connection = getVoiceConnection(message.guild.id)
+        if(connection == undefined) {
             return message.channel.send("I'm literally not even playing anything, skip yourself asshole!")
         }
         if(message.member.voice.channelId == null) {
@@ -18,6 +19,6 @@ module.exports = {
             }
             message.channel.send(`Skipping ${result.rows[0].title}`)
         })
-        player.stop()
+        player.pause()
     }
 } 
