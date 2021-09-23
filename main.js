@@ -63,9 +63,12 @@ bot.on("messageCreate", message => {
     }
 })
 
+/*
+ * Don't really care about this right now 
 bot.on("debug", log => {
     console.debug(`${log}`)
 })
+*/
 
 bot.on("error", err => {
     console.error(`${err}`)
