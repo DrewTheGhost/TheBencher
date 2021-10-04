@@ -42,6 +42,9 @@ module.exports = {
 
                 res.on("end", () => {
                     chunk = JSON.parse(chunk)
+                    if(!chunk.items[0]) {
+                        return message.channel.send("Err, found nothing. Sorry :)")
+                    }
                     suffix = `https://youtube.com/watch?v=${chunk.items[0].id.videoId}`
                 });
             }).on("error", err => {
@@ -194,21 +197,18 @@ module.exports = {
                                                 message.channel.send(`Now playing ${result.rows[0].title} - Requested by ${result.rows[0].requester}`)
                                             })
                                         } else {
-                                            message.channel.send("5 minute timer starts now! Better touch that queue.")
-                                            setTimeout(() => {
-                                                // Re-establish connection to make sure it's current before we try to destroy it
-                                                connection = getVoiceConnection(message.channel.guild.id)
-                                                id = 0
-                                                if(connection.state.status != VoiceConnectionStatus.Destroyed) {
-                                                    console.debug("Attempting to destroy connection")
-                                                    try {
-                                                        connection.destroy()
-                                                        message.channel.send("Nothing left in queue, leaving!")
-                                                    } catch(err) {
-                                                        console.error(err)
-                                                    }
+                                            // Re-establish connection to make sure it's current before we try to destroy it
+                                            connection = getVoiceConnection(message.channel.guild.id)
+                                            id = 0
+                                            if(connection.state.status != VoiceConnectionStatus.Destroyed) {
+                                                console.debug("Attempting to destroy connection")
+                                                try {
+                                                    connection.destroy()
+                                                    message.channel.send("Nothing left in queue, leaving!")
+                                                } catch(err) {
+                                                    console.error(err)
                                                 }
-                                            }, 1000 * 60 * 5)
+                                            }
                                         }
                                     })
                                 }
