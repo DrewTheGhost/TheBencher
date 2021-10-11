@@ -19,7 +19,7 @@ module.exports = {
             })
             fields.push({
                 "name": "Message Event Latency",
-                "value": `\`${message.createdTimestamp - event} ms\``,
+                "value": `\`${event - message.createdTimestamp} ms\``,
                 "inline": true
             })
             fields.push({

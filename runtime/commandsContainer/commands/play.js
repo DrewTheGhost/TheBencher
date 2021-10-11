@@ -12,7 +12,8 @@ let id = 0;
  * {
  *     "url": urlhere,
  *     "title": songtitlehere,
- *     "requester": username
+ *     "requester": username,
+ *     "thumbnail": thumbnaillink
  * }
  * requesting would be like result.rows[0].url
  * Significantly speeds up queue things as no longer need to request more than once for information
@@ -54,7 +55,7 @@ module.exports = {
         }
 
         /**
-        * This is the block for singular song requesting, the block for playlists is below this at line 70 currently
+        * This is the block for singular song requesting, the block for playlists is below this at line 89 currently
         * separate blocks required due to needing different behaviors with playlists
         */
         setTimeout(async () => {
