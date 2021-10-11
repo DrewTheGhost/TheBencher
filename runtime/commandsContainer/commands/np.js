@@ -1,6 +1,6 @@
 module.exports = {
     name: "np",
-    aliases: ["playing"],
+    aliases: ["playing", "nowplaying"],
     description: "Shows what currently is playing.",
     controlled: false,
     fn(message, _suffix, bot, db) {
