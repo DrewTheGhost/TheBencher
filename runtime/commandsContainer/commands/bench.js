@@ -17,11 +17,7 @@ module.exports = {
             title: "Hahahaha gay baby jail!",
             image: {
                 url: "attachment://gaybabyjail.png"         // attachment:// shows that the image should be set as the file we are uploading
-            },
-            files: [{
-                attachment: 'D:\\Users\\Drew\\Desktop\\Bots\\TheBencher\\runtime\\commandsContainer\\commands\\gaybabyjail.png',
-                name: "gaybabyjail.png"
-            }]
+            }
         },
         responseStrings = [],
         foundDomers = [],
@@ -80,7 +76,13 @@ module.exports = {
         setTimeout(() => {
             message.channel.send({
                 content: responseStrings.join("\n"),
-                embeds: [embed]
+                embeds: [
+                    embed
+                ],
+                files: [{
+                    attachment: 'D:\\Users\\Drew\\Desktop\\Bots\\TheBencher\\runtime\\commandsContainer\\commands\\gaybabyjail.png',
+                    name: "gaybabyjail.png"
+                }]
             })
         }, 500)
     }
