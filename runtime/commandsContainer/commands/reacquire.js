@@ -1,4 +1,5 @@
-let fs = require('fs')
+const fs = require('fs'), 
+    path = require("path")
 
 module.exports = {
     name: "reacquire",
@@ -6,11 +7,10 @@ module.exports = {
     description: "Reacquire commands, dynamic reload",
     controlled: true,
     fn(message, suffix, bot) {
-        let fullPath = "D:\\Users\\Drew\\Desktop\\Bots\\TheBencher\\runtime\\commandsContainer\\commands\\"
         if(suffix) {
             try {
-                if(require.cache[`${fullPath}${suffix}.js`]) {
-                    delete require.cache[`${fullPath}${suffix}.js`]
+                if(require.cache[`${__dirname}${suffix}.js`]) {
+                    delete require.cache[`${__dirname}${suffix}.js`]
                 }
                 let command = require(`./${suffix}.js`)
                 bot.commands.set(command.name, command)
@@ -29,8 +29,8 @@ module.exports = {
         }
         commandFilesAll = fs.readdirSync('runtime/commandsContainer/commands').filter(file => file.endsWith('.js') && file !== "reacquire.js")
         for(const file of commandFilesAll) {
-            if(require.cache[`${fullPath}${file}`]) {
-                delete require.cache[`${fullPath}${file}`]
+            if(require.cache[`${__dirname}${file}`]) {
+                delete require.cache[`${__dirname}${file}`]
             }
             let command = require(`./${file}`)
             bot.commands.set(command.name, command)
