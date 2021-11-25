@@ -1,11 +1,16 @@
 # We do not want to upload every module into the repo
 /node_modules/
 
-# Also don't want to expose my config, which contains my token
-config.json
+# Why include logs?
+/logs/
 
-# Don't need to upload my startup batch file
+# Also don't want to expose my configs, which contain sensitive info
+config.json
+application.yml
+
+# Don't need to upload my startup batch file or automations
 *.bat
+*.cmd
 
 # No images or videos!!
 *.png
@@ -16,3 +21,7 @@ config.json
 *.mp3
 *.ogg
 *.wav
+
+# And no external jars :)
+*.jar
+

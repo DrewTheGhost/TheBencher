@@ -46,7 +46,8 @@ let myEmbed = {
     ]
     },
     embedMessage,
-    listening = false;
+    listening = false,
+    ready = 1;
 
 buttonRow.addComponents([
     new Discord.MessageButton({
@@ -176,6 +177,7 @@ module.exports = {
             bot.on("interactionCreate", interaction => {
                 if(!interaction.isButton) return
                 if(interaction.customId == "active") {
+                    ready += 1;
                     switch(interaction.user.id) {
                         case caelanID:
                             myEmbed.fields[0] = {
@@ -238,6 +240,7 @@ module.exports = {
                 }
             
                 if(interaction.customId == "idle") {
+                    ready -= 1;
                     switch(interaction.user.id) {
                         case caelanID:
                             myEmbed.fields[0] = {
@@ -297,7 +300,15 @@ module.exports = {
                         ephemeral: true
                     }).then()
                     .catch(console.error)
-            
+                    /**
+                     * Need to make a better system for this, spamming buttons triggers this multiple times
+                     * messages should only trigger once, would prolly stop spamming, but if you spam active it'll trigger it regardless, so people should only be able to hit active once..
+                    if(ready == 5) {
+                        message.channel.send(`${domerID}\nHoly fucking shit that's a full squad!!`)
+                    } else if(ready == 6) {
+                        message.channel.send(`${domerID}\nOH MY FUCKING GOD EVERY SINGLE DOMER IS READY TO GOOOO!!!`)
+                    }
+                    */
                 }
             })
         }
