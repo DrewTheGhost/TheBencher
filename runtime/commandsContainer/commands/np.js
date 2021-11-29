@@ -4,9 +4,9 @@ module.exports = {
     description: "Shows what currently is playing.",
     controlled: false,
     fn(message, _suffix, bot, db) {
-        let adapter = (bot.voice.adapters.size == 0) ? undefined : bot.voice.adapters.get(message.guild.id),
+        let player = bot.player,
             embed = []
-        if(adapter == undefined) {
+        if(player == undefined) {
             return message.channel.send("I'm.. not playing anything. Idiot.")
         }
         if(message.member.voice.channelId == null) {
@@ -19,9 +19,6 @@ module.exports = {
             embed = [{
                 "title": `${result.rows[0].title}`,
                 "color": 5814783,
-                "image": {
-                    "url": `${result.rows[0].thumbnail}`
-                },
                 "url": `${result.rows[0].url}`
             }]
             message.channel.send({embeds: embed})

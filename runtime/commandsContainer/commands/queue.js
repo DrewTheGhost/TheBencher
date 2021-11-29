@@ -5,7 +5,7 @@ module.exports = {
     controlled: false,
     fn(message, _suffix, _bot, db) {
         let fields = [], queue = []
-        db.client.query("SELECT * FROM queue;", function(err, result) {
+        db.client.query("SELECT * FROM queue ORDER BY id;", function(err, result) {
             if(err) {
                 console.error(err)
             }

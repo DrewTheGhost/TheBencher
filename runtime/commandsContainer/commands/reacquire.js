@@ -1,5 +1,4 @@
-const fs = require('fs'), 
-    path = require("path")
+const fs = require('fs')
 
 module.exports = {
     name: "reacquire",
@@ -8,9 +7,12 @@ module.exports = {
     controlled: true,
     fn(message, suffix, bot) {
         if(suffix) {
+            if(!(fs.existsSync(`./${suffix}.js`))) {
+                return message.channel.send(`Module ${suffix} not found.`)
+            }
             try {
-                if(require.cache[`${__dirname}${suffix}.js`]) {
-                    delete require.cache[`${__dirname}${suffix}.js`]
+                if(require.cache[`${__dirname}\\${suffix}.js`]) {
+                    delete require.cache[`${__dirname}\\${suffix}.js`]
                 }
                 let command = require(`./${suffix}.js`)
                 bot.commands.set(command.name, command)
@@ -29,8 +31,8 @@ module.exports = {
         }
         commandFilesAll = fs.readdirSync('runtime/commandsContainer/commands').filter(file => file.endsWith('.js') && file !== "reacquire.js")
         for(const file of commandFilesAll) {
-            if(require.cache[`${__dirname}${file}`]) {
-                delete require.cache[`${__dirname}${file}`]
+            if(require.cache[`${__dirname}\\${file}`]) {
+                delete require.cache[`${__dirname}\\${file}`]
             }
             let command = require(`./${file}`)
             bot.commands.set(command.name, command)
