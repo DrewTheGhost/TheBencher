@@ -85,7 +85,7 @@ module.exports = {
                 player = await manager.join({
                     guild: message.channel.guild.id,
                     channel: message.member.voice.channelId,
-                    node: manager.idealNodes[0].id
+                    node: `${manager.idealNodes[0].id}`
                 })
                 bot.player = player
             }
