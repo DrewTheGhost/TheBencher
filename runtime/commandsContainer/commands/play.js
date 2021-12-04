@@ -3,10 +3,10 @@ const chalk = require("chalk"),
       config = require("../../../config.json"),
       { Manager } = require("@lavacord/discord.js"),
       nodes = [
-          { id: "1", host: config.lavalink.host, port: config.lavalink.port, password: config.lavalink.password}
+        { id: "1", host: config.lavalink.host, port: config.lavalink.port, password: config.lavalink.password}
       ],
       fetch = require("node-fetch"),
-      { URLSearchParams } = require("url")
+      { URLSearchParams } = require("url");
 let id = 0, player, manager;
 
 module.exports = {
@@ -34,12 +34,11 @@ module.exports = {
                 console.error(`Lavalink error: ${error}\nWith node: ${node}`)
             })
         }
-        let searchQuery;
+        let searchQuery
         if(suffix.split(" ")[0] == "playlist") {
             suffix = suffix.split(" ")
             suffix.shift()
             searchQuery = suffix.join(" ")
-            console.log(searchQuery)
         } else {
             searchQuery = `ytsearch:${suffix}`
         }
@@ -55,13 +54,13 @@ module.exports = {
                     id++
                     db.client.query("INSERT INTO queue (title, url, requester, id, track64) VALUES ($1, $2, $3, $4, $5);", [track.info.title, track.info.uri, message.author.username, id, track.track], function(err, _result) {
                         if(err) {
-                            return console.error(err)
+                            console.error(err)
                         }
                     })
                 }
                 db.client.query("SELECT * FROM queue;", (err, result) => {
                     if(err) {
-                        return console.error(err)
+                        console.error(err)
                     }
                     message.channel.send(`${message.author.username} requested a playlist. New queue length is ${result.rows.length}.`)
                 })
@@ -69,14 +68,16 @@ module.exports = {
                 db.client.query("INSERT INTO queue(title, url, requester, id, track64) VALUES($1, $2, $3, $4, $5) RETURNING *;", [results.tracks[0].info.title, results.tracks[0].info.uri, message.author.username, id, results.tracks[0].track], function(err, result) {
                     if(err) {
                         console.error(err)
-                        return message.channel.send(`There was an error requesting the song, this has been logged.`)
+                        message.channel.send(`There was an error requesting the song, this has been logged.`)
                     }
     
                     title = result.rows[0].title
                     requester = result.rows[0].requester
-                    console.debug(`${chalk.blue("Music:")}${chalk.reset()} ${chalk.yellow(result.rows[0].requester)}${chalk.reset()} Requested ${title}`)
+
+                    console.debug(`${chalk.blue("Music:")}${chalk.reset()} ${chalk.yellow(requester)}${chalk.reset()} Requested ${title}`)
                     console.debug(`${chalk.blue("Music:")} Song title - ${chalk.yellow(title)}${chalk.reset()}\n`)
-                    message.channel.send(`\`${requester} requested ${title}. Added to the queue at position ${result.rows.length}.\``)
+
+                    message.channel.send(`\`${requester} requested ${title}. Added to the queue at position ${result.rows[0].id}.\``)
                 })
                 id++
             }
@@ -93,7 +94,7 @@ module.exports = {
             db.client.query("SELECT * FROM queue ORDER BY id ASC LIMIT 1;", (err, result) => {
                 if(err) {
                     console.error(err)
-                    return message.channel.send("Error running SELECT query to play music.")
+                    message.channel.send("Error running SELECT query to play music.")
                 }
                 
                 if(!player.playing) {
@@ -106,7 +107,7 @@ module.exports = {
                         console.debug("Creating player error handler.")
                         db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, _result) => {
                             if(err) {
-                                id--;
+                                id--
                                 console.error(err)
                             }
                         })
@@ -134,7 +135,7 @@ module.exports = {
                     console.debug("Creating player song end handler.")
                     player.on("end", data => {
                         db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, _result) => {
-                            id--;
+                            id--
                             if(err) {
                                 console.error(err)
                             }
@@ -148,7 +149,7 @@ module.exports = {
                                 player.play(result.rows[0].track64)
                                 message.channel.send(`Now playing ${result.rows[0].title} requested by ${result.rows[0].requester}`)
                             } else {
-                                id = 0;
+                                id = 0
                                 message.channel.send("Nothing left in queue, leaving!")
                                 player.destroy()
                                 await manager.leave(message.channel.guild.id)
