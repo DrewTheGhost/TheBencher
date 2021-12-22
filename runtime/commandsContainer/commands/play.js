@@ -7,7 +7,7 @@ const chalk = require("chalk"),
       ],
       fetch = require("node-fetch"),
       { URLSearchParams } = require("url");
-let id = 0, player, manager;
+let id = 0;
 
 module.exports = {
     name: "play",
@@ -16,10 +16,12 @@ module.exports = {
     controlled: false,
     async fn(message, suffix, bot, db) {
         let title, requester;
-        if(manager == undefined) {
-            manager = new Manager(bot, nodes, { user: "801939642261307393", shards: 1 })
-            await manager.connect()
-            bot.manager = manager
+        bot.player = undefined
+        bot.manager = undefined
+
+        if(bot.manager == undefined) {
+            bot.manager = new Manager(bot, nodes, { user: "801939642261307393", shards: 1 })
+            await bot.manager.connect()
         }
 
         if(message.member.voice.channelId === null) {
@@ -28,9 +30,9 @@ module.exports = {
         if(suffix == "" || !suffix) {
             return message.channel.send("Actually fucking type something after play!!")
         }
-        if(manager.listenerCount("error") == 0) {
+        if(bot.manager.listenerCount("error") == 0) {
             console.debug("Creating error listener for manager.")
-            manager.on("error", (error, node) => {
+            bot.manager.on("error", (error, node) => {
                 console.error(`Lavalink error: ${error}\nWith node: ${node}`)
             })
         }
@@ -52,7 +54,7 @@ module.exports = {
                         break
                     }
                     id++
-                    db.client.query("INSERT INTO queue (title, url, requester, id, track64) VALUES ($1, $2, $3, $4, $5);", [track.info.title, track.info.uri, message.author.username, id, track.track], function(err, _result) {
+                    db.client.query("INSERT INTO queue (title, url, requester, id, track64, duration) VALUES ($1, $2, $3, $4, $5, $6);", [track.info.title, track.info.uri, message.author.username, id, track.track, track.info.length], function(err, _result) {
                         if(err) {
                             console.error(err)
                         }
@@ -65,7 +67,7 @@ module.exports = {
                     message.channel.send(`${message.author.username} requested a playlist. New queue length is ${result.rows.length}.`)
                 })
             } else {
-                db.client.query("INSERT INTO queue(title, url, requester, id, track64) VALUES($1, $2, $3, $4, $5) RETURNING *;", [results.tracks[0].info.title, results.tracks[0].info.uri, message.author.username, id, results.tracks[0].track], function(err, result) {
+                db.client.query("INSERT INTO queue(title, url, requester, id, track64, duration) VALUES($1, $2, $3, $4, $5, $6) RETURNING *;", [results.tracks[0].info.title, results.tracks[0].info.uri, message.author.username, id, results.tracks[0].track, results.tracks[0].info.length], function(err, result) {
                     if(err) {
                         console.error(err)
                         message.channel.send(`There was an error requesting the song, this has been logged.`)
@@ -82,13 +84,12 @@ module.exports = {
                 id++
             }
             
-            if(player == undefined) {
-                player = await manager.join({
+            if(bot.player == undefined) {
+                bot.player = await bot.manager.join({
                     guild: message.channel.guild.id,
                     channel: message.member.voice.channelId,
-                    node: `${manager.idealNodes[0].id}`
+                    node: `${bot.manager.idealNodes[0].id}`
                 })
-                bot.player = player
             }
 
             db.client.query("SELECT * FROM queue ORDER BY id ASC LIMIT 1;", (err, result) => {
@@ -97,13 +98,13 @@ module.exports = {
                     message.channel.send("Error running SELECT query to play music.")
                 }
                 
-                if(!player.playing) {
-                    player.play(result.rows[0].track64)
+                if(!bot.player.playing) {
+                    bot.player.play(result.rows[0].track64)
                     message.channel.send(`Now playing ${result.rows[0].title} - Requested by ${result.rows[0].requester}`)
                 }
 
-                if(player.listenerCount("error") <= 1) {
-                    player.on("error", err => {
+                if(bot.player.listenerCount("error") <= 1) {
+                    bot.player.on("error", err => {
                         console.debug("Creating player error handler.")
                         db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, _result) => {
                             if(err) {
@@ -117,23 +118,22 @@ module.exports = {
                                 console.error(err)
                             }
                             if(result.rows.length > 0) {
-                                player.play(result.rows[0].track64)
+                                bot.player.play(result.rows[0].track64)
                                 message.channel.send(`Now playing ${result.rows[0].title} requested by ${result.rows[0].requester}`)
                             } else {
                                 id = 0
                                 message.channel.send("Nothing left in queue, leaving!")
-                                player.destroy()
-                                await manager.leave(message.channel.guild.id)
-                                player = undefined
-                                bot.player = player
+                                bot.player.destroy()
+                                await bot.manager.leave(message.channel.guild.id)
+                                bot.player = undefined
                             }
                         })
                     })
                 }
 
-                if(player.listenerCount("end") == 0) {
+                if(bot.player.listenerCount("end") == 0) {
                     console.debug("Creating player song end handler.")
-                    player.on("end", data => {
+                    bot.player.on("end", data => {
                         db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, _result) => {
                             id--
                             if(err) {
@@ -146,15 +146,14 @@ module.exports = {
                                 console.error(err)
                             }
                             if(result.rows.length > 0) {
-                                player.play(result.rows[0].track64)
+                                bot.player.play(result.rows[0].track64)
                                 message.channel.send(`Now playing ${result.rows[0].title} requested by ${result.rows[0].requester}`)
                             } else {
                                 id = 0
                                 message.channel.send("Nothing left in queue, leaving!")
-                                player.destroy()
-                                await manager.leave(message.channel.guild.id)
-                                player = undefined
-                                bot.player = player
+                                bot.player.destroy()
+                                await bot.manager.leave(message.channel.guild.id)
+                                bot.player = undefined
                             }
                         })
                     })
@@ -163,7 +162,7 @@ module.exports = {
         })
 
         async function getSongs(search) {
-            const node = manager.idealNodes[0]
+            const node = bot.manager.idealNodes[0]
             const params = new URLSearchParams()
             params.append("identifier", search)
 
