@@ -7,7 +7,7 @@ module.exports = {
     controlled: true,
     fn(message, suffix, bot) {
         if(suffix) {
-            if(!(fs.existsSync(`./${suffix}.js`))) {
+            if(!(fs.existsSync(`${__dirname}\\${suffix}.js`))) {
                 return message.channel.send(`Module ${suffix} not found.`)
             }
             try {
