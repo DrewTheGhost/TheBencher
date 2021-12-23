@@ -3,10 +3,8 @@ module.exports = {
     aliases: [],
     description: "Restarts the bot.",
     controlled: true,
-    fn(message) {
-        setTimeout(() => {
-            process.exit(0)
-        }, 200)
-        message.channel.send("Restart executed, beginning restart process now.")
+    async fn(message) {
+        await message.channel.send("Restart executed, beginning restart process now.")
+        process.exit(0)
     }
 }
