@@ -20,11 +20,10 @@ module.exports = {
             bot.manager = new Manager(bot, nodes, { user: "801939642261307393", shards: 1 })
             await bot.manager.connect()
         }
-
         if(message.member.voice.channelId === null) {
             return message.channel.send("You aren't even in a voice channel to listen to anything, dumbass.")
         }
-        if(suffix == "" || !suffix) {
+        if(suffix === "" || !suffix) {
             return message.channel.send("Actually fucking type something after play!!")
         }
         if(bot.manager.listenerCount("error") == 0) {
@@ -33,7 +32,6 @@ module.exports = {
                 console.error(`Lavalink error: ${error}\nWith node: ${node}`)
             })
         }
-
         getSongs(suffix, bot).then(async results => {
             if(results.tracks.length == 0) {
                 return message.channel.send("No results found.")
@@ -83,7 +81,6 @@ module.exports = {
                 })
                 id++
             }
-            
             if(bot.player == undefined) {
                 bot.player = await bot.manager.join({
                     guild: message.channel.guild.id,
@@ -91,12 +88,9 @@ module.exports = {
                     node: `${bot.manager.idealNodes[0].id}`
                 })
             }
-
-                
             if(!bot.player.playing) {
                 playSong(message, bot, db)
             }
-
             if(bot.player.listenerCount("error") <= 1) {
                  bot.player.on("error", err => {
                     console.debug("Creating player error handler.")
@@ -105,7 +99,6 @@ module.exports = {
                     playSong(message, bot, db)
                 })
             }
-
             if(bot.player.listenerCount("end") == 0) {
                 console.debug("Creating player song end handler.")
                 bot.player.on("end", data => {
