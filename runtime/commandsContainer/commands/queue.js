@@ -19,6 +19,9 @@ module.exports = {
                     "inline": true
                 })
             }
+            if(fields.length == 0) {
+                return message.channel.send("Aint nothin in here! Not a damn thing! Not one! It's entirely fucking empty, you hear?! Stop fucking asking!")
+            }
             queue = [
                 {
                     "title": "Current Queue",
