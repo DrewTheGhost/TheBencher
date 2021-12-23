@@ -15,6 +15,7 @@
     "discord.js": "^13.3.1",
     "image-downloader": "^4.0.2",
     "image-js": "^0.31.4",
+    "lavacord": "^1.1.9",
     "lavalink": "^2.11.0",
     "libsodium-wrappers": "^0.7.9",
     "node-fetch": "^2.6.1",
