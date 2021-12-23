@@ -16,9 +16,6 @@ module.exports = {
     controlled: false,
     async fn(message, suffix, bot, db) {
         let title, requester;
-        bot.player = undefined
-        bot.manager = undefined
-
         if(bot.manager == undefined) {
             bot.manager = new Manager(bot, nodes, { user: "801939642261307393", shards: 1 })
             await bot.manager.connect()
@@ -44,7 +41,7 @@ module.exports = {
         } else {
             searchQuery = `ytsearch:${suffix}`
         }
-        getSongs(searchQuery).then(async results => {
+        getSongs(searchQuery, bot).then(async results => {
             if(results.tracks.length == 0) {
                 return message.channel.send("No results found.")
             }
@@ -79,7 +76,7 @@ module.exports = {
                     console.debug(`${chalk.blue("Music:")}${chalk.reset()} ${chalk.yellow(requester)}${chalk.reset()} Requested ${title}`)
                     console.debug(`${chalk.blue("Music:")} Song title - ${chalk.yellow(title)}${chalk.reset()}\n`)
 
-                    message.channel.send(`\`${requester} requested ${title}. Added to the queue at position ${result.rows[0].id}.\``)
+                    message.channel.send(`\`${requester} requested ${title}. Added to the queue at position ${result.rows[0].id + 1}.\``)
                 })
                 id++
             }
@@ -95,83 +92,71 @@ module.exports = {
             db.client.query("SELECT * FROM queue ORDER BY id ASC LIMIT 1;", (err, result) => {
                 if(err) {
                     console.error(err)
-                    message.channel.send("Error running SELECT query to play music.")
+                    return message.channel.send("Error running SELECT query to play music.")
                 }
                 
                 if(!bot.player.playing) {
-                    bot.player.play(result.rows[0].track64)
-                    message.channel.send(`Now playing ${result.rows[0].title} - Requested by ${result.rows[0].requester}`)
+                    playSong(message, bot, db)
                 }
 
                 if(bot.player.listenerCount("error") <= 1) {
                     bot.player.on("error", err => {
                         console.debug("Creating player error handler.")
-                        db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, _result) => {
-                            if(err) {
-                                id--
-                                console.error(err)
-                            }
-                        })
+                        dropCurrentSong(db)
                         console.error(err)
-                        db.client.query("SELECT * FROM queue ORDER BY id;", async (err, result) => {
-                            if(err) {
-                                console.error(err)
-                            }
-                            if(result.rows.length > 0) {
-                                bot.player.play(result.rows[0].track64)
-                                message.channel.send(`Now playing ${result.rows[0].title} requested by ${result.rows[0].requester}`)
-                            } else {
-                                id = 0
-                                message.channel.send("Nothing left in queue, leaving!")
-                                bot.player.destroy()
-                                await bot.manager.leave(message.channel.guild.id)
-                                bot.player = undefined
-                            }
-                        })
+                        playSong(message, bot, db)
                     })
                 }
 
                 if(bot.player.listenerCount("end") == 0) {
                     console.debug("Creating player song end handler.")
                     bot.player.on("end", data => {
-                        db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, _result) => {
-                            id--
-                            if(err) {
-                                console.error(err)
-                            }
-                        })
+                        dropCurrentSong(db)
                         if(data.reason == "REPLACED") return;
-                        db.client.query("SELECT * FROM queue ORDER BY id;", async (err, result) => {
-                            if(err) {
-                                console.error(err)
-                            }
-                            if(result.rows.length > 0) {
-                                bot.player.play(result.rows[0].track64)
-                                message.channel.send(`Now playing ${result.rows[0].title} requested by ${result.rows[0].requester}`)
-                            } else {
-                                id = 0
-                                message.channel.send("Nothing left in queue, leaving!")
-                                bot.player.destroy()
-                                await bot.manager.leave(message.channel.guild.id)
-                                bot.player = undefined
-                            }
-                        })
+                        playSong(message, bot, db)
                     })
                 }
             })
         })
-
-        async function getSongs(search) {
-            const node = bot.manager.idealNodes[0]
-            const params = new URLSearchParams()
-            params.append("identifier", search)
-
-            return fetch(`http://${node.host}:${node.port}/loadtracks?${params}`, { headers: { Authorization: node.password } })
-            .then(res => res.json())
-            .catch(err => {
-                console.error(err)
-                return null
-            })
-        }
     }
+}
+
+
+async function getSongs(search, bot) {
+    const node = bot.manager.idealNodes[0]
+    const params = new URLSearchParams()
+    params.append("identifier", search)
+
+    return fetch(`http://${node.host}:${node.port}/loadtracks?${params}`, { headers: { Authorization: node.password } })
+    .then(res => res.json())
+    .catch(err => {
+        console.error(err)
+        return null
+    })
+}
+async function playSong(message, bot, db) {
+    db.client.query("SELECT * FROM queue ORDER BY id;", async (err, result) => {
+        if(err) {
+            console.error(err)
+        }
+        if(result.rows.length > 0) {
+            bot.player.play(result.rows[0].track64)
+            message.channel.send(`Now playing ${result.rows[0].title} Requested by ${result.rows[0].requester}`)
+        } else {
+            id = 0
+            message.channel.send("Nothing left in queue, leaving!")
+            await bot.player.destroy()
+            await bot.manager.leave(message.channel.guild.id)
+            bot.player = undefined
+        }
+    })
+}
+
+async function dropCurrentSong(db) {
+    db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, _result) => {
+        id--
+        if(err) {
+            console.error(err)
+        }
+    })
 }
