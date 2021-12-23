@@ -10,6 +10,9 @@ module.exports = {
                 console.error(err)
             }
             for(const rows of result.rows) {
+                if(fields.length >= 25) {
+                    break
+                }
                 fields.push({
                     "name": `${rows.id}. ${rows.title}`,
                     "value": `Requested by ${rows.requester}`,
