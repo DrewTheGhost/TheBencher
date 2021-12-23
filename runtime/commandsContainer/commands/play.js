@@ -33,25 +33,23 @@ module.exports = {
                 console.error(`Lavalink error: ${error}\nWith node: ${node}`)
             })
         }
-        let searchQuery
-        if(suffix.split(" ")[0] == "playlist") {
-            suffix = suffix.split(" ")
-            suffix.shift()
-            searchQuery = suffix.join(" ")
-        } else {
-            searchQuery = `ytsearch:${suffix}`
-        }
-        getSongs(searchQuery, bot).then(async results => {
+
+        getSongs(suffix, bot).then(async results => {
             if(results.tracks.length == 0) {
                 return message.channel.send("No results found.")
             }
             if(results.loadType == "PLAYLIST_LOADED") {
                 for(const track of results.tracks) {
-                    if(id >= 50) {
+                    if(id >= 500) {
                         break
                     }
-                    id++
-                    db.client.query("INSERT INTO queue (title, url, requester, id, track64, duration) VALUES ($1, $2, $3, $4, $5, $6);", [track.info.title, track.info.uri, message.author.username, id, track.track, track.info.length], function(err, _result) {
+                    let title = track.info.title,
+                        url = track.info.uri,
+                        username = message.author.username,
+                        track64 = track.track,
+                        duration = track.info.length;
+                        id++
+                    db.client.query("INSERT INTO queue (title, url, requester, id, track64, duration) VALUES ($1, $2, $3, $4, $5, $6);", [title, url, username, id, track64, duration], function(err, _result) {
                         if(err) {
                             console.error(err)
                         }
@@ -64,7 +62,12 @@ module.exports = {
                     message.channel.send(`${message.author.username} requested a playlist. New queue length is ${result.rows.length}.`)
                 })
             } else {
-                db.client.query("INSERT INTO queue(title, url, requester, id, track64, duration) VALUES($1, $2, $3, $4, $5, $6) RETURNING *;", [results.tracks[0].info.title, results.tracks[0].info.uri, message.author.username, id, results.tracks[0].track, results.tracks[0].info.length], function(err, result) {
+                let title = results.tracks[0].info.title, 
+                    url = results.tracks[0].info.uri
+                    username = message.author.username,
+                    track64 = results.tracks[0].track,
+                    duration = results.tracks[0].info.length;
+                db.client.query("INSERT INTO queue(title, url, requester, id, track64, duration) VALUES($1, $2, $3, $4, $5, $6) RETURNING *;", [title, url, username, id, track64, duration], function(err, result) {
                     if(err) {
                         console.error(err)
                         message.channel.send(`There was an error requesting the song, this has been logged.`)
@@ -89,34 +92,28 @@ module.exports = {
                 })
             }
 
-            db.client.query("SELECT * FROM queue ORDER BY id ASC LIMIT 1;", (err, result) => {
-                if(err) {
-                    console.error(err)
-                    return message.channel.send("Error running SELECT query to play music.")
-                }
                 
-                if(!bot.player.playing) {
+            if(!bot.player.playing) {
+                playSong(message, bot, db)
+            }
+
+            if(bot.player.listenerCount("error") <= 1) {
+                 bot.player.on("error", err => {
+                    console.debug("Creating player error handler.")
+                    dropCurrentSong(db)
+                    console.error(err)
                     playSong(message, bot, db)
-                }
+                })
+            }
 
-                if(bot.player.listenerCount("error") <= 1) {
-                    bot.player.on("error", err => {
-                        console.debug("Creating player error handler.")
-                        dropCurrentSong(db)
-                        console.error(err)
-                        playSong(message, bot, db)
-                    })
-                }
-
-                if(bot.player.listenerCount("end") == 0) {
-                    console.debug("Creating player song end handler.")
-                    bot.player.on("end", data => {
-                        dropCurrentSong(db)
-                        if(data.reason == "REPLACED") return;
-                        playSong(message, bot, db)
-                    })
-                }
-            })
+            if(bot.player.listenerCount("end") == 0) {
+                console.debug("Creating player song end handler.")
+                bot.player.on("end", data => {
+                    dropCurrentSong(db)
+                    if(data.reason == "REPLACED") return;
+                    playSong(message, bot, db)
+                })
+            }
         })
     }
 }
