@@ -49,13 +49,14 @@ module.exports = {
                         id++
                     db.client.query("INSERT INTO queue (title, url, requester, id, track64, duration) VALUES ($1, $2, $3, $4, $5, $6);", [title, url, username, id, track64, duration], function(err, _result) {
                         if(err) {
-                            console.error(err)
+                            return console.error(err)
                         }
                     })
                 }
                 db.client.query("SELECT * FROM queue;", (err, result) => {
                     if(err) {
                         console.error(err)
+                        return message.channel.send("Database error, breaking everything and shitting myself.")
                     }
                     message.channel.send(`${message.author.username} requested a playlist. New queue length is ${result.rows.length}.`)
                 })
@@ -68,7 +69,7 @@ module.exports = {
                 db.client.query("INSERT INTO queue(title, url, requester, id, track64, duration) VALUES($1, $2, $3, $4, $5, $6) RETURNING *;", [title, url, username, id, track64, duration], function(err, result) {
                     if(err) {
                         console.error(err)
-                        message.channel.send(`There was an error requesting the song, this has been logged.`)
+                        return message.channel.send(`There was an error requesting the song, this has been logged.`)
                     }
     
                     title = result.rows[0].title
@@ -128,6 +129,7 @@ async function playSong(message, bot, db) {
     db.client.query("SELECT * FROM queue ORDER BY id;", async (err, result) => {
         if(err) {
             console.error(err)
+            return message.channel.send("Fucked up playing song somehow, database is literally imploding. What the fuck did you do??")
         }
         if(result.rows.length > 0) {
             bot.player.play(result.rows[0].track64)
