@@ -52,7 +52,7 @@ module.exports = {
             if(results.loadType == "PLAYLIST_LOADED") {
                 await insertMultipleSongs(message, db, results)
                 setTimeout(() => {
-                    db.client.query("SELECT * FROM queue;", (err, result) => {
+                    db.query("SELECT * FROM queue;", (err, result) => {
                         if(err) return console.error(err)
     
                         message.channel.send(`${message.author.username} requested a playlist. New queue length is ${result.rows.length}.`)
@@ -106,7 +106,7 @@ async function getSongs(search, bot) {
 }
 async function playSong(message, bot, db) {
     setTimeout(() => {
-        db.client.query("SELECT * FROM queue ORDER BY id;", async (err, result) => {
+        db.query("SELECT * FROM queue ORDER BY id;", async (err, result) => {
             if(err) {
                 console.error(err)
                 return message.channel.send("Fucked up playing song somehow, database is literally imploding. What the fuck did you do??")
@@ -125,7 +125,7 @@ async function playSong(message, bot, db) {
     }, 10)
 }
 async function dropCurrentSong(db) {
-    db.client.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, _result) => {
+    db.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, _result) => {
         if(err) return console.error(err)
     })
 }
@@ -136,7 +136,7 @@ async function insertSingleSong(message, db, results) {
     track64 = results.tracks[0].track,
     duration = results.tracks[0].info.length;
 
-    db.client.query("SELECT * FROM queue ORDER BY id DESC;", (err, result) => {
+    db.query("SELECT * FROM queue ORDER BY id DESC;", (err, result) => {
         if(err) {
             console.error(err)
             return message.channel.send("Holy shit the database is literally on fire, this shit errored.")
@@ -148,7 +148,7 @@ async function insertSingleSong(message, db, results) {
     })
     
     setTimeout(() => {
-        db.client.query("INSERT INTO queue(title, url, requester, id, track64, duration) VALUES($1, $2, $3, $4, $5, $6) RETURNING *;", [title, url, username, id, track64, duration], function(err, result) {
+        db.query("INSERT INTO queue(title, url, requester, id, track64, duration) VALUES($1, $2, $3, $4, $5, $6) RETURNING *;", [title, url, username, id, track64, duration], function(err, result) {
             if(err) {
                 console.error(err)
                 return message.channel.send(`There was an error requesting the song, this has been logged.`)
@@ -170,7 +170,7 @@ async function insertMultipleSongs(message, db, results) {
             username = message.author.username,
             track64 = track.track,
             duration = track.info.length;
-        db.client.query("SELECT * FROM queue ORDER BY id DESC;", (err, result) => {
+        db.query("SELECT * FROM queue ORDER BY id DESC;", (err, result) => {
             if(err) {
                 return console.error(err)
             } else if(result.rows.length > 0) {
@@ -180,7 +180,7 @@ async function insertMultipleSongs(message, db, results) {
             }
         })
         setTimeout(() => {
-            db.client.query("INSERT INTO queue (title, url, requester, id, track64, duration) VALUES ($1, $2, $3, $4, $5, $6);", [title, url, username, id, track64, duration], function(err, result) {
+            db.query("INSERT INTO queue (title, url, requester, id, track64, duration) VALUES ($1, $2, $3, $4, $5, $6);", [title, url, username, id, track64, duration], function(err, result) {
                 if(err) {
                     return console.error(err)
                 }

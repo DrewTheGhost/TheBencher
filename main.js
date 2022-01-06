@@ -20,9 +20,12 @@ replaceLog()
 replaceWarning()
 replaceError()
 replaceDebug()
-let db;
+let db
 client.connect(function (err, client) {
-    db = {err, client}
+    if(err) {
+        return console.error("Client failed to connect to DB")
+    }
+    db = client
 })
 
 bot.on("ready", () => {
@@ -40,7 +43,7 @@ bot.on("ready", () => {
 
 bot.on("messageCreate", message => {
     let cmd,
-    suffix
+        suffix
     if(message.author.bot) return
     if(message.content.indexOf(config.prefix) === 0) { // If the prefix is used, do this
         cmd = message.content.substring(config.prefix.length).split(' ')[0].toLowerCase()

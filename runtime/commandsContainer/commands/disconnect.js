@@ -14,7 +14,7 @@ module.exports = {
         await bot.manager.leave(message.channel.guild.id)
 
         message.channel.send("Okay bye :)!")
-        db.client.query("DELETE FROM queue;", function(err, res) {
+        db.query("DELETE FROM queue;", function(err, res) {
             if(err) {
                 console.error(err)
             }

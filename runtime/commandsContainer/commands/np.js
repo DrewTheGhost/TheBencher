@@ -13,7 +13,7 @@ module.exports = {
         if(message.member.voice.channelId == null) {
             return message.channel.send("You literally aren't even listening, fuck off.")
         }
-        db.client.query("SELECT * FROM queue ORDER BY id ASC LIMIT 1;", function(err, result) {
+        db.query("SELECT * FROM queue ORDER BY id ASC LIMIT 1;", function(err, result) {
             if(err || result.rows[0] == undefined) {
                 console.error(err)
                 return message.channel.send("There is somehow.. nothing playing, yet you were able to get to this stage in my code. Empty database. What the fuck. How are you even here right now? In theory, no one should ever be able to get here. Yet here you are. Celebrate, for you are fucked.")

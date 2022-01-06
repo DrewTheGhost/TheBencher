@@ -21,7 +21,7 @@ module.exports = {
         },
         responseStrings = [],
         foundDomers = [],
-        domerImage                                              // Unused because grayscaling is bugging
+        domerImage                                          // Unused because grayscaling is bugging
 
         /* Grayscaling is absolutely broken, don't know why
         sharp("./runtime/commandsContainer/commands/domerImage.jpg").png().toBuffer().then(async buffer => {
