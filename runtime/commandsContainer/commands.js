@@ -17,7 +17,7 @@ const fs = require("fs"),                               // Handles opening the a
         const command = require(`./commands/${file}`)
         bot.commands.set(command.name, command)
         for(const alias of command.aliases) {
-            if(alias.length == 0 || alias == command.name) return
+            if(alias.length == 0 || alias == command.name) break;
             bot.commands.set(alias, command)
         }
     }
