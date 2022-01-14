@@ -1,4 +1,4 @@
-/*const caelanID = "466767464902950922",
+const caelanID = "466767464902950922",
     drewID = "161014852368859137",
     lukeID = "206215515960508417",
     markID = "197114859316314112",
@@ -44,7 +44,6 @@
         ]
     }
     
-*/
 module.exports = {
     name: "rollcall",
     aliases: [],
