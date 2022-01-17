@@ -109,10 +109,10 @@ async function playSong(message, bot, db) {
                 bot.player = undefined
             }
         })
-    }, 100)
+    }, 550)
 }
 async function dropCurrentSong(db) {
-    db.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC) LIMIT 1", (err, _result) => {
+    db.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1)", (err, _result) => {
         if(err) return console.error(err)
     })
 }
