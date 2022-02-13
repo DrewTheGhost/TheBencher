@@ -19,11 +19,12 @@ module.exports = {
                 url: "attachment://gaybabyjail.png"         // attachment:// shows that the image should be set as the file we are uploading
             }
         },
-        responseStrings = [],
-        foundDomers = [],
-        domerImage                                          // Unused because grayscaling is bugging
-
-        /* Grayscaling is absolutely broken, don't know why
+        domerImage;                                         // Unused because grayscaling is bugging
+        const responseStrings = [],
+              foundDomers = [];
+        
+        /*
+        Grayscaling is absolutely broken, don't know why
         sharp("./runtime/commandsContainer/commands/domerImage.jpg").png().toBuffer().then(async buffer => {
             domerImage = await image.Image.load(buffer)
             domerImage = domerImage.grey()

@@ -18,9 +18,8 @@ module.exports = {
                 bot.commands.set(command.name, command)
                 if(command.aliases.length != 0) {
                     for(const alias of command.aliases) {
-                        if(alias != command.name) {
-                            bot.commands.set(alias, command)
-                        }
+                        if(alias == command.name) return
+                        bot.commands.set(alias, command)
                     }
                 }
                 return message.channel.send(`Successfully reacquired ${suffix}.`)
@@ -29,7 +28,7 @@ module.exports = {
                 return message.channel.send(`An error occurred. This is likely due to a module not being found.`)
             }
         }
-        commandFilesAll = fs.readdirSync('runtime/commandsContainer/commands').filter(file => file.endsWith('.js') && file !== "reacquire.js")
+        const commandFilesAll = fs.readdirSync('runtime/commandsContainer/commands').filter(file => file.endsWith('.js') && file !== "reacquire.js")
         for(const file of commandFilesAll) {
             if(require.cache[`${__dirname}\\${file}`]) {
                 delete require.cache[`${__dirname}\\${file}`]

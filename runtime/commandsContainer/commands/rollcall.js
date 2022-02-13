@@ -50,6 +50,7 @@ module.exports = {
     description: "Starts a roll-call for the domers..",
     controlled: false,
     async fn(message, _suffix, bot, db) {
+        /*
         let buttonRow = new Discord.MessageActionRow().addComponents([
             new Discord.MessageButton({
                 label: "Active",
@@ -65,7 +66,8 @@ module.exports = {
             })
         ]),
         myEmbed = masterEmbed;
-        
+        */
+       return message.channel.send("This command has been disabled temporarily due to its buggy nature, rewrite still in progress.")
     }
 }
 /*
