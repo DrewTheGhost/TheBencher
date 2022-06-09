@@ -11,6 +11,7 @@ module.exports = {
             return message.channel.send("Yeah, try doing that shit when you're actually in the fucking channel. Yeah go on, join the homies listening to music. Let them put you on blast, dumbass.")
         }
         await bot.player.destroy()
+        bot.player = undefined
         await bot.manager.leave(message.channel.guild.id)
 
         message.channel.send("Okay bye :)!")
