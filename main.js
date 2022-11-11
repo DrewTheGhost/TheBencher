@@ -28,7 +28,7 @@ client.connect(function (err, client) {
     db = client
 })
 
-bot.on("ready", () => {
+bot.on("ready", async () => {
     // Ready event sent when discord.js is ready
     console.log(`Discord.js ready`)
     console.log(`Current Prefix: ${config.prefix}`)
