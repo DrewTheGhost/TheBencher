@@ -1,16 +1,19 @@
 global.AbortController = require("abort-controller")    // Fix for discordjs/voice aborts while playing, node version post 14 are fucked and have to use this to use anything older than v16
-const fs = require("fs"),                               // Handles opening the audio files and creating buffer streams
-    Discord = require("discord.js"),                    // Please god forgive this sin of using two different libraries in the same bot
-    bot = new Discord.Client({
-        fetchAllMembers: true,
-        intents: 1923
-    }),
-    ticTacToe = require("discord-tictactoe"),
-    ttt = new ticTacToe({                               // do not delet this command has its own handler
-        command: "!ttt",
-        language: "en"
-    }, bot),
-    commandFiles = fs.readdirSync('runtime/commandsContainer/commands').filter(file => file.endsWith('.js'))
+const fs = require("fs")                                // Handles opening the audio files and creating buffer streams
+const Discord = require("discord.js")                   
+const bot = new Discord.Client({
+    fetchAllMembers: true,
+    intents: new Discord.IntentsBitField(34695)
+})
+const ticTacToe = require("discord-tictactoe")
+const ttt = new ticTacToe({                             // do not delet this command has its own handler
+    command: "!ttt",
+    language: "en"
+}, bot)
+const commandFiles = fs.readdirSync('runtime/commandsContainer/commands').filter(file => file.endsWith('.js'))
+
+
+
 
 bot.commands = new Discord.Collection()
 for(const file of commandFiles) {
