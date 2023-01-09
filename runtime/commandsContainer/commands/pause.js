@@ -14,4 +14,4 @@ module.exports = {
             message.channel.send("Okay I'll pause it but you gotta let me speak too bro. You guys talk all the time and never invite me. At least let me play sometimes.")
         }
     }
-} 
+}
