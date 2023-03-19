@@ -6,7 +6,9 @@ module.exports = {
     fn(message, _suffix, bot, db) {
         let embed = [],
             duration,
-            currentPos
+            currentPos,
+            index,
+            timestampBar
         if(bot.player == undefined) {
             return message.channel.send("I'm.. not playing anything. Idiot.")
         }
@@ -20,13 +22,13 @@ module.exports = {
             }
             duration = convertMilliToReadable(result.rows[0].duration)
             currentPos = convertMilliToReadable(Date.now() - bot.player.timestamp)
+            index = Math.round(((Date.now() - bot.player.timestamp)/result.rows[0].duration)*10)
+            timestampBar = `▬▬▬▬▬▬▬▬▬▬`.substring(0, index) + "🔘" + `▬▬▬▬▬▬▬▬▬▬`.substring(index + 1)
             embed = [{
                 "title": `${result.rows[0].title}`,
                 "color": 5814783,
                 "url": `${result.rows[0].url}`,
-                fields: [
-                    {"name": "Position", "value": `${currentPos}/${duration}`}
-                ]
+                "description": `\`${timestampBar}\`\n\n\`${currentPos}\`/\`${duration}\`\n\n\`Requested By:\` ${result.rows[0].requester}`
             }]
             message.channel.send({embeds: embed})
         })
@@ -39,20 +41,19 @@ function convertMilliToReadable(milliseconds) {
     minutes = Math.trunc((milliseconds/(1000*60))%60)
     hours = Math.trunc((milliseconds/(1000*60*60))%24)
     
-    if(hours == 0) {
-        hours = "00"
-    }
-    if(hours > 0 && hours < 10) {
-        hours = `0${hours}`
-    }
-    if(minutes == 0) {
-        minutes = "00"
-    }
-    if(minutes > 0 && minutes < 10) {
-        minutes = `0${minutes}`
-    }
     if(seconds < 10) {
         seconds = `0${seconds}`
     }
-    return `${hours}:${minutes}:${seconds}`
+    if(minutes < 10) {
+        minutes = `0${minutes}`
+    }
+    if(hours < 10 && hours != 0) {
+        hours = `0${hours}`
+    }
+    
+    if(hours > 0 && hours != `00`) {
+        return `${hours}:${minutes}:${seconds}`
+    } else {
+        return `${minutes}:${seconds}`
+    }
 }
