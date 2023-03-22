@@ -12,7 +12,10 @@ module.exports = {
     aliases: [],
     description: "Benches a domer to sit out.",
     controlled: false,
-    async fn(message) {
+    async fn(params) {
+        const message = params.message,
+            logger = params.logger
+
         let embed = {
             title: "Hahahaha gay baby jail!",
             image: {
@@ -29,7 +32,7 @@ module.exports = {
             domerImage = await image.Image.load(buffer)
             domerImage = domerImage.grey()
         }).catch(e => {
-            console.error(e)
+            logger.error(e)
         })
         setTimeout(() => {
             domerImage.save("./runtime/commandsContainer/commands/domerImage.jpg")
@@ -50,7 +53,7 @@ module.exports = {
         await download.image(options)
         .then()
         .catch(err => {
-            console.error(`${err}`)
+            logger.error(`${err}`)
         })
 
         sharp("./runtime/commandsContainer/commands/jailbars.png")  // Opens jailbars for use
@@ -69,7 +72,7 @@ module.exports = {
                 })
         })
         .catch(err => {
-            console.error(`${err}`)
+            logger.error(`${err}`)
         })
 
         responseStrings.push("I'm spinnin' the wheel! Some unlucky fucker is sittin' out this domin' round!")

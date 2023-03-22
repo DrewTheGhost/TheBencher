@@ -7,7 +7,10 @@ module.exports = {
     aliases: ["sus"],
     description: "Sends some real sussy shit...",
     controlled: false,
-    fn(message) {
+    fn(params) {
+        const message = params.message,
+            logger = params.logger;
+        
         if(sussyCache.length > 5) {                                              // Cache of last 5 videos so repeats don't happen
             sussyCache.shift()
         }

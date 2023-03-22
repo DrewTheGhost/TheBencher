@@ -5,7 +5,11 @@ module.exports = {
     aliases: ["ping"],
     description: "Provides the bot's current latency.",
     controlled: false,
-    async fn(message, _suffix, bot) {
+    async fn(params) {
+        const message = params.message,
+            bot = params.bot,
+            logger = params.logger;
+        
         let event = Date.now(),
             uptimeSeconds = Math.trunc(bot.uptime/1000),
             uptimeMinutes = Math.trunc(uptimeSeconds/60),

@@ -4,7 +4,13 @@ module.exports = {
     aliases: [],
     description: "Executes code in JavaScript.",
     controlled: true,
-    fn(message, suffix, bot, db) {
+    fn(params) {
+        const message = params.message,
+            suffix = params.sufix,
+            bot = params.bot,
+            db = params.db,
+            logger = params.logger;
+        
         try {
             let evaled = eval(suffix)               // Save the evaluation to a variable
             evaled = util.inspect(evaled, {         // Inspect the result with a depth of 1 so you don't get those annoying [object Object] responses.

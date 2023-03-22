@@ -3,7 +3,12 @@ module.exports = {
     aliases: ["dc"],
     description: "Disconnects the bot",
     controlled: false,
-    async fn(message, _suffix, bot, db) {
+    async fn(params) {
+        const message = params.message,
+            bot = params.bot,
+            db = params.db,
+            logger = params.logger
+        
         if(bot.player == undefined) {
             return message.channel.send("Errr.. Disconnect.. From where??")
         }
@@ -15,11 +20,11 @@ module.exports = {
         await bot.manager.leave(message.channel.guild.id)
 
         message.channel.send("Okay bye :)!")
-        db.query("DELETE FROM queue;", function(err, res) {
+        await db.query("DELETE FROM queue;", function(err, res) {
             if(err) {
-                console.error(err)
+                return logger.error(err)
             }
-            console.log(`Dropping queue from disconnect command, rowCount: ${res.rowCount}`)
+            logger.info(`Dropping queue from disconnect command, rowCount: ${res.rowCount}`)
         })
     }
 } 

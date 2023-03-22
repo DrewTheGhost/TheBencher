@@ -3,10 +3,14 @@ module.exports = {
     aliases: [],
     description: "Shuffles the list of songs.",
     controlled: false,
-    async fn(message, _suffix, _bot, db) {
-        let queue = []
-        let values = undefined
-        const valuesArray = []
+    async fn(params) {
+        const message = params.message,
+            db = params.db,
+            logger = params.logger,
+            valuesArray = [];
+
+        let queue = [],
+            values = undefined;
 
         if(message.member.voice.channelId === null) {
             return message.channel.send("You aren't even in a voice channel to listen to anything, dumbass.")
@@ -44,7 +48,7 @@ module.exports = {
         setTimeout(() => {
             db.query(`INSERT INTO queue(title, url, requester, id, track64, duration) VALUES${values} RETURNING *;`, (err, result) => {
                 if(err) {
-                    console.error(err)
+                    logger.error(err)
                     return message.channel.send("Error while inserting shuffled queue into DB.")
                 }
                 message.channel.send(`Shuffled ${result.rows.length} songs! Enjoy ;)`)

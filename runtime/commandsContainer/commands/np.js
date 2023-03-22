@@ -3,12 +3,18 @@ module.exports = {
     aliases: ["playing", "nowplaying"],
     description: "Shows what currently is playing.",
     controlled: false,
-    fn(message, _suffix, bot, db) {
+    fn(params) {
+        const message = params.message,
+            bot = params.bot,
+            db = params.db,
+            logger = params.logger;
+        
         let embed = [],
             duration,
             currentPos,
             index,
-            timestampBar
+            timestampBar;
+        
         if(bot.player == undefined) {
             return message.channel.send("I'm.. not playing anything. Idiot.")
         }
@@ -17,7 +23,7 @@ module.exports = {
         }
         db.query("SELECT * FROM queue ORDER BY id ASC LIMIT 1;", function(err, result) {
             if(err || result.rows[0] == undefined) {
-                console.error(err)
+                logger.error(err)
                 return message.channel.send("There is somehow.. nothing playing, yet you were able to get to this stage in my code. Empty database. What the fuck. How are you even here right now? In theory, no one should ever be able to get here. Yet here you are. Celebrate, for you are fucked.")
             }
             duration = convertMilliToReadable(result.rows[0].duration)

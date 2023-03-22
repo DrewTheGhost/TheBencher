@@ -49,7 +49,12 @@ module.exports = {
     aliases: [],
     description: "Starts a roll-call for the domers..",
     controlled: false,
-    async fn(message, _suffix, bot, db) {
+    async fn(params) {
+        const message = params.message,
+            bot = params.bot,
+            db = params.db,
+            logger = params.logger;
+        
         /*
         let buttonRow = new Discord.MessageActionRow().addComponents([
             new Discord.MessageButton({
@@ -219,13 +224,13 @@ if(bot.listenerCount("interactionCreate") <= 0) {
                 embeds: [ myEmbed ],
                 components: [ buttonRow ]
             }).then()
-            .catch(console.error)
+            .catch(logger.error)
             
             interaction.followUp({
                 content: "You're active, that's fucking poggers!", 
                 ephemeral: true
             }).then()
-            .catch(console.error)
+            .catch(logger.error)
         }
     
         if(interaction.customId == "idle") {
@@ -281,13 +286,13 @@ if(bot.listenerCount("interactionCreate") <= 0) {
                 embeds: [ myEmbed ],
                 components: [ buttonRow ]
             }).then()
-            .catch(console.error)
+            .catch(logger.error)
     
             interaction.followUp({
                 content: "You're sitting out... little shitter.",
                 ephemeral: true
             }).then()
-            .catch(console.error)
+            .catch(logger.error)
         }
     })
 }

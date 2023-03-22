@@ -8,10 +8,14 @@ module.exports = {
     aliases: ["q"],
     description: "Drops the whole queue for the dapper ones in chat.",
     controlled: false,
-    fn(message, _suffix, bot, db) {
+    fn(params) {
         const embeds = [],
             id = message.author.id,
-            filter = (reaction, user) => user.id === message.author.id && (reaction.emoji.name === "◀️" || reaction.emoji.name === "▶️")
+            filter = (reaction, user) => user.id === message.author.id && (reaction.emoji.name === "◀️" || reaction.emoji.name === "▶️"),
+            message = params.message,
+            bot = params.bot,
+            db = params.db,
+            logger = params.logger
             
         let allSongs = [],
             descriptions = [],
@@ -19,7 +23,7 @@ module.exports = {
             pages[id] = 0
         
         db.query("SELECT * FROM queue ORDER BY id;", async function(err, result) {
-            if(err) return console.error(err)
+            if(err) return logger.error(err)
             if(result.rows.length == 0) {
                 return message.channel.send("Aint nothin in here! Not a damn thing! Not one! It's entirely fucking empty, you hear?! Stop fucking asking!")
             }
@@ -55,14 +59,14 @@ module.exports = {
                         message.edit({
                             embeds: [embeds[pages[id]]]
                         }).catch(err => {
-                            console.error(err)
+                            logger.error(err)
                         })
                         reaction.users.remove(id)
                     }
                 })
 
             }).catch(err => {
-                console.error(err)
+                logger.error(err)
             })
         }, 500)
 

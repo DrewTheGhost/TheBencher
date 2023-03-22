@@ -3,7 +3,11 @@ module.exports = {
     aliases: ["stop"],
     description: "Pauses the current song.",
     controlled: false,
-    fn(message, _suffix, bot) {
+    fn(params) {
+        const message = params.message,
+            bot = params.bot,
+            logger = params.logger;
+        
         if(!bot.player.playing || bot.player == undefined) {
             message.channel.send("Pause.. Pause what? Pause deez nuts.")
         } else if(bot.player.paused) {

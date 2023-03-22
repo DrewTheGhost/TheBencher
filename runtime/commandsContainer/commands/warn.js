@@ -3,8 +3,14 @@ module.exports = {
     aliases: [],
     description: "Warns a domer for doing some stupid shit.",
     controlled: false,
-    fn(message, suffix, bot) {
-        suffix = suffix.split(" ")
+    fn(params) {
+        const message = params.message,
+            bot = params.bot,
+            logger = params.logger;
+
+        let suffix = params.suffix
+            suffix = suffix.split(" ")
+        
         if(!suffix[0]) {
             message.channel.send(`?? Warn someone, hello?`)
         } else if(message.mentions.users.size == 0) {

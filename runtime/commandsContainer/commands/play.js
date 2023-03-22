@@ -1,5 +1,4 @@
-const chalk = require("chalk"),
-      util = require("util"), // Do NOT remove, used for debugging
+const util = require("util"), // Do NOT remove, used for debugging
       config = require("../../../config.json"),
       { Manager } = require("@lavacord/discord.js"),
       nodes = [
@@ -7,7 +6,7 @@ const chalk = require("chalk"),
       ],
       fetch = require("node-fetch"),
       { URLSearchParams } = require("url"),
-      linkTest = new RegExp(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi); 
+      linkTest = new RegExp(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi)
 
 
 module.exports = {
@@ -15,7 +14,13 @@ module.exports = {
     aliases: ["music"],
     description: "Plays some good shiiiiit",
     controlled: false,
-    async fn(message, suffix, bot, db) {
+    async fn(params) {
+        const message = params.message,
+            suffix = params.suffix,
+            bot = params.bot,
+            db = params.db,
+            logger = params.logger
+            
         if(bot.manager == undefined) {
             bot.manager = new Manager(bot, nodes, { user: "801939642261307393", shards: 1 })
             await bot.manager.connect()
@@ -30,9 +35,9 @@ module.exports = {
         }
 
         if(bot.manager.listenerCount("error") == 0) {
-            console.debug("Creating error listener for manager.")
+            logger.debug("Creating error listener for bot.manager")
             bot.manager.on("error", (error, node) => {
-                console.error(`Lavalink error: ${error}\nWith node: ${node}`)
+                logger.error(`[play.js:41] Lavalink error: ${error}\nWith node: ${node}`)
             })
         }
 
@@ -55,55 +60,57 @@ module.exports = {
             }
 
             if(results.loadType == "PLAYLIST_LOADED") {
-                insertMultipleSongs(message, db, results).then(() => {
+                await insertMultipleSongs(message, db, results).then(async () => {
                     if(!bot.player.playing) {
-                        playSong(message, bot, db).catch(err => {
-                            console.error(err)
+                        await playSong(message, bot, db).catch(err => {
+                            logger.error(`[play.js:66 ${err}`)
                         })
                     }
                 }).catch(err => {
-                    console.error(err)
+                    logger.error(`[play.js:70] ${err}`)
                 })
             } else {
-                insertSingleSong(message, db, results).then(() => {
+                await insertSingleSong(message, db, results).then(async () => {
                     if(!bot.player.playing) {
-                        playSong(message, bot, db).catch(err => {
-                            console.error(err)
+                        await playSong(message, bot, db).catch(err => {
+                            logger.error(`[play.js:76] ${err}`)
                         })
                     }
                 }).catch(err => {
-                    console.error(err)
+                    logger.error(`[play.js:80] ${err}`)
                 })
             }
 
             if(bot.player.listenerCount("error") <= 1) {
                  bot.player.on("error", async (err) => {
-                    console.debug("Creating player error handler.")
-                    dropCurrentSong(db).then(() => {
-                        playSong(message, bot, db).catch(err => {
-                            console.error(err)
+                    logger.debug("Creating player error handler.")
+                    await dropCurrentSong(db).then(async () => {
+                        await playSong(message, bot, db).catch(err => {
+                            message.channel.send(`[${err.exception.severity}]\nError playing song, dropping it from queue.\nErr: ${err.error}\nCause: ${err.exception.cause}`)
+                            logger.error(`[play.js:90] ${err}`)
                         })
                     }).catch(err => {
-                        console.error(err)
+                        logger.error(`${err.msg} ${err.error}`)
                     })
+                    logger.error(`[play.js:95] ${err}`)
                 })
             }
 
             if(bot.player.listenerCount("end") == 0) {
-                console.debug("Creating player song end handler.")
+                logger.debug("Creating player song end handler.")
                 bot.player.on("end", async (data) => {
-                    dropCurrentSong(db).then(() => {
+                    await dropCurrentSong(db).then(async () => {
                         if(data.reason == "REPLACED") return;
-                        playSong(message, bot, db).catch(err => {
-                            console.error(err)
+                        await playSong(message, bot, db).catch(err => {
+                            logger.error(`[play.js:105] ${err}`)
                         })
                     }).catch(err => {
-                        console.error(err)
+                        logger.error(`${err.msg} ${err.error}`)
                     })
                 })
             }
         }).catch(err => {
-            console.error(err)
+            logger.error(`[play.js:113] ${err}`)
         })
     }
 }
@@ -114,24 +121,20 @@ async function getSongs(search, bot) {
     const params = new URLSearchParams()
     params.append("identifier", search)
 
-    return fetch(`http://${node.host}:${node.port}/loadtracks?${params}`, { headers: { Authorization: node.password } })
+    return await fetch(`http://${node.host}:${node.port}/loadtracks?${params}`, { headers: { Authorization: node.password } })
     .then(res => res.json())
     .catch(err => {
-        console.error(err)
+        logger.error(`[play.js:127] ${err}`)
         return null
     })
 }
 
-function playSong(message, bot, db) {
-    return new Promise((resolve, reject) => {
-        db.query("SELECT * FROM queue ORDER BY id;", async (err, result) => {
-            if(err) {
-                message.channel.send("Fucked up playing song somehow, database is literally imploding. What the fuck did you do??")
-                reject(err)
-            }
+async function playSong(message, bot, db) {
+    return await new Promise(async (resolve, reject) => {
+        await db.query("SELECT * FROM queue ORDER BY id;").then(async result => {
             if(result.rows.length > 0) {
                 bot.player.play(result.rows[0].track64)
-                message.channel.send(`Now playing ${result.rows[0].title} Requested by ${result.rows[0].requester}`)
+                message.channel.send(`🎵 **Now playing \`${result.rows[0].title}\` Requested by ${result.rows[0].requester}**`)
                 resolve()
             } else {
                 id = 1
@@ -139,96 +142,116 @@ function playSong(message, bot, db) {
                 await bot.player.destroy()
                 await bot.manager.leave(message.channel.guild.id)
                 bot.player = undefined
-                resolve()
+                resolve() 
             }
+        }).catch(err => {
+            message.channel.send("Fucked up playing song somehow, database is literally imploding. What the fuck did you do??")
+            reject(err)
         })
     })
-
 }
 
-function dropCurrentSong(db) {
-    return new Promise((resolve, reject) => {
+async function dropCurrentSong(db) {
+    return await new Promise(async (resolve, reject) => {
         let queue = []
-        db.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1);", (err, _result) => {
-            if(err) reject(err)
+
+        await db.query("DELETE FROM queue WHERE id IN (SELECT id FROM queue ORDER BY id ASC LIMIT 1) RETURNING *;").then((result) => {
+            logger.debug(`dropCurrentSong DELETE SPECIFIC FROM queue:\n${result}`)
+        }).catch(err => {
+            err = {msg: "dropCurrentSong: First DB Query", error: err}
+            reject(err)
         })
-        setTimeout(() => {
-            db.query("SELECT * FROM queue ORDER BY id;", async (err, result) => {
-                if(err) reject(err)
-                queue = result.rows
-            })
-        }, 10)
-        setTimeout(() => {
-            db.query("DELETE FROM queue;", (err, _result) => {
-                if(err) reject(err)
-            })
-        }, 20)
-        setTimeout(() => {
-            fixId(queue).then((newQueue) => {
-                db.query(`INSERT INTO queue(title, url, requester, id, track64, duration) VALUES${newQueue};`, (err, result) => {
-                    if(err) reject(err)
+
+        await db.query("SELECT * FROM queue ORDER BY id;").then(result => {
+            logger.debug(`dropCurrentSong SELECT FROM queue:\n${result}`)
+            queue = result.rows
+        }).catch(err => {
+            err = {msg: "dropCurrentSong: Second DB Query", error: err}
+            reject(err)
+        })
+
+        await db.query("DELETE FROM queue;").then(async () => {
+            logger.debug(`dropCurrentSong DELETE ALL FROM queue`)
+            await fixId(queue).then(async (newQueue) => {
+                logger.debug(`dropCurrentSong:fixId Queue Fixed Results:\n${newQueue}`)
+                await db.query(`INSERT INTO queue(title, url, requester, id, track64, duration) VALUES${newQueue};`).then(result => {
+                    logger.debug(`dropCurrentSong:fixId MULTI INSERT INTO QUEUE:\n${result}`)
+                    resolve()
+                }).catch(err => {
+                    err = {msg: "dropCurrentSong: Fourth DB Query", error: err}
+                    reject(err)
                 })
-                resolve()
             })
-        }, 30)
+        }).catch(err => {
+            err = {msg: "dropCurrentSong: Third DB Query", error: err}
+            reject(err)
+        })
     })
 }
 
-function insertSingleSong(message, db, results) {
-    return new Promise((resolve, reject) => {
+async function insertSingleSong(message, db, results) {
+    return await new Promise(async (resolve, reject) => {
         let title = results.tracks[0].info.title, 
             url = results.tracks[0].info.uri
             username = message.author.username,
             track64 = results.tracks[0].track,
             duration = results.tracks[0].info.length;
 
-        db.query("SELECT * FROM queue ORDER BY id DESC;", (err, result) => {
-            if(err) {
-                message.channel.send("Holy shit the database is literally on fire, this shit errored.")
-                reject(err)
-            } else if(result.rows.length > 0) {
+        await db.query("SELECT * FROM queue ORDER BY id DESC;").then(result => {
+            if(result.rows.length > 0) {
                 id = result.rows[0].id + 1
             } else if(result.rows.length == 0) {
                 id = 1
             }
+        }).catch(err => {
+            message.channel.send("Holy shit the database is literally on fire, this shit errored.")
+            reject(err)
         })
 
-        setTimeout(() => {
-            db.query("INSERT INTO queue(title, url, requester, id, track64, duration) VALUES($1, $2, $3, $4, $5, $6) RETURNING *;", [title, url, username, id, track64, duration], function(err, result) {
-                if(err) {
-                    message.channel.send(`There was an error requesting the song, this has been logged.`)
-                    reject(err)
-                }
-                console.debug(`${chalk.blue("Music:")}${chalk.reset()} ${chalk.yellow(username)}${chalk.reset()} Requested ${title}`)
-                console.debug(`${chalk.blue("Music:")} Song title - ${chalk.yellow(title)}${chalk.reset()}\n`)
-                message.channel.send(`\`${username} requested ${title}. Added to the queue at position ${result.rows[0].id}.\``)
-                resolve()
-            })
-        }, 2)
-
+        await db.query("INSERT INTO queue(title, url, requester, id, track64, duration) VALUES($1, $2, $3, $4, $5, $6) RETURNING *;", [title, url, username, id, track64, duration]).then(result => {
+            const embeds = [{
+                "title": title,
+                "url": url,
+                "color": 4192773,
+                "fields": [
+                    {
+                        "name": "Song Position",
+                        "value": result.rows[0].id,
+                        "inline": true
+                    },
+                    {
+                        "name": "Queue Size",
+                        "value": result.rows.length,
+                        "inline": true
+                    },
+                    {
+                        "name": "Requester",
+                        "value": `${username}#${message.author.discriminator}`
+                    }
+                ]
+            }]
+            logger.debug(`${username} Requested: ${title}`)
+            message.channel.send({content: "🎵 **Song added to queue**", embeds: embeds})
+            resolve()
+        }).catch(err => {
+            message.channel.send(`There was an error requesting the song, this has been logged.`)
+            reject(err)
+        })
     })
 }
 
-function insertMultipleSongs(message, db, results) {
-    return new Promise((resolve, reject) => {
+async function insertMultipleSongs(message, db, results) {
+    return await new Promise(async (resolve, reject) => {
         const playlistSongs = []
-        db.query("SELECT * FROM queue ORDER BY id DESC;", (err, result) => {
-            if(err) {
-                reject(err)
-            } else if(result.rows.length > 0) {
+        await db.query("SELECT * FROM queue ORDER BY id DESC;").then(result => {
+            if(result.rows.length > 0) {
                 id = result.rows[0].id + 1
             } else if(result.rows.length == 0) {
                 id = 1
             }
+        }).catch(err => {
+            reject(err)
         })
-    
-        if(id >= 500) {
-            message.channel.send("Too many songs in queue.")
-            reject()
-        } else if(results.tracks.length >= 500) {
-            message.channel.send("Too many songs in playlist.")
-            reject()
-        }
     
         for(let track of results.tracks) {
             let title = track.info.title,
@@ -244,32 +267,53 @@ function insertMultipleSongs(message, db, results) {
             id++
         }
     
-        setTimeout(() => {
-            db.query(`INSERT INTO queue (title, url, requester, id, track64, duration) VALUES${playlistSongs} RETURNING *;`, function(err, result) {
-                if(err) reject(err)
-            })
-        }, 1)
+        await db.query(`INSERT INTO queue (title, url, requester, id, track64, duration) VALUES${playlistSongs} RETURNING *;`).then((result) => {
+            logger.debug(`${message.author.username} Requested Playlist: ${results.playlistInfo.name}`)
+        }).catch(err => {
+            reject(err)
+        })
     
-        setTimeout(() => {
-            db.query("SELECT * FROM queue;", (err, result) => {
-                if(err) reject(err)
-                message.channel.send(`${message.author.username} requested a playlist. New queue length is ${result.rows.length}.`)
-                resolve()
-            })
-        }, 500)
-
+        await db.query("SELECT * FROM queue;").then(result => {
+            const embeds = [{
+                "title": results.playlistInfo.name,
+                "color": 4192773,
+                "fields": [
+                    {
+                        "name": "Playlist Size",
+                        "value": results.tracks.length,
+                        "inline": true
+                    },
+                    {
+                        "name": "Queue Size",
+                        "value": result.rows.length,
+                        "inline": true
+                    },
+                    {
+                        "name": "Requester",
+                        "value": `${message.author.username}#${message.author.discriminator}`
+                    }
+                ]
+            }]
+            message.channel.send({content: "🎶 **Playlist added to queue**", embeds: embeds})
+            resolve()
+        }).catch(err => {
+            reject(err)
+        })
     })
-
 }
 
-function fixId(queue) {
+async function fixId(queue) {
     let newQueue = []
-    return new Promise((resolve, reject) => {
-        for(const item of queue) {
-            let currentIndex = queue.indexOf(item)
-            queue[currentIndex].id = currentIndex + 1
-            newQueue.push(`('${item.title}', '${item.url}', '${item.requester}', ${queue[currentIndex].id}, '${item.track64}', '${item.duration}')`)
+    return await new Promise((resolve, reject) => {
+        try {
+            for(const item of queue) {
+                let currentIndex = queue.indexOf(item)
+                queue[currentIndex].id = currentIndex + 1
+                newQueue.push(`('${item.title}', '${item.url}', '${item.requester}', ${queue[currentIndex].id}, '${item.track64}', '${item.duration}')`)
+            }
+            resolve(newQueue)
+        } catch(err) {
+            reject(err)
         }
-        resolve(newQueue)
     })
 }

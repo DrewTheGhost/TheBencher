@@ -5,7 +5,12 @@ module.exports = {
     aliases: ["acquire"],
     description: "Reacquire commands, dynamic reload",
     controlled: true,
-    fn(message, suffix, bot) {
+    fn(params) {
+        const message = params.message,
+            suffix = params.suffix,
+            bot = params.bot,
+            logger = params.logger;
+        
         if(suffix) {
             if(!(fs.existsSync(`${__dirname}\\${suffix}.js`))) {
                 return message.channel.send(`Module ${suffix} not found.`)
@@ -24,7 +29,7 @@ module.exports = {
                 }
                 return message.channel.send(`Successfully reacquired ${suffix}.`)
             } catch(err) {
-                console.error(err)
+                logger.error(err)
                 return message.channel.send(`An error occurred. This is likely due to a module not being found.`)
             }
         }

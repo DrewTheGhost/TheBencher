@@ -1,11 +1,6 @@
 const config = require("./config.json"),                          // My config file
     runtime = require("./runtime/runtime.js"),
     bot = runtime.commandsContainer.commands.bot,
-    chalk = require("chalk"),                                     // Console coloring
-    error = `${chalk.redBright("[ERROR]")}${chalk.reset()}`,      // Error message coloring
-    warning = `${chalk.yellowBright("[WARN]")}${chalk.reset()}`,  // Warning message coloring
-    log = `${chalk.greenBright("[LOG]")}${chalk.reset()}`,        // Log message coloring
-    debug = `${chalk.magentaBright("[DEBUG]")}${chalk.reset()}`,                             
     util = require("util"),                                       // Do not delete this variable even if unused, can debug with it
     { Client } = require("pg"),
     client = new Client({
@@ -14,30 +9,40 @@ const config = require("./config.json"),                          // My config f
         database: config.mysql.database,
         password: config.mysql.password,
         port: config.mysql.port
+    }),
+    { format, createLogger, transports} = require("winston"),
+    { combine, timestamp, printf, colorize} = format,
+    myFormat = printf(({level, message, timestamp}) => {
+        return `[${timestamp}] [${level}]: ${message}`
+    })
+    logger = createLogger({
+        level: config.logger.level,
+        format: combine(
+            colorize(),
+            timestamp({format: "HH:mm:ss YYYY-MM-DD"}),
+            myFormat
+        ),
+        transports: [new transports.Console()]
     })
 
-replaceLog()
-replaceWarning()
-replaceError()
-replaceDebug()
 let db
 client.connect(function (err, client) {
     if(err) {
-        return console.error("Client failed to connect to DB")
+        return logger.error("Client failed to connect to DB")
     }
     db = client
 })
 
 bot.on("ready", async () => {
     // Ready event sent when discord.js is ready
-    console.log(`Discord.js ready`)
-    console.log(`Current Prefix: ${config.prefix}`)
+    logger.info("Discord.js READY")
+    logger.info(`Current Prefix: ${config.prefix}`)
     bot.user.setPresence({activity: {name: "Type !help for a list of commands or !help commandname to get command info."}})
     client.query("DELETE FROM queue;", function(err, res) {
         if(err) {
-            console.error(err)
+            return logger.error(err)
         }
-        console.log(`Dropping queue on READY, rowCount: ${res.rowCount}`)
+        logger.info(`Dropping queue on READY, rowCount: ${res.rowCount}`)
     })
 })
 
@@ -56,11 +61,12 @@ bot.on("messageCreate", message => {
                 return message.channel.send("Can't use this one, dumbass!")
             }
             try {
-                bot.commands.get(cmd).fn(message, suffix, bot, db)
-                console.log(`${cmd} command executed.`)
+                const params = { message: message, suffix: suffix, bot: bot, db: db, logger: logger}
+                bot.commands.get(cmd).fn(params)
+                logger.info(`${cmd} command executed.`)
             } catch (err) {
                 message.channel.send("Command errored, I fucked something up oh jesus christ")
-                console.error(err)
+                logger.error(err)
             }
         }
     }
@@ -74,43 +80,13 @@ bot.on("debug", log => {
 */
 
 bot.on("error", err => {
-    console.error(`${err}`)
+    logger.error(`${err}`)
 })
 
 bot.on("warn", err => {
-    console.warn(`${err}`)
+    logger.warn(`${err}`)
 })
 
-function replaceLog() {
-    let oldInfo = console.log
-    console.log = function() {
-        Array.prototype.unshift.call(arguments, `${log}`)
-        oldInfo.apply(this, arguments)
-    }
-}
-
-function replaceWarning() {
-    let oldInfo = console.warn
-    console.warn = function() {
-        Array.prototype.unshift.call(arguments, `${warning}`)
-        oldInfo.apply(this, arguments)
-    }
-}
-
-function replaceError() {
-    let oldInfo = console.error
-    console.error = function() {
-        Array.prototype.unshift.call(arguments, `${error}`)
-        oldInfo.apply(this, arguments)
-    }
-}
-
-function replaceDebug() {
-    let oldInfo = console.debug
-    console.debug = function () {
-        Array.prototype.unshift.call(arguments, `${debug}`)
-        oldInfo.apply(this, arguments)
-    }
-}
-
 bot.login(config.token)
+
+exports.logger = logger

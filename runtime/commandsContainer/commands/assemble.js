@@ -3,7 +3,10 @@ module.exports = {
     aliases: [],
     description: "Assembles the domers.",
     controlled: false,
-    fn(message) {
+    fn(params) {
+        const message = params.message,
+            logger = params.logger
+
         // Filter through all voiceStates and return an array of all states where the person is in the waiting room
         const waiters = message.member.guild.voiceStates.cache.filter(m => m.channelId == "784537245616439296")
 
@@ -16,7 +19,7 @@ module.exports = {
                 nonWaiters.push(`<@${message.guild.members.cache.find(m => m.id == nonwaiter.id && m.id !== "466767464902950922").id}>`)
             } catch(e) {
                 message.channel.send("An error happened, this can happen when only caelan is in the penthouse and everyone else isn't. Prolly will still work.")
-                console.error(e)
+                logger.error(e)
             }
         })
         // Iterate through the array of nonWaiters and push all their mentions to an array for shaming later
@@ -25,7 +28,7 @@ module.exports = {
             try {
                 message.guild.members.cache.find(m => m.id == waiter.id).edit({channel: "773245943218307082"})
             } catch(e) {
-                console.error(e)
+                logger.error(e)
             }
         })
         // Iterate through the array of waiters and move them to the penthouse

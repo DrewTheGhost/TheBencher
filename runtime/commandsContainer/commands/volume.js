@@ -3,7 +3,12 @@ module.exports = {
     aliases: ["vol"],
     description: "Changes the volume of the tunes.",
     controlled: false,
-    fn(message, suffix, bot) {
+    fn(params) {
+        const message = params.message,
+            suffix = params.suffix,
+            bot = params.bot,
+            logger = params.logger;
+
         if(bot.player == undefined) {
             return message.channel.send("I'm not even in a voice channel, how could I have a volume to change??")
         }
@@ -22,7 +27,7 @@ module.exports = {
             return message.channel.send("Shit is too fucking big! Enter a smaller number, dumbass.")
         }
         bot.player.volume(suffix)
-        console.log(`Music: Adjusted volume to ${suffix}`)
+        logger.info(`Music: Adjusted volume to ${suffix}`)
         message.channel.send(`Adjusting the volume for ya, now set to ${suffix}`)
     }
 } 

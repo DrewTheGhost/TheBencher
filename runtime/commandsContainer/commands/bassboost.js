@@ -4,9 +4,14 @@ module.exports = {
     aliases: ["bb"],
     description: "Boost the bass..",
     controlled: false,
-    fn(message, _suffix, bot) {
+    fn(params) {
+        const message = params.message,
+            bot = params.bot,
+            logger = params.logger;
+        
         let bands,
             gainAmount = 0.5; // Potential use in the future, unsure yet
+
         if(bot.player == undefined) {
             return message.channel.send("Bass.. Based on what?")
         }
