@@ -4,7 +4,7 @@ module.exports = {
     description: "Shuffles the list of songs.",
     controlled: false,
     async fn(params) {
-        const message = params.message,
+        let message = params.message,
             db = params.db,
             logger = params.logger,
             valuesArray = [];

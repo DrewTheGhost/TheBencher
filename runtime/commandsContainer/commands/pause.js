@@ -4,7 +4,7 @@ module.exports = {
     description: "Pauses the current song.",
     controlled: false,
     fn(params) {
-        const message = params.message,
+        let message = params.message,
             bot = params.bot,
             logger = params.logger;
         

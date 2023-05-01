@@ -1,21 +1,21 @@
-const config = require("./config.json"),                          // My config file
-    runtime = require("./runtime/runtime.js"),
-    bot = runtime.commandsContainer.commands.bot,
-    util = require("util"),                                       // Do not delete this variable even if unused, can debug with it
-    { Client } = require("pg"),
-    client = new Client({
+const config = require("./config.json")
+const runtime = require("./runtime/runtime.js")
+const bot = runtime.commandsContainer.commands.bot
+const util = require("util") // Do not delete this variable even if unused, can debug with it
+const { Client } = require("pg")
+const client = new Client({
         user: config.mysql.user,
         host: config.mysql.host,
         database: config.mysql.database,
         password: config.mysql.password,
         port: config.mysql.port
-    }),
-    { format, createLogger, transports} = require("winston"),
-    { combine, timestamp, printf, colorize} = format,
-    myFormat = printf(({level, message, timestamp}) => {
+    })
+const { format, createLogger, transports} = require("winston")
+const { combine, timestamp, printf, colorize} = format
+const myFormat = printf(({level, message, timestamp}) => {
         return `[${timestamp}] [${level}]: ${message}`
     })
-    logger = createLogger({
+const logger = createLogger({
         level: config.logger.level,
         format: combine(
             colorize(),
@@ -50,7 +50,8 @@ bot.on("messageCreate", message => {
     let cmd,
         suffix
     if(message.author.bot) return
-    if(message.content.indexOf(config.prefix) === 0) { // If the prefix is used, do this
+    if(message.content.indexOf(config.prefix) === 0) {
+        // If the prefix is used, do this
         cmd = message.content.substring(config.prefix.length).split(' ')[0].toLowerCase()
         suffix = message.content.substr(config.prefix.length).split(' ')
         suffix = suffix.slice(1, suffix.length).join(' ')

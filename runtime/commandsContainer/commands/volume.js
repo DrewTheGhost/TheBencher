@@ -4,7 +4,7 @@ module.exports = {
     description: "Changes the volume of the tunes.",
     controlled: false,
     fn(params) {
-        const message = params.message,
+        let message = params.message,
             suffix = params.suffix,
             bot = params.bot,
             logger = params.logger;

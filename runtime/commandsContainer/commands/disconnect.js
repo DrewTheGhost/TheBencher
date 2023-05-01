@@ -4,7 +4,7 @@ module.exports = {
     description: "Disconnects the bot",
     controlled: false,
     async fn(params) {
-        const message = params.message,
+        let message = params.message,
             bot = params.bot,
             db = params.db,
             logger = params.logger
